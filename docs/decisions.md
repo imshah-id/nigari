@@ -23,7 +23,8 @@ open pull requests) that GitHub tells better and that went stale.
   changed through pull requests, so it still collides and goes stale, and
   each handoff is a release); **C**, only one session, keeping the file (the
   file is the part that grew and drifted).
-- `docs/handoffs/handoff-nigari.md` stays as history; it is no longer updated.
+- `docs/handoffs/handoff-nigari.md` is removed (owner: "Remove"); git history
+  keeps it. `handoff-saltmd.md` stays as the pre-rename history.
   Rule 31's "the handoff file goes to `main`" no longer applies.
 
 ---

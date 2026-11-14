@@ -127,5 +127,6 @@ sessions acted as lead at once (a check-in woke an old one).
 - **Live state is read at the start** (`git log origin/main`, open pull
   requests, board `priority:N` labels, `list_sessions`, remote branches),
   never copied into the handoff.
-- `docs/handoffs/handoff-nigari.md` stays as history and is not updated.
+- The old handoff file (`docs/handoffs/handoff-nigari.md`) is removed; git
+  history keeps it.
 
