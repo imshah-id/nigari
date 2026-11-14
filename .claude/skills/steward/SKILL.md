@@ -57,8 +57,8 @@ locale files are JSON objects: keep both keys, then `npm run check`.
   weeks: its name said nothing, and the next job piled onto an open one.
 - A helper's branch is named in its first prompt. A stream never pushes to
   the other's branch, and never to `main`.
-- **The handoff file goes to `main`** like any other doc, in its own small
-  pull request or with the next one, so the next session finds it there.
+- **The handoff is a pinned GitHub issue** (#643), not a file; see "Sessions
+  and the handoff" below.
 - Label the task issues `in-progress` when the stream starts them. Remove the
   label when the pull request merges: closed issues keep no `in-progress`.
 - Tick each task in `tasks.md` in the pull request that does it, and list
@@ -112,3 +112,21 @@ writes it.
 3. Start the next pull request on a new branch from `main`; the merged one
    is done.
 4. Tell the other stream to merge `main`.
+
+## Sessions and the handoff
+
+Owner, 2026-11-14 ("A"). Pull requests and a handoff file collided when two
+sessions acted as lead at once (a check-in woke an old one).
+
+- **One session works at a time.** When a session hands off, the owner has it
+  archived. A new session checks `list_sessions` first.
+- **The handoff is the pinned issue [#643](https://github.com/neatlittlemacapps/nigari/issues/643)**,
+  edited in place by the one session that holds it, at the end of its work
+  and when the owner states a rule or correction. It holds only what GitHub
+  cannot tell: rules, preferences, corrections, half-made decisions.
+- **Live state is read at the start** (`git log origin/main`, open pull
+  requests, board `priority:N` labels, `list_sessions`, remote branches),
+  never copied into the handoff.
+- The old handoff file (`docs/handoffs/handoff-nigari.md`) is removed; git
+  history keeps it.
+
