@@ -7,6 +7,27 @@ entries are not edited away.
 
 ---
 
+## 2026-11-14 — One session at a time; the handoff is a pinned issue edited in place
+
+Two sessions acted as lead at once (a scheduled check-in woke an old one) and
+their handoff pull requests collided (#638 against a drafted 23rd file). The
+handoff file had also grown to ~140 corrections plus live state (branches,
+open pull requests) that GitHub tells better and that went stale.
+
+- **One session works at a time, and the handoff is a pinned GitHub issue
+  ([#643](https://github.com/neatlittlemacapps/nigari/issues/643)) edited in
+  place**, holding only what GitHub cannot tell: rules, preferences,
+  corrections, half-made decisions. Live state is read at session start
+  (owner: "A").
+- Turned down: **B**, a slimmer handoff file with one session (still a file
+  changed through pull requests, so it still collides and goes stale, and
+  each handoff is a release); **C**, only one session, keeping the file (the
+  file is the part that grew and drifted).
+- `docs/handoffs/handoff-nigari.md` stays as history; it is no longer updated.
+  Rule 31's "the handoff file goes to `main`" no longer applies.
+
+---
+
 ## 2026-11-13 — Each kind of content lists its actions once; menus are built from the list
 
 The owner asked whether the code graph keeps track of which actions belong to
