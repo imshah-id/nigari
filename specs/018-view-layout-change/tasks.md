@@ -9,7 +9,7 @@ description: "Tasks for changing a view's layout"
 
 **Tests**: required. Go tests on every view door and refusal, the shared default cases, the lock test, a parity pair; one pure check; one new browser spec, two kept passing.
 
-**Issues**: none yet
+**Issues**: parent #469; T001–T019 are #708–#726, in order
 
 **Delivery**: one pull request. Start after spec 016's PR 1 merges (shared files: `ViewSettingsMenu.tsx`, `quickFilters.ts`, `viewopen.go`).
 
