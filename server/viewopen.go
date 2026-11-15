@@ -150,6 +150,16 @@ func normalizeViews(raw []byte, schema []map[string]any, stored []map[string]any
 				changed = true
 			}
 		}
+		// A status's group conditions (spec 016): refused on a property that
+		// is not a status, by the rule set_view applies (checkGroupCondition).
+		// Strict only when this save changes the filters, like the keys above:
+		// a stored group condition left on a status turned back into a select
+		// narrows nothing (FR-011) and must not block an unrelated save.
+		if changedKey("filters") || changedKey("filterGroups") {
+			if err := checkViewGroupFilters(schema, view, name); err != nil {
+				return nil, err
+			}
+		}
 		id, _ := view["id"].(string)
 		old, known := before[id]
 		if err := checkChartView(view, schema, !known || old != chartSignature(view)); err != nil {

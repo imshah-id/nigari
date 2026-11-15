@@ -135,7 +135,7 @@ func cleanViewState(raw []byte, schema []map[string]any) (map[string]any, error)
 			if prop == "" || !has(prop) {
 				continue
 			}
-			entry, err := checkViewFilter(f, "filter", has)
+			entry, err := checkViewFilter(f, "filter", has, schema)
 			if err != nil {
 				return nil, err
 			}

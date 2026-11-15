@@ -58,6 +58,12 @@ func pinsFromFilters(schema []map[string]any, filters []rowFilter, now time.Time
 		if op == "" && f.Value != "" {
 			op = "is"
 		}
+		// A single "group is" pins that group's first option (spec 016,
+		// FR-008); several groups pin nothing, as several options do.
+		if id, ok := groupPin(schema, f); ok {
+			f = rowFilter{Prop: f.Prop, Op: "is", Value: id}
+			op = "is"
+		}
 		if op != "is" {
 			continue
 		}

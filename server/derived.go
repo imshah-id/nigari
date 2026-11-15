@@ -57,6 +57,11 @@ func matchesRollupWhere(d propDef, props map[string]any) bool {
 		return true
 	}
 	got := props[d.RollupWhereProp]
+	// A status kept as ["id"] after a multi-select conversion (spec 016)
+	// compares as its one option.
+	if list, ok := got.([]any); ok && len(list) == 1 {
+		got = list[0]
+	}
 	text := ""
 	switch t := got.(type) {
 	case string:
@@ -136,6 +141,9 @@ func toNumber(v any) (float64, bool) {
 // the per-target reads held the connection. When ctx ends, the error is
 // returned and the half-filled rows must be thrown away.
 func (s *Server) computeDerived(ctx context.Context, u *user, schema []propDef, rows []map[string]any) error {
+	// A rollup's "group is" condition becomes is / is_not with the related
+	// status's options now (spec 016, R3), once for the whole call.
+	schema = s.resolveRollupGroups(ctx, schema)
 	// Index derived props.
 	var rollups, formulas, relations, backrelations, activities []propDef
 	for _, d := range schema {

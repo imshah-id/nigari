@@ -313,7 +313,12 @@ func (s *Server) prepareStatusSchema(collectionID string, was statusSnapshot, ne
 	if err := s.checkStatusConversion(collectionID, was, next); err != nil {
 		return err
 	}
-	return prepareStatusProps(next, was)
+	if err := prepareStatusProps(next, was); err != nil {
+		return err
+	}
+	// A rollup's group condition (spec 016, FR-007): on a status of the
+	// related database only. Here, so all three schema doors check it.
+	return s.checkRollupGroupConditions(next)
 }
 
 // hasStatus says whether a schema holds a status, whose options a door may
@@ -442,4 +447,305 @@ func (s *Server) statusSortExpr(ctx context.Context, collectionID, propID string
 		return b.String(), args, len(list)
 	}
 	return "", nil, 0
+}
+
+// --- Group conditions (spec 016 PR 2, R3) -----------------------------------
+//
+// "Group is" and "group is not" name groups, never options: a view of open
+// work says group_is_not ["complete"] and keeps meaning that when someone adds
+// an option to Complete. They are resolved to the existing is / is_not with
+// the ids of the options currently in those groups, at the moment of reading,
+// so no new SQL exists for them and a moved option is followed at once.
+
+// statusGroupOps are the two operators that name groups.
+var statusGroupOps = map[string]bool{"group_is": true, "group_is_not": true}
+
+// noOption is an id no option can have (option ids are slugs): "is" over it
+// matches no row, which is what "group is Complete" means when Complete has no
+// option, a state the schema checks keep from being stored but an old schema
+// could hold.
+const noOption = "\x00no-option"
+
+// errGroupFilter is a group condition that cannot work: on a property that is
+// not a status, or naming a group that does not exist. REST answers it as 400
+// invalid_group_filter; MCP with the same sentence.
+type errGroupFilter struct{ msg string }
+
+func (e errGroupFilter) Error() string { return e.msg }
+
+// statusOptionGroups maps each status property of a schema to its options'
+// groups (option id -> group).
+func statusOptionGroups(schema []map[string]any) map[string]map[string]string {
+	out := map[string]map[string]string{}
+	for _, p := range schema {
+		if t, _ := p["type"].(string); t != "status" {
+			continue
+		}
+		id, _ := p["id"].(string)
+		groups := map[string]string{}
+		list, _ := p["options"].([]any)
+		for _, o := range list {
+			m, _ := o.(map[string]any)
+			oid, _ := m["id"].(string)
+			g, _ := m["group"].(string)
+			if oid != "" {
+				groups[oid] = g
+			}
+		}
+		out[id] = groups
+	}
+	return out
+}
+
+// optionsInGroups lists, in the stored (group) order, the ids of a status's
+// options that sit in any of the named groups.
+func optionsInGroups(schema []map[string]any, propID string, groups []string) ([]string, bool) {
+	want := map[string]bool{}
+	for _, g := range groups {
+		want[g] = true
+	}
+	for _, p := range schema {
+		if id, _ := p["id"].(string); id != propID {
+			continue
+		}
+		if t, _ := p["type"].(string); t != "status" {
+			return nil, false
+		}
+		var ids []string
+		list, _ := p["options"].([]any)
+		for _, o := range list {
+			m, _ := o.(map[string]any)
+			oid, _ := m["id"].(string)
+			if g, _ := m["group"].(string); oid != "" && want[g] {
+				ids = append(ids, oid)
+			}
+		}
+		return ids, true
+	}
+	return nil, false
+}
+
+// resolveStatusGroups turns a group condition into the is / is_not it means
+// now. Any other condition comes back as it was. A group condition on a
+// property that is not (or no longer) a status narrows nothing, as a filter on
+// a deleted property does: its property id is cleared, which where() skips.
+func resolveStatusGroups(schema []map[string]any, f rowFilter) rowFilter {
+	if !statusGroupOps[f.Op] {
+		return f
+	}
+	ids, ok := optionsInGroups(schema, f.Prop, f.vals())
+	if !ok {
+		f.Prop = ""
+		return f
+	}
+	if f.Op == "group_is" {
+		f.Op = "is"
+		if len(ids) == 0 {
+			ids = []string{noOption}
+		}
+	} else {
+		f.Op = "is_not"
+		if len(ids) == 0 {
+			// Not in no group: every row.
+			f.Prop = ""
+			return f
+		}
+	}
+	f.Value = ""
+	f.Values = ids
+	return f
+}
+
+// checkGroupCondition is the one rule a stored group condition follows, for a
+// view's filters (REST views, set_view, a person's own filters) and a
+// rollup's condition: a status property, at least one group, known groups.
+func checkGroupCondition(schema []map[string]any, label, prop, op string, values []string) error {
+	if !statusGroupOps[op] {
+		return nil
+	}
+	if _, ok := optionsInGroups(schema, prop, nil); !ok {
+		return errGroupFilter{fmt.Sprintf("%s: %s works only on a status property, and %q is not one", label, op, prop)}
+	}
+	if len(values) == 0 {
+		return errGroupFilter{fmt.Sprintf("%s: %s needs at least one group: %s", label, op, strings.Join(statusGroupIDs, ", "))}
+	}
+	for _, g := range values {
+		if statusGroupIndex(g) < 0 {
+			return errGroupFilter{fmt.Sprintf("%s: %q is not a group; the groups are %s", label, g, strings.Join(statusGroupIDs, ", "))}
+		}
+	}
+	return nil
+}
+
+// filterValues reads a stored condition's values the way rowFilter.vals does:
+// the list if there is one, else the single value.
+func filterValues(f map[string]any) []string {
+	if list, ok := f["values"].([]any); ok && len(list) > 0 {
+		out := make([]string, 0, len(list))
+		for _, v := range list {
+			if s, ok := v.(string); ok {
+				out = append(out, s)
+			}
+		}
+		return out
+	}
+	if v, _ := f["value"].(string); v != "" {
+		return []string{v}
+	}
+	return nil
+}
+
+// checkViewGroupFilters checks the group conditions of a view's filters and
+// filter groups (REST's views save; set_view checks each condition itself).
+func checkViewGroupFilters(schema []map[string]any, view map[string]any, name string) error {
+	check := func(raw any, label string) error {
+		list, _ := raw.([]any)
+		for i, c := range list {
+			f, _ := c.(map[string]any)
+			if f == nil {
+				continue
+			}
+			prop, _ := f["property"].(string)
+			op, _ := f["op"].(string)
+			if err := checkGroupCondition(schema, fmt.Sprintf("%s, %s %d", name, label, i+1), prop, op, filterValues(f)); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+	if err := check(view["filters"], "filter"); err != nil {
+		return err
+	}
+	groups, _ := view["filterGroups"].([]any)
+	for gi, g := range groups {
+		if err := check(g, fmt.Sprintf("group %d, filter", gi+1)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// rollupTargetCollection is the database a rollup's related rows live in:
+// the relation's target, or the database a backrelation points back from.
+func rollupTargetCollection(schema []map[string]any, rollup map[string]any) string {
+	rel, _ := rollup["rollupRelation"].(string)
+	for _, p := range schema {
+		if id, _ := p["id"].(string); id != rel {
+			continue
+		}
+		if c, _ := p["relationCollection"].(string); c != "" {
+			return c
+		}
+		c, _ := p["backrelationCollection"].(string)
+		return c
+	}
+	return ""
+}
+
+// checkRollupGroupConditions refuses a rollup whose condition names groups
+// of a property that is not a status in the related database. Run by every
+// schema door with prepareStatusSchema. The related schema is read once per
+// database.
+func (s *Server) checkRollupGroupConditions(schema []map[string]any) error {
+	loaded := map[string][]map[string]any{}
+	for _, p := range schema {
+		if t, _ := p["type"].(string); t != "rollup" {
+			continue
+		}
+		op, _ := p["rollupWhereOp"].(string)
+		if !statusGroupOps[op] {
+			continue
+		}
+		target := rollupTargetCollection(schema, p)
+		related, ok := loaded[target]
+		if !ok && target != "" {
+			related, _, _ = s.loadCollection(target)
+			loaded[target] = related
+		}
+		name, _ := p["name"].(string)
+		prop, _ := p["rollupWhereProp"].(string)
+		var values []string
+		if list, ok := p["rollupWhereValues"].([]any); ok {
+			for _, v := range list {
+				if s, ok := v.(string); ok {
+					values = append(values, s)
+				}
+			}
+		}
+		if v, _ := p["rollupWhereValue"].(string); v != "" && len(values) == 0 {
+			values = []string{v}
+		}
+		if err := checkGroupCondition(related, fmt.Sprintf("rollup %q", name), prop, op, values); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// resolveRollupGroups rewrites the group conditions of a query's rollups to
+// is / is_not with option ids, once per computeDerived call, against each
+// related database's schema read from the read pool (a rows read must not
+// wait for the writer). A rollup whose group condition cannot be resolved
+// counts every related row: the condition narrows nothing, as on a view.
+func (s *Server) resolveRollupGroups(ctx context.Context, schema []propDef) []propDef {
+	relTarget := map[string]string{}
+	for _, d := range schema {
+		if d.RelationCollection != "" {
+			relTarget[d.ID] = d.RelationCollection
+		} else if d.BackrelationCollection != "" {
+			relTarget[d.ID] = d.BackrelationCollection
+		}
+	}
+	loaded := map[string][]map[string]any{}
+	out := schema
+	copied := false
+	for i, d := range schema {
+		if d.Type != "rollup" || !statusGroupOps[d.RollupWhereOp] {
+			continue
+		}
+		if !copied {
+			out = append([]propDef(nil), schema...)
+			copied = true
+		}
+		target := relTarget[d.RollupRelation]
+		related, ok := loaded[target]
+		if !ok && target != "" {
+			var raw string
+			if s.rdb.QueryRowContext(ctx, `SELECT schema FROM collections WHERE page_id = ?`, target).Scan(&raw) == nil {
+				json.Unmarshal([]byte(raw), &related)
+			}
+			loaded[target] = related
+		}
+		values := d.RollupWhereValues
+		if len(values) == 0 && d.RollupWhereValue != "" {
+			values = []string{d.RollupWhereValue}
+		}
+		f := resolveStatusGroups(related, rowFilter{Prop: d.RollupWhereProp, Op: d.RollupWhereOp, Values: values})
+		if f.Prop == "" {
+			out[i].RollupWhereProp = "" // no condition: every related row counts
+			continue
+		}
+		out[i].RollupWhereOp = f.Op
+		out[i].RollupWhereValues = f.Values
+		out[i].RollupWhereValue = ""
+	}
+	return out
+}
+
+// groupPin is the value a view's single-group "group is" condition pins on a
+// new row: the first option of that group (R4, FR-008). Several groups, or
+// none in the schema, pin nothing.
+func groupPin(schema []map[string]any, f rowFilter) (string, bool) {
+	if f.Op != "group_is" {
+		return "", false
+	}
+	vals := f.vals()
+	if len(vals) != 1 {
+		return "", false
+	}
+	ids, ok := optionsInGroups(schema, f.Prop, vals)
+	if !ok || len(ids) == 0 {
+		return "", false
+	}
+	return ids[0], true
 }
