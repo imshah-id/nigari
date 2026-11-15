@@ -74,7 +74,7 @@ description: "Tasks for a Status property type"
 - [x] T017 [backend] `withStatusDefaults(schema, props)` in `server/status.go`, called by `handleCreatePage`, `handleRowFromTemplate`, `mcpCreateRows`, `propsInRowView` (create_page, templates), `handlePublicFormSubmit`, the CSV import and `runIngest`; a Go test makes a row through each door (the list is the calls) (R4)
 - [x] T018 [backend] Status sort by group then option place: `ORDER BY CASE` in `collectionRowsQuery` (R5)
 - [x] T019 [ui] `sortComparator` takes the option order, and its callers `applyView` **and `dropIndex`** pass it (R5)
-- [ ] T020 [mcp] `update_schema`, `create_database` descriptions: the type, `group` on options, the conversion; `capabilities.json` notes; parity pair "save a status schema" in `server/parity_property_test.go`
+- [x] T020 [mcp] `update_schema`, `create_database` descriptions: the type, `group` on options, the conversion; `capabilities.json` notes; parity pair "save a status schema" in `server/parity_property_test.go`
 - [x] T021 [test] Go: sort order in the rows query; default value through every door; read scope refused on a status schema change
 - [x] T022 [perf] Benchmark in `server/bench_world_test.go`: a status sort on the seeded database within the rows query's p95 budget
 
