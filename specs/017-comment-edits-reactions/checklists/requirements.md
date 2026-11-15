@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -34,5 +34,4 @@
 - The Context section names code (from the code graph), as specs here do;
   requirements stay at the level of behaviour. MCP action names in FR-007
   are the agent-facing product surface.
-- One clarification open (FR-009, who may delete over MCP), put to the
-  owner 2026-11-15.
+- FR-009 answered by the owner 2026-11-15.

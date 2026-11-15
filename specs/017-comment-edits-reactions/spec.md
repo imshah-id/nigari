@@ -46,6 +46,14 @@ the `comments` table, `handleDeleteComment`, 2026-11-15):
 - **The raw trail** (`server/notelog.go`) is separate and stays uneditable
   (the issue says so; `wiki/comments-and-notes.md` explains why).
 
+## Clarifications
+
+### Session 2026-11-15
+
+- Q: Who may delete someone else's comment? → A: Its author or a workspace
+  admin, on both doors; an agent's `delete_comment` is narrowed to match
+  (owner, "A", recommendation).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Fix a comment you wrote (Priority: P1)
@@ -173,9 +181,9 @@ react and unreact; list shows edited times and reactions.
 - **FR-008**: The MCP `add` action MUST apply the same length limit as the
   REST route (#645; fixed in its own pull request first, the edit reuses
   the same check).
-- **FR-009**: Who may delete a comment MUST be the same on both doors:
-  [NEEDS CLARIFICATION: the REST rule (author or workspace admin) for
-  agents too, or anyone who may write, as `delete_comment` allows today?]
+- **FR-009**: Who may delete a comment MUST be the same on both doors: its
+  author or a workspace admin, for agents too (`delete_comment` today lets
+  anyone who may write; that is narrowed, and the wiki changed with it).
 - **FR-010**: Edits MUST be recorded in the activity log (who, which
   comment, which page); reactions are not (too small to be activity).
 - **FR-011**: The raw trail MUST stay uneditable; nothing in this feature
