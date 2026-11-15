@@ -117,6 +117,11 @@ func (s *Server) rowFromTemplate(userID, collectionID, templateID, title string,
 			return id, fmt.Errorf("row created (%s) but properties failed: %w", id, err)
 		}
 	}
+	// After the template's and the caller's values: a status neither holds
+	// starts in To-do (spec 016, FR-017). Shared by REST and MCP templates.
+	if err := s.fillStatusDefaults(collectionID, id); err != nil {
+		return id, err
+	}
 	return id, nil
 }
 

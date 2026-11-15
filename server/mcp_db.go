@@ -214,7 +214,7 @@ func reconcileDefaultViews(schemaStr string) string {
 			continue
 		}
 		switch t, _ := p["type"].(string); t {
-		case "select", "multiselect", "relation":
+		case "select", "status", "multiselect", "relation":
 			usable[id] = true
 			groupable = true
 			if first == "" {
@@ -269,6 +269,10 @@ func (s *Server) mcpCreateDatabase(u *user, title, parentID, wsID string, schema
 		// A row page's visibility, as every door that writes a schema checks it
 		// (spec 015).
 		if _, err := checkPropertyVisibility(defs); err != nil {
+			return "", err
+		}
+		// A status's groups (spec 016, R9): no rows yet, so no conversion.
+		if err := s.prepareStatusSchema("", snapshotStatus(nil), defs); err != nil {
 			return "", err
 		}
 		b, err := json.Marshal(defs)

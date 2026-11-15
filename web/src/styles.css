@@ -3090,6 +3090,42 @@ body.is-col-resizing {
        the chips stood there as a narrow, cut-off column. */
   padding: 2px 4px 8px 8px;
 }
+/* A status property's options under its three group headings (spec 016). */
+.schema-options-status {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-150);
+}
+.schema-status-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-50);
+  border-radius: var(--radius-scale-md);
+}
+.schema-status-group.drop-target {
+  outline: 1px dashed var(--color-border-strong);
+  outline-offset: 2px;
+}
+.schema-status-label,
+.select-group-label {
+  font-size: var(--font-size-2xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.select-group-label { padding: var(--space-150) var(--space-100) var(--space-50); }
+.schema-status-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px; /* token-ok: the same gap as the other option rows */
+  align-items: center;
+}
+.schema-option-move { align-self: flex-start; }
+/* The option editor is a fixed popover above the dialog (layer 901): its Move
+   to menu has to open above it, not behind it. */
+.ui-menu-positioner:has(> .schema-option-move-menu) { z-index: var(--layer-top); }
+
 .opt-chip-wrap { position: relative; display: inline-flex; }
 .opt-chip {
   cursor: pointer;

@@ -38,12 +38,15 @@ var validPropTypes = map[string]bool{
 	// build the column and an agent could not, so the one database this feature
 	// was written for never got it, while the task saying so read "done".
 	"backrelation": true,
+	// status — a select whose options each sit in one of three fixed groups
+	// (spec 016, status.go).
+	"status": true,
 }
 
 // propTypeNames is the same set in reading order, for the error an agent gets
 // and for the tool descriptions. It was spelled out by hand in four places, and
 // "backrelation" reached none of them — a test keeps it level with the map now.
-var propTypeNames = []string{"text", "number", "select", "multiselect", "date",
+var propTypeNames = []string{"text", "number", "select", "multiselect", "status", "date",
 	"checkbox", "checklist", "url", "person", "relation", "backrelation",
 	"rollup", "formula"}
 
@@ -258,6 +261,8 @@ func (s *Server) mcpUpdateSchema(pageID string, props json.RawMessage, remove []
 		}
 	}
 	str := func(m map[string]any, k string) string { v, _ := m[k].(string); return v }
+	// Before the merge writes into it: the types and status groups as stored.
+	was := snapshotStatus(schema)
 
 	taken := map[string]bool{}
 	for _, p := range schema {
@@ -330,6 +335,11 @@ func (s *Server) mcpUpdateSchema(pageID string, props json.RawMessage, remove []
 	// The rule PUT /api/collections applies to a row page's visibility
 	// (spec 015), checked on the merged schema.
 	if _, err := checkPropertyVisibility(schema); err != nil {
+		return "", err
+	}
+	// A status's groups, guessed, ordered and checked as on every door (spec
+	// 016, R9).
+	if err := s.prepareStatusSchema(pageID, was, schema); err != nil {
 		return "", err
 	}
 	// The rule PUT /api/collections applies: a property a locked view uses
@@ -562,14 +572,14 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 		// multiselect belongs here: a row with three tags shows up under all
 		// three.
 		switch t := typeOf(g); t {
-		case "select", "multiselect", "relation":
+		case "select", "status", "multiselect", "relation":
 		case "":
 			// The view still names a property that was deleted since. Any
 			// change to such a board lands here, so the message says what to
 			// pass rather than only what is wrong.
-			return fmt.Errorf("board group_by: %q is no longer a property of this database. Pass group_by with a select, a multiselect or a relation property", g)
+			return fmt.Errorf("board group_by: %q is no longer a property of this database. Pass group_by with a select, a status, a multiselect or a relation property", g)
 		default:
-			return fmt.Errorf("board group_by: %q is a %s property. A board groups by a select, a multiselect or a relation", g, t)
+			return fmt.Errorf("board group_by: %q is a %s property. A board groups by a select, a status, a multiselect or a relation", g, t)
 		}
 	}
 	if viewType == "calendar" || viewType == "timeline" {
@@ -943,6 +953,10 @@ func (s *Server) mcpCreateRows(u *user, pageID string, rows json.RawMessage, vie
 			if _, err := s.mcpSetProperties(id, props, nil); err != nil {
 				return "", fmt.Errorf("created %d row(s), then failed setting properties on %q: %w", len(ids)+1, r.Title, err)
 			}
+		}
+		// Each row starts in To-do in a status it was not given (spec 016).
+		if err := s.fillStatusDefaults(pageID, id); err != nil {
+			return "", fmt.Errorf("created %d row(s), then row %q: %w", len(ids)+1, r.Title, err)
 		}
 		if rv != nil {
 			if ok, err := s.rowMatchesFilters(id, viewFilters); err == nil && !ok {

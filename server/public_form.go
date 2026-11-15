@@ -39,7 +39,7 @@ func (p formSchemaProp) hasOption(id string) bool {
 // Computed/linked types (relation/rollup/formula) are never accepted.
 func formFillable(t string) bool {
 	switch t {
-	case "text", "number", "select", "multiselect", "date", "checkbox", "person":
+	case "text", "number", "select", "status", "multiselect", "date", "checkbox", "person":
 		return true
 	}
 	return false
@@ -238,6 +238,12 @@ func (s *Server) handlePublicFormSubmit(w http.ResponseWriter, r *http.Request) 
 		httpError(w, 500, err.Error())
 		return
 	}
+	// A status the form did not ask for, or left empty, starts in To-do
+	// (spec 016, FR-017).
+	if err := s.fillStatusDefaults(colID, id); err != nil {
+		httpError(w, 500, err.Error())
+		return
+	}
 	if err := s.reindexPage(id); err != nil {
 		httpError(w, 500, err.Error())
 		return
@@ -264,7 +270,7 @@ func coerceFormValue(p formSchemaProp, v any) (any, bool) {
 			str = string([]rune(str)[:4000])
 		}
 		return str, true
-	case "select":
+	case "select", "status":
 		str, ok := v.(string)
 		if !ok || str == "" || !p.hasOption(str) {
 			return nil, false

@@ -3,7 +3,7 @@
 A **property** is a typed field on a [collection](collections.md). Every row of
 that collection has a slot for it, and every [view](views.md) of that collection
 can show it or hide it, and (with the exceptions noted below) filter and sort
-by it. There are thirteen types. Ten store a value; three are computed every
+by it. There are fourteen types. Eleven store a value; three are computed every
 time a row is read and never written down.
 
 The interface calls the container a **collection**; agents connecting over MCP
@@ -87,7 +87,7 @@ person**, **Add link**, **Add sub-task**. Formulas, rollups and other computed
 values show `—`, because there is nothing to fill in. In a table or on a board,
 empty cells stay blank so the values that are there stand out.
 
-## The thirteen types
+## The fourteen types
 
 | Type | In the dialog | Stores |
 | --- | --- | --- |
@@ -95,6 +95,7 @@ empty cells stay blank so the values that are there stand out.
 | [number](#number) | Number | a number |
 | [select](#select) | Select | one option id |
 | [multiselect](#multiselect) | Multi-select | a list of option ids |
+| [status](#status) | Status | one option id, and the option's group |
 | [date](#date) | Date | a calendar date |
 | [checkbox](#checkbox) | Checkbox | true or false |
 | [checklist](#checklist) | Checklist | a list of sub-tasks |
@@ -198,6 +199,57 @@ what you want.
 empty select: invisible until you hover the card, editable there. A board can
 group by a multi-select, and then a row with two options appears as a card in
 both columns.
+
+### status
+
+A select whose options are sorted into three fixed **groups**: **To-do**,
+**In progress** and **Complete**. The row stores the option's id, exactly like a
+select; the group belongs to the option, so "which stage is this in" and "which
+word did we use for it" are two separate things. Anything you can do with a
+select's picker works here too.
+
+The groups are fixed: you cannot add, rename or remove one. Every group always
+has at least one option, so **the last option of a group cannot be removed**.
+
+In **Properties** the options are listed under their group's heading. Add,
+rename and recolour options as for a select. Drag an option to reorder it within
+its group, or onto another group to move it there; or use the option's
+**Move to** menu, which does the same from the keyboard. Options are kept in
+group order (To-do, then In progress, then Complete), and that order is what
+pickers, board columns and sorting follow.
+
+**A new row starts with the first To-do option**, however the row is made: the
+interface, a template, a form, an agent or an import. A value you give, or a
+value a view's filter pins down, wins over that default.
+
+**Converting.** Change a select (or a multi-select in which no row holds two
+values) to a status and nothing is lost: option ids and row values stay, and
+each option is placed in a group by its name:
+
+- **Complete**: Done, Complete, Completed, Finished, Closed, Shipped, Won't do,
+  Cancelled, Canceled, Discarded.
+- **In progress**: In progress, Doing, Started, Active, Review, In review.
+- **To-do**: every other name.
+
+The whole name is matched, ignoring case, hyphens and punctuation at the end, so
+"Not started" is To-do and not In progress. If a group ends up empty, it gets a
+default option. Check the placement afterwards, and move any option the guess
+got wrong. Converting back to a select keeps the options and drops the groups.
+
+**Filters** and the value picker behave as for a select. **Sorts** by group
+first, then by the option's position within the group, so To-do comes before In
+progress before Complete, which is how a person reads a status.
+
+**On a board** grouped by a status there is one column per option, in group
+order, plus the catch-all column for rows with no value. In a public form and in
+a shared table a status is treated as a select.
+
+**New databases** are created with a Status property of this type. A database
+that already exists keeps its Status as a select until you convert it.
+
+**Not built yet, coming in a later release:** filtering or rolling up by group
+("group is" and "group is not"), a quick-filter chip by group, and charts
+grouped by group. Until then, filter by the individual options.
 
 ### date
 
@@ -637,7 +689,7 @@ spelling used to fail quietly:
 Options may be written the short way, `["To do", "Done"]`, or with colours,
 `[{"name": "Done", "color": "#2f9e44"}]`. Both are accepted and normalised.
 
-A type an agent invents is refused with the list of the thirteen, and a
+A type an agent invents is refused with the list of the fourteen, and a
 backrelation missing either of its two coordinates is refused as well. See
 [Agents](agents.md) and [MCP tools](mcp-tools.md).
 

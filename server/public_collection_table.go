@@ -120,7 +120,12 @@ func publicCollectionTypedCell(value any, kind, property string, options map[str
 		if v, ok := value.(bool); ok && v {
 			return "✓"
 		}
-	case "select":
+	case "select", "status":
+		// A status converted from a single-value multi-select keeps ["id"]
+		// (spec 016): its one option shows, as in the app.
+		if list, ok := value.([]any); ok && len(list) > 0 {
+			value = list[0]
+		}
 		if v, ok := value.(string); ok {
 			return options[property+"/"+v]
 		}

@@ -6,7 +6,7 @@
 // Same shape as check-pagefallback.mjs: esbuild bundles the module once and
 // it is imported. No framework.
 
-import { execFileSync } from 'node:child_process';
+import { build } from 'esbuild';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
@@ -19,13 +19,22 @@ const bundle = join(tmp, 'rowProperties.mjs');
 
 try {
   try {
-    execFileSync(
-      join(web, 'node_modules/esbuild/bin/esbuild'),
-      [join(web, 'src/rowProperties.ts'), '--bundle', '--format=esm', '--outfile=' + bundle],
-      { stdio: ['ignore', 'ignore', 'pipe'] },
-    );
+    await build({
+      entryPoints: [join(web, 'src/rowProperties.ts')],
+      bundle: true, format: 'esm', outfile: bundle, logLevel: 'error',
+      // A new status's default option names go through t() (statusGroups.ts),
+      // and i18n.ts only loads under Vite (import.meta.glob): the English is
+      // what is checked here, so t() is the identity.
+      plugins: [{
+        name: 'no-i18n',
+        setup(b) {
+          b.onResolve({ filter: /\/i18n$/ }, () => ({ path: 'i18n', namespace: 'stub' }));
+          b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export const t = (s) => s; export const plural = (s) => s;', loader: 'js' }));
+        },
+      }],
+    });
   } catch (e) {
-    console.error(String(e.stderr ?? e));
+    console.error(String(e));
     process.exit(1);
   }
 
@@ -85,6 +94,12 @@ try {
   // ---- the one emptiness rule ----
   check('unset values', [null, undefined, '', []].map(m.isUnset), [true, true, true, true]);
   check('set values', [0, false, 'x', ['a']].map(m.isUnset), [false, false, false, false]);
+
+  // ---- a new status starts with one option per group (spec 016, FR-003) ----
+  const withStatus = m.addProperty(schema, 'status', 'Progress');
+  const newStatus = withStatus[withStatus.length - 1];
+  check('a new status: one option per group', (newStatus.options ?? []).map((o) => o.group), ['todo', 'in_progress', 'complete']);
+  check('a new status: the default names', (newStatus.options ?? []).map((o) => o.name), ['Not started', 'In progress', 'Done']);
 
   const bad = out.filter((x) => x.got !== x.want);
   for (const x of bad) console.error(`  ✗ ${x.name}: got ${x.got}, want ${x.want}`);

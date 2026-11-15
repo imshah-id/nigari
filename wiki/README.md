@@ -52,7 +52,7 @@ lying and `web/scripts/shoot-wiki.mjs` retakes them.
 ### Databases
 
 - [Collections](collections.md): a page whose children are its rows
-- [Properties](properties.md): all 13 types, each with its own section
+- [Properties](properties.md): all 14 types, each with its own section
 - [Views](views.md): `table`, `board`, `list`, `gallery`, `calendar`, `form`, `timeline`
 - [Relations and rollups](relations-and-rollups.md): linking collections, and aggregating across the link
 - [Formulas](formulas.md): a property that computes instead of storing

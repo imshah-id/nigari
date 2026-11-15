@@ -27,7 +27,7 @@ import (
 // lastActivity, checklist) is derived or structured, and never pinned.
 var pinTypes = map[string]bool{
 	"text": false, "url": false, "number": false, "date": false, "checkbox": false,
-	"select": false, "person": false,
+	"select": false, "status": false, "person": false,
 	"multiselect": true, "relation": true,
 }
 
@@ -120,7 +120,7 @@ func pinValue(p map[string]any, raw string, now time.Time) (any, bool) {
 		} else {
 			return nil, false
 		}
-	case "select", "multiselect":
+	case "select", "status", "multiselect":
 		// An option that has since been removed is not pinned: the row would
 		// store a value the property no longer offers.
 		if !hasOption(p, raw) {

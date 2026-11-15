@@ -15,11 +15,15 @@ import (
 // rows, `schema` defines typed properties, `views` are saved view configs
 // (table, board, list). Property values live in pages.props.
 
+// A new database's Status is a status (spec 016, FR-018), with the option ids
+// it had as a select, so the default board view (groupBy status), templates
+// and agents that name todo/doing/done keep working. Databases that exist are
+// not touched (FR-016): theirs stays a select until someone converts it.
 const defaultSchema = `[
- {"id":"status","name":"Status","type":"select","options":[
-   {"id":"todo","name":"To do","color":"#c4554d"},
-   {"id":"doing","name":"In progress","color":"#b58a3b"},
-   {"id":"done","name":"Done","color":"#2f7d4f"}]}
+ {"id":"status","name":"Status","type":"status","options":[
+   {"id":"todo","name":"To do","color":"#c4554d","group":"todo"},
+   {"id":"doing","name":"In progress","color":"#b58a3b","group":"in_progress"},
+   {"id":"done","name":"Done","color":"#2f7d4f","group":"complete"}]}
 ]`
 
 const defaultViews = `[
@@ -136,7 +140,20 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 			httpErrorCode(w, 400, "invalid_property_visibility", err.Error())
 			return
 		}
-		if removed {
+		// A status's groups (spec 016, R9): guessed for a conversion, kept in
+		// group order, refused when one cannot be drawn. The same function as
+		// update_schema and create_database.
+		storedSchema, _, _ := s.loadCollection(id)
+		if err := s.prepareStatusSchema(id, snapshotStatus(storedSchema), sent); err != nil {
+			if isStatusErr(err) {
+				httpStatusErr(w, err)
+			} else {
+				httpError(w, 500, err.Error())
+			}
+			return
+		}
+		// The options may have been ordered or filled: store what was checked.
+		if removed || hasStatus(sent) {
 			b, err := json.Marshal(sent)
 			if err != nil {
 				httpError(w, 500, err.Error())
@@ -547,6 +564,7 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 	whereSQL, args := s.rowsWhere(u, colID, flat, groups, now)
 
 	orderSQL := "position, created_at"
+	var orderArgs []any
 	if sortParam != "" {
 		propID, dir, _ := strings.Cut(sortParam, ":")
 		if safePropID(propID) {
@@ -555,6 +573,15 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 				d = "DESC"
 			}
 			orderSQL = "json_extract(props, '$." + propID + "') " + d + ", position"
+			// A status sorts in its workflow order: by group, then by the
+			// option's place in it (spec 016, R5). Its stored id's text would
+			// put "doing" before "done" before "todo" by accident.
+			if expr, args, none := s.statusSortExpr(ctx, colID, propID); expr != "" {
+				// Rows with no status last whichever way, then the place.
+				orderSQL = "(" + expr + ") = " + strconv.Itoa(none) + ", " + expr + " " + d + ", position"
+				// The expression appears twice, so its arguments do too.
+				orderArgs = append(append([]any{}, args...), args...)
+			}
 		}
 	}
 
@@ -563,7 +590,7 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 	// The total rides along as a window count. It used to be a COUNT(*) of
 	// its own, which scanned and filtered every row a second time: the sort
 	// already visits all of them, so counting there is nearly free (#79).
-	rows, err := s.rdb.QueryContext(ctx, `SELECT id, title, icon, cover, position, props, tags, COUNT(*) OVER () FROM pages WHERE `+whereSQL+` ORDER BY `+orderSQL+` LIMIT ? OFFSET ?`, append(args, limit, offset)...)
+	rows, err := s.rdb.QueryContext(ctx, `SELECT id, title, icon, cover, position, props, tags, COUNT(*) OVER () FROM pages WHERE `+whereSQL+` ORDER BY `+orderSQL+` LIMIT ? OFFSET ?`, append(append(args, orderArgs...), limit, offset)...)
 	if err != nil {
 		return nil, 0, readErr(ctx, err)
 	}

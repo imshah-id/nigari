@@ -1342,6 +1342,12 @@
   "Hide when empty": "Verbergen als leeg",
   "Property name": "Naam van de eigenschap",
   "This property could not be saved: it can be shown, hidden while empty, or always hidden on a row’s page.": "Deze eigenschap kon niet worden opgeslagen: ze kan worden getoond, verborgen zolang ze leeg is, of altijd verborgen op de pagina van een rij.",
+  "To-do": "Te doen",
+  "In progress": "Bezig",
+  "Complete": "Voltooid",
+  "Not started": "Niet gestart",
+  "These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.": "Deze statusopties kunnen niet worden opgeslagen: elke optie heeft een groep nodig, elke groep minstens één optie, en elke naam mag maar één keer voorkomen.",
+  "{rows} hold more than one value. A status holds one: leave one value in each, then change the type.": "{rows} bevatten meer dan één waarde. Een status heeft er één: laat in elke rij één waarde staan en wijzig dan het type.",
   "Type": "Type",
   "{name} property": "Eigenschap {name}",
   "Hide {n} properties": {
@@ -1351,5 +1357,6 @@
   "{n} more properties": {
     "one": "{n} eigenschap meer",
     "other": "{n} eigenschappen meer"
-  }
+  },
+  "Each group needs at least one option. Add another to this group first.": "Elke groep heeft minstens één optie nodig. Voeg eerst een andere toe aan deze groep."
 }

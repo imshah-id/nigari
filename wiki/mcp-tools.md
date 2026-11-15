@@ -761,7 +761,13 @@ callers reached for the other name and got the default schema silently.
 
 Each entry is `{id?, name, type, …}`. Types:
 `text`, `number`, `select`, `multiselect`, `date`, `checkbox`, `checklist`,
-`url`, `person`, `relation`, `backrelation`, `rollup`, `formula`.
+`url`, `person`, `relation`, `backrelation`, `rollup`, `formula`, `status`.
+A `status` is a select whose options each carry a `group`: `todo`,
+`in_progress` or `complete`, for example
+`{"name":"Done","color":"#2f9e44","group":"complete"}`. Every group needs at
+least one option and names must be unique, or the call is refused with
+`invalid_status_options`. A new database without a schema gets a Status of this
+type.
 
 Options may be written the convenient way (`["To do","Done"]`) or as objects
 with a colour: `[{"name":"Done","color":"#2f9e44"}]`. Plain strings are
@@ -840,6 +846,19 @@ points matter here:
   discarded, and one comparison cannot say that.
 - A **checklist** value is a list of sub-tasks, `[{"text":"…","done":false}]`,
   and shows its own progress. Do not add a second percentage column beside it.
+
+A **status** (see [Properties](properties.md#status)) is a select whose options
+carry a `group` (`todo`, `in_progress` or `complete`). To convert a select, send
+`{"id":"status","type":"status"}`: option ids and row values stay, each option
+is placed in a group by its name (Done, Closed, Cancelled and similar are
+`complete`; In progress, Doing, Review and similar are `in_progress`; the rest
+`todo`) and an empty group gets a default option. A multi-select converts only
+when no row holds two values. An option sent without a `group` keeps the one it
+has, and sending `type: "select"` again keeps the options and drops the groups.
+Options are stored in group order; a new row starts with the first `todo` option
+unless you give a value. A status with an option of unknown group, a group with
+no option, or two options of one name is refused with `invalid_status_options`.
+Filtering by group is not built yet.
 
 A property may carry `pageVisibility`: `"hide_empty"` (hidden on a row's page
 while the row has no value), `"hide"` (always folded away there) or `"show"` to

@@ -6,7 +6,7 @@
 //
 // Pure, checked by check-chartdefaults.mjs.
 
-import type { PropDef, ViewDef } from './types';
+import { isSingleOptionType, type PropDef, type ViewDef } from './types';
 import type { ChartKind } from './chartLayout';
 
 /** The property types a chart groups by, as server/aggregate.go's
@@ -23,7 +23,7 @@ export function groupable(schema: PropDef[]): PropDef[] {
 /** The grouping a new chart starts with: the first select (or status), else
  *  the first property that groups at all, else none. */
 export function defaultGrouping(schema: PropDef[]): PropDef | undefined {
-  return schema.find((p) => p.type === 'select' || (p.type as string) === 'status') ?? groupable(schema)[0];
+  return schema.find((p) => isSingleOptionType(p.type)) ?? groupable(schema)[0];
 }
 
 /** The grouping "Each row" (FR-030, server/aggregate.go's rowGroupKey): one

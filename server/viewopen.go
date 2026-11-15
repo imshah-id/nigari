@@ -256,7 +256,7 @@ func checkViewColOrder(view map[string]any, schema []map[string]any) error {
 // dates are left out on purpose: their values are as many as their rows, so
 // a chip would need a text field, which is what Filter already is.
 var quickFilterTypes = map[string]bool{
-	"select": true, "multiselect": true, "person": true, "checkbox": true, "relation": true,
+	"select": true, "status": true, "multiselect": true, "person": true, "checkbox": true, "relation": true,
 }
 
 // maxQuickFilters bounds the chips above a view: more than a row of them is a
@@ -349,7 +349,7 @@ func checkViewQuickFilters(view map[string]any, schema []map[string]any, strict 
 // (formula, rollup). Those draw lanes, and the interface refuses a drop
 // between their lanes (FR-018), since no drag can change a computed value.
 var subGroupTypes = map[string]bool{
-	"select": true, "multiselect": true, "relation": true, "person": true,
+	"select": true, "status": true, "multiselect": true, "relation": true, "person": true,
 	"formula": true, "rollup": true,
 }
 
@@ -412,12 +412,12 @@ func checkViewSubGroup(view map[string]any, schema []map[string]any, strict bool
 		return errViewSubGroup{fmt.Sprintf("%q is a %s property; a board's lanes are a select, multi-select, relation, person, formula or rollup", name, pt)}
 	}
 	// The board's columns: its groupBy, or, for a board saved without one,
-	// the first select property, which is what the interface draws then
-	// (BoardView). Without that the lanes could be the columns again.
+	// the first select or status property, which is what the interface draws
+	// then (BoardView). Without that the lanes could be the columns again.
 	g, _ := view["groupBy"].(string)
 	if g == "" {
 		for _, p := range schema {
-			if pt, _ := p["type"].(string); pt == "select" {
+			if pt, _ := p["type"].(string); pt == "select" || pt == "status" {
 				g, _ = p["id"].(string)
 				break
 			}

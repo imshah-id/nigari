@@ -937,6 +937,6 @@ including the blindness to calculated values described above.
 ## Where to go next
 
 - [Collections](collections.md): rows, the schema dialog, nesting, embedding
-- [Properties](properties.md): all thirteen types, and what each one is for
+- [Properties](properties.md): all fourteen types, and what each one is for
 - [Sharing](sharing.md): publishing a form, and what is never shared
 - [Agents](agents.md): connecting an agent over MCP in the first place

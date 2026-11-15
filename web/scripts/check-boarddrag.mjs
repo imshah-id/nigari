@@ -102,6 +102,33 @@ try {
   // ---- An empty column ----
   check('an empty column: the first place', marker('a', 'done', byEffort), 0);
 
+  // ---- Sorted by a status: its workflow order, not its ids' text (spec 016, R5) ----
+  // Lanes by "status", columns by "effort" here would need a second board;
+  // the comparator itself is what both applyView and dropIndex share.
+  const stageSchema = [{ id: 'stage', name: 'Stage', type: 'status', options: [
+    { id: 'todo', name: 'To do', color: '', group: 'todo' },
+    { id: 'doing', name: 'In progress', color: '', group: 'in_progress' },
+    { id: 'done', name: 'Done', color: '', group: 'complete' },
+  ] }];
+  const staged = [
+    { id: 's1', props: { stage: 'done' } },
+    { id: 's2', props: { stage: 'todo' } },
+    { id: 's3', props: {} },
+    { id: 's4', props: { stage: ['doing'] } },
+    { id: 's5', props: { stage: 'gone' } },
+  ];
+  const byStage = { property: 'stage', dir: 'asc' };
+  check('status sort: group order, an empty or unknown value last',
+    [...staged].sort(bd.sortComparator(byStage, stageSchema)).map((r) => r.id), ['s2', 's4', 's1', 's3', 's5']);
+  check('status sort, descending',
+    [...staged].sort(bd.sortComparator({ property: 'stage', dir: 'desc' }, stageSchema)).map((r) => r.id), ['s1', 's4', 's2', 's3', 's5']); // empty and unknown still last
+  check('status sort without the schema: the text, as before',
+    [...staged].sort(bd.sortComparator(byStage)).map((r) => r.id)[0], 's3');
+  const stagedCard = { id: 'n', props: { stage: 'doing' } };
+  const stagedCol = [...staged].sort(bd.sortComparator(byStage, stageSchema));
+  check('status sort: the drop marker uses the same order',
+    bd.dropIndex(stagedCol, stagedCard, byStage, (id) => (id === 'n' ? 99 : 0), stageSchema), 2); // after s2 (todo) and s4 (doing, earlier in row order)
+
   // ---- 500 cards: a pointer move must stay cheap ----
   const big = Array.from({ length: 500 }, (_, i) => row('r' + i, 'todo', (i * 7919) % 97, 'Row ' + i));
   const bigOrder = new Map(big.map((r, i) => [r.id, i]));

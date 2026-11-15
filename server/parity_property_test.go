@@ -90,6 +90,12 @@ var parityActs = []parityAct{
 	// database's write gate.
 	{"row page visibility", "PUT", "/api/collections/%s", `{"schema":[{"id":"status","name":"Status","type":"select","options":[{"id":"todo","name":"To do"}],"pageVisibility":"hide"},{"id":"owner","name":"Owner","type":"person"}]}`,
 		"update_schema", `{"page_id":"%s","properties":[{"id":"status","pageVisibility":"hide"}]}`, true},
+	// A status (spec 016): a schema change, prepared and checked by one
+	// function (prepareStatusSchema) on both doors, behind the database's
+	// write gate. MCP converts the select by the shared guess; REST sends the
+	// groups as the interface does.
+	{"save a status", "PUT", "/api/collections/%s", `{"schema":[{"id":"status","name":"Status","type":"status","options":[{"id":"todo","name":"To do","group":"todo"},{"id":"doing","name":"In progress","group":"in_progress"},{"id":"done","name":"Done","group":"complete"}]},{"id":"owner","name":"Owner","type":"person"}]}`,
+		"update_schema", `{"page_id":"%s","properties":[{"id":"status","type":"status"}]}`, true},
 	// A chart view: a view setting, the database's write gate on both doors.
 	{"chart view", "PUT", "/api/collections/%s", `{"views":[{"id":"v-parity","name":"To do","type":"table","filters":[{"property":"status","op":"is","value":"todo"}]},{"id":"v-chart","name":"Chart","type":"chart","chartKind":"donut","groupBy":"status"}]}`,
 		"set_view", `{"page_id":"%s","type":"chart","name":"Chart","chart_kind":"donut","group_by":"status"}`, true},

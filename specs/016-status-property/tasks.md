@@ -29,11 +29,11 @@ description: "Tasks for a Status property type"
 
 **Purpose**: `status` is a type, its options carry a group, every door checks it (R1, R2, R9). Blocks everything.
 
-- [ ] T001 [backend] `validPropTypes` and `propTypeNames` (`server/mcp_schema.go`) gain `status`; the test that keeps them level passes
-- [ ] T002 [backend] New `server/status.go`: the three groups, `checkStatusProps(schema)` (known group, every group ≥1 option, unique names), `normalizeStatusOptions` (stable sort by group, R2), `optionTypes` (select, multiselect, status) for R10
-- [ ] T003 [backend] `guessStatusGroup(name)` and the empty-group fill (R6), with `server/testdata/statusgroups.json` holding the word list's cases; conversion from multi-select refused when a row holds several values, saying how many
-- [ ] T004 [backend] Call check, order and guess from `handlePutCollection` (`400 invalid_status_options`), `mcpUpdateSchema` and `mcpCreateDatabase`; same sentence on all three
-- [ ] T005 [test] New `server/status_test.go`: each refusal on all three doors with nothing stored; options reordered on save; conversion cases from the JSON file; multi-select refusal. Mutation-checked (each door's call removed in turn)
+- [x] T001 [backend] `validPropTypes` and `propTypeNames` (`server/mcp_schema.go`) gain `status`; the test that keeps them level passes
+- [x] T002 [backend] New `server/status.go`: the three groups, `checkStatusProps(schema)` (known group, every group ≥1 option, unique names), `normalizeStatusOptions` (stable sort by group, R2), `optionTypes` (select, multiselect, status) for R10
+- [x] T003 [backend] `guessStatusGroup(name)` and the empty-group fill (R6), with `server/testdata/statusgroups.json` holding the word list's cases; conversion from multi-select refused when a row holds several values, saying how many
+- [x] T004 [backend] Call check, order and guess from `handlePutCollection` (`400 invalid_status_options`), `mcpUpdateSchema` and `mcpCreateDatabase`; same sentence on all three
+- [x] T005 [test] New `server/status_test.go`: each refusal on all three doors with nothing stored; options reordered on save; conversion cases from the JSON file; multi-select refusal. Mutation-checked (each door's call removed in turn)
 
 **Checkpoint**: an agent can create and convert a status; nothing in the browser yet.
 
@@ -41,10 +41,10 @@ description: "Tasks for a Status property type"
 
 ## Phase 2: Foundational — the browser knows the type
 
-- [ ] T006 [P] [ui] `PropType` gains `'status'`; `PropOption.group?`; `isOptionType(type)` in `web/src/types.ts`
-- [ ] T007 [P] [ui] New `web/src/statusGroups.ts` (pure): the groups and their labels through `t()`, `guessStatusGroup`, `fillEmptyGroups`, `orderByGroup`
-- [ ] T008 [P] [test] New `web/scripts/check-statusgroups.mjs`: T007 against `server/testdata/statusgroups.json`; fails a new `=== 'select'` meaning "has options" outside its reviewed list (R10); added to `npm run check`
-- [ ] T009 [P] [i18n] `invalid_status_options` in `web/src/serverErrors.ts`; the group names, Status, Not started, Done; de/es/nl
+- [x] T006 [P] [ui] `PropType` gains `'status'`; `PropOption.group?`; `isOptionType(type)` in `web/src/types.ts`
+- [x] T007 [P] [ui] New `web/src/statusGroups.ts` (pure): the groups and their labels through `t()`, `guessStatusGroup`, `fillEmptyGroups`, `orderByGroup`
+- [x] T008 [P] [test] New `web/scripts/check-statusgroups.mjs`: T007 against `server/testdata/statusgroups.json`; fails a new `=== 'select'` meaning "has options" outside its reviewed list (R10); added to `npm run check`
+- [x] T009 [P] [i18n] `invalid_status_options` in `web/src/serverErrors.ts`; the group names, Status, Not started, Done; de/es/nl
 
 ---
 
@@ -54,33 +54,33 @@ description: "Tasks for a Status property type"
 
 **Independent Test**: add a status, move an option to Complete, group a board by it.
 
-- [ ] T010 [US1] [ui] `propertyTypes.tsx`: Status in `TYPES`; `changePropertyType` converts with T007 (from select, from multi-select when allowed)
-- [ ] T011 [US1] [ui] `PropertyFields.tsx`: options under three group headings; add an option into a group; drag between groups; option menu **Move to** (`moveTo`) with a `MenuValues` of the groups; last-option delete refused with the sentence
-- [ ] T012 [US1] [ui] `PropertyValue.tsx`: the picker lists options under group headings; set and clear like a select
-- [ ] T013 [US1] [ui] Replace the `=== 'select'` tests meaning "has options" with `isOptionType` / `optionTypes`: `BoardView`, `boardLanes.ts`, `cardLayout.ts`, `GalleryView`, `QuickFilters`, `quickFilters.ts`, `chartDefaults.ts`, `rowProperties.ts`, `propertyDelete.ts`, `ViewSettingsMenu`, `CollectionView`; server `viewopen.go` (quick filters, lanes, a board's default column property), `public_form.go`, `public_collection_table.go`, `import_csv.go` (export only, R11), `mcp_db.go`
-- [ ] T014 [US1] [test] Kept passing: `select-options.mjs`, `board-lanes.mjs`, `quick-filters.mjs`
+- [x] T010 [US1] [ui] `propertyTypes.tsx`: Status in `TYPES`; `changePropertyType` converts with T007 (from select, from multi-select when allowed)
+- [x] T011 [US1] [ui] `PropertyFields.tsx`: options under three group headings; add an option into a group; drag between groups; option menu **Move to** (`moveTo`) with a `MenuValues` of the groups; last-option delete refused with the sentence
+- [x] T012 [US1] [ui] `PropertyValue.tsx`: the picker lists options under group headings; set and clear like a select
+- [x] T013 [US1] [ui] Replace the `=== 'select'` tests meaning "has options" with `isOptionType` / `optionTypes`: `BoardView`, `boardLanes.ts`, `cardLayout.ts`, `GalleryView`, `QuickFilters`, `quickFilters.ts`, `chartDefaults.ts`, `rowProperties.ts`, `propertyDelete.ts`, `ViewSettingsMenu`, `CollectionView`; server `viewopen.go` (quick filters, lanes, a board's default column property), `public_form.go`, `public_collection_table.go`, `import_csv.go` (export only, R11), `mcp_db.go`
+- [x] T014 [US1] [test] Kept passing: `select-options.mjs`, `board-lanes.mjs`, `quick-filters.mjs`
 
 ---
 
 ## Phase 4: User Story 3 — turn a select into a status (P2)
 
-- [ ] T015 [US3] [test] Go: converting the default schema's select keeps every row's value and the board's columns (SC-002), REST and `update_schema`
-- [ ] T016 [US3] [backend] `defaultSchema` (`server/collections.go`) becomes a status with ids `todo`, `doing`, `done` and their groups (FR-018, R7); a test that a new database's board still groups by `status`
+- [x] T015 [US3] [test] Go: converting the default schema's select keeps every row's value and the board's columns (SC-002), REST and `update_schema`
+- [x] T016 [US3] [backend] `defaultSchema` (`server/collections.go`) becomes a status with ids `todo`, `doing`, `done` and their groups (FR-018, R7); a test that a new database's board still groups by `status`
 
 ---
 
 ## Phase 5: New rows, sort, agents (FR-014, FR-017, US4)
 
-- [ ] T017 [backend] `withStatusDefaults(schema, props)` in `server/status.go`, called by `handleCreatePage`, `handleRowFromTemplate`, `mcpCreateRows`, `propsInRowView` (create_page, templates), `handlePublicFormSubmit`, the CSV import and `runIngest`; a Go test makes a row through each door (the list is the calls) (R4)
-- [ ] T018 [backend] Status sort by group then option place: `ORDER BY CASE` in `collectionRowsQuery` (R5)
-- [ ] T019 [ui] `sortComparator` takes the option order, and its callers `applyView` **and `dropIndex`** pass it (R5)
-- [ ] T020 [mcp] `update_schema`, `create_database` descriptions: the type, `group` on options, the conversion; `capabilities.json` notes; parity pair "save a status schema" in `server/parity_property_test.go`
-- [ ] T021 [test] Go: sort order in the rows query; default value through every door; read scope refused on a status schema change
-- [ ] T022 [perf] Benchmark in `server/bench_world_test.go`: a status sort on the seeded database within the rows query's p95 budget
+- [x] T017 [backend] `withStatusDefaults(schema, props)` in `server/status.go`, called by `handleCreatePage`, `handleRowFromTemplate`, `mcpCreateRows`, `propsInRowView` (create_page, templates), `handlePublicFormSubmit`, the CSV import and `runIngest`; a Go test makes a row through each door (the list is the calls) (R4)
+- [x] T018 [backend] Status sort by group then option place: `ORDER BY CASE` in `collectionRowsQuery` (R5)
+- [x] T019 [ui] `sortComparator` takes the option order, and its callers `applyView` **and `dropIndex`** pass it (R5)
+- [x] T020 [mcp] `update_schema`, `create_database` descriptions: the type, `group` on options, the conversion; `capabilities.json` notes; parity pair "save a status schema" in `server/parity_property_test.go`
+- [x] T021 [test] Go: sort order in the rows query; default value through every door; read scope refused on a status schema change
+- [x] T022 [perf] Benchmark in `server/bench_world_test.go`: a status sort on the seeded database within the rows query's p95 budget
 
 **Checkpoint (PR 1)**: Playwright `web/tests/status-property.mjs` part 1 (T023) green; wiki part 1 (T034).
 
-- [ ] T023 [test] New `web/tests/status-property.mjs`: add a status, options under headings, Move to by mouse and keyboard, refused last-option delete, convert the default board's select, columns in group order, a new row starts in Not started, set in a side peek
+- [x] T023 [test] New `web/tests/status-property.mjs`: add a status, options under headings, Move to by mouse and keyboard, refused last-option delete, convert the default board's select, columns in group order, a new row starts in Not started, set in a side peek
 
 ---
 

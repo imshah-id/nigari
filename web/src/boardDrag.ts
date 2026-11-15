@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Sort } from './types';
+import type { PropDef, Sort } from './types';
 import { sortComparator } from './viewSort';
 
 // Pointer-based dragging for the kanban board.
@@ -32,8 +32,11 @@ export function dropIndex<T extends { id: string; props: Record<string, unknown>
   card: T,
   sort: Sort | null | undefined,
   rowIndex: (id: string) => number,
+  schema?: readonly PropDef[],
 ): number {
-  const cmp = sortComparator<T>(sort);
+  // The schema for a status's workflow order (spec 016): the marker must
+  // sort as applyView sorts, or it shows a place the card will not take.
+  const cmp = sortComparator<T>(sort, schema);
   const at = rowIndex(card.id);
   let index = 0;
   for (const c of cards) {

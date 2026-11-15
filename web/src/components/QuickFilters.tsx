@@ -40,6 +40,7 @@ function useValues(prop: PropDef): Value[] {
   switch (prop.type) {
     case 'select':
     case 'multiselect':
+    case 'status':
       return (prop.options ?? []).map((o) => ({ value: o.id, label: o.name }));
     case 'checkbox':
       return [

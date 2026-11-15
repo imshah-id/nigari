@@ -2,7 +2,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { dropIndex, useBoardDrag } from '../boardDrag';
 import { tagColorClass } from '../tags';
 import { t } from '../i18n';
-import type { PropDef, PropOption, Sort } from '../types';
+import { isOptionType, isSingleOptionType, type PropDef, type PropOption, type Sort } from '../types';
 import PropertyValue, { PersonStack, loadRelationOptions, type RelOption } from './PropertyValue';
 import { openPageAux, useOpenRow } from '../pageOpen';
 import { CardMenu } from './CollectionMenus';
@@ -50,7 +50,7 @@ function BoardCardProps({
   // hovered, so a status can be set without opening the card — but they never
   // put "— — —" under every title.
   const emptySelects = defs.filter(
-    (p) => (p.type === 'select' || p.type === 'multiselect') && isBlank(row.props[p.id]),
+    (p) => isOptionType(p.type) && isBlank(row.props[p.id]),
   );
 
   const factRow = (p: PropDef) => {
@@ -247,7 +247,7 @@ export default function BoardView({
     };
   }, [groupTarget]);
   const prop = schema.find((p) => p.id === groupBy);
-  if (!prop || (prop.type !== 'select' && prop.type !== 'multiselect' && prop.type !== 'relation')) {
+  if (!prop || (!isOptionType(prop.type) && prop.type !== 'relation')) {
     return (
       <div className="board-empty">
         {t('This board needs a {type} property to group by. Open Settings, then Edit properties, to add one.', { type: t('Select') })}
@@ -289,7 +289,7 @@ export default function BoardView({
   const dragged = drag ? rows.find((r) => r.id === drag.rowId) : undefined;
   // The value a column stands for, in the shape the property stores.
   const columnValue = (col: string): unknown =>
-    col === UNSET ? (prop.type === 'select' ? '' : []) : groupValueFor(schema, groupBy, col);
+    col === UNSET ? (isSingleOptionType(prop.type) ? '' : []) : groupValueFor(schema, groupBy, col);
   // Whether a drag may land on a cell: on a board whose lanes are a formula
   // or a rollup, only within the card's own lane (FR-018).
   const mayDropOn = (key: string): boolean => {
@@ -303,7 +303,7 @@ export default function BoardView({
     // column too; then it is its own place there, as in its own column.
     if (cards.some((c) => c.id === dragged.id)) return -1;
     const moved = { ...dragged, props: { ...dragged.props, [groupBy]: columnValue(col) } };
-    return dropIndex(cards, moved, sort, (id) => rowOrder.get(id) ?? 0);
+    return dropIndex(cards, moved, sort, (id) => rowOrder.get(id) ?? 0, schema);
   };
   // On a board with lanes the marker is a line, not a card-sized gap: a gap
   // made the lane under the pointer taller and pushed every lane below it

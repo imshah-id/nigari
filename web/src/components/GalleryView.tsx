@@ -1,4 +1,4 @@
-import type { PropDef, PropOption } from '../types';
+import { isOptionType, type PropDef, type PropOption } from '../types';
 import PropertyValue from './PropertyValue';
 import { tagColorClass } from '../tags';
 import { PageIcon } from '../pageIcon';
@@ -70,7 +70,7 @@ export default function GalleryView({
             <div className="gallery-props">
               {schema.map((p) => {
                 const v = r.props[p.id];
-                const editable = p.type === 'select' || p.type === 'multiselect';
+                const editable = isOptionType(p.type);
                 if (!editable && (v === undefined || v === '' || (Array.isArray(v) && v.length === 0)))
                   return null;
                 if (editable) {

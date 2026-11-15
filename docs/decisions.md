@@ -7,6 +7,37 @@ entries are not edited away.
 
 ---
 
+## 2026-11-15 — Spec 016 PR 1: how a status is built where the plan left room
+
+Choices made while building the status property, beyond research R1–R11:
+
+- **A new row's To-do default is filled after the door stores the row**
+  (`fillStatusDefaults`), not merged into the props before the insert as R4
+  planned. The doors merge a template, a view's pin and the caller's values
+  in different orders; filling only what is still empty afterwards lets all
+  three win without each door having to order the merge the same way.
+  Turned down: the planned `withStatusDefaults(schema, props)` before the
+  insert (it would have to sit at a different point in each door, and a
+  template's value is only known after the copy).
+- **A multi-select converted to a status keeps its rows as stored**
+  (`["id"]`), with every reader taking the first value. Turned down:
+  rewriting the rows to a scalar at conversion. Filters already match an
+  array element like a scalar, and the type change stays non-destructive
+  (Q23), as every other type change is.
+- **An option sent without a group keeps the group it has.** Only a status
+  whose options carry no group at all (new, or converted) is guessed and
+  gets its empty groups filled. Turned down: guessing every option without a
+  group, which would move an agent's renamed "Blocked" back to To-do.
+- **Rows without a status sort last in both directions**, like a select's
+  empty rows. Turned down: one CASE sorted as a whole, which put them first
+  when descending.
+- **A conversion refused because rows hold two values has its own code**,
+  `status_rows_hold_several`, with the row count. Turned down: sharing
+  `invalid_status_options`, whose sentence (groups, names) never mentions the
+  rows.
+
+---
+
 ## 2026-11-14 — One session at a time; the handoff is a pinned issue edited in place
 
 Two sessions acted as lead at once (a scheduled check-in woke an old one) and

@@ -1,4 +1,6 @@
 import type { PropDef, PropType } from '../types';
+import { fillEmptyGroups, orderByGroup } from '../statusGroups';
+import { optionId } from '../rowProperties';
 
 // A property's types, the picker and the type change: small enough to load
 // with every page, where PropertyFields (the type settings) loads only when a
@@ -9,6 +11,8 @@ export const TYPES: { value: PropType; label: string }[] = [
   { value: 'number', label: 'Number' },
   { value: 'select', label: 'Select' },
   { value: 'multiselect', label: 'Multi-select' },
+  // Options like a select, each in one of three groups (spec 016).
+  { value: 'status', label: 'Status' },
   { value: 'date', label: 'Date' },
   { value: 'checkbox', label: 'Checkbox' },
   // A checklist is not a checkbox with extra steps: it holds sub-tasks and
@@ -32,7 +36,18 @@ export const TYPES: { value: PropType; label: string }[] = [
  *  raw string; only the schema side is adjusted. */
 export function changePropertyType(p: PropDef, type: PropType): PropDef {
   const next: PropDef = { ...p, type };
-  if (type === 'select' || type === 'multiselect') next.options = p.options ?? [];
+  // Stays a literal test: this is the conversion to select/multiselect only. A
+  // status keeps its option ids and loses only the group (FR-011): a row's
+  // value is an option id either way, so nothing in the rows is rewritten.
+  if (type === 'select' || type === 'multiselect') next.options = (p.options ?? []).map(({ group: _group, ...o }) => o);
+  // To a status: each option is placed by its name, an empty group gets a
+  // default option, a type with no options gets one per group (R6), and the options are kept in group order (R2). The
+  // server does the same for an agent; statusGroups.ts is the shared guess.
+  if (type === 'status') {
+    next.options = orderByGroup(
+      p.type === 'status' ? p.options ?? [] : fillEmptyGroups(p.options ?? [], optionId),
+    );
+  }
   if (type === 'rollup' && !next.rollupAgg) next.rollupAgg = 'sum';
   return next;
 }
