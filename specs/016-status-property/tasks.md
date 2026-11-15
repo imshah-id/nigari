@@ -58,13 +58,13 @@ description: "Tasks for a Status property type"
 - [x] T011 [US1] [ui] `PropertyFields.tsx`: options under three group headings; add an option into a group; drag between groups; option menu **Move to** (`moveTo`) with a `MenuValues` of the groups; last-option delete refused with the sentence
 - [x] T012 [US1] [ui] `PropertyValue.tsx`: the picker lists options under group headings; set and clear like a select
 - [x] T013 [US1] [ui] Replace the `=== 'select'` tests meaning "has options" with `isOptionType` / `optionTypes`: `BoardView`, `boardLanes.ts`, `cardLayout.ts`, `GalleryView`, `QuickFilters`, `quickFilters.ts`, `chartDefaults.ts`, `rowProperties.ts`, `propertyDelete.ts`, `ViewSettingsMenu`, `CollectionView`; server `viewopen.go` (quick filters, lanes, a board's default column property), `public_form.go`, `public_collection_table.go`, `import_csv.go` (export only, R11), `mcp_db.go`
-- [ ] T014 [US1] [test] Kept passing: `select-options.mjs`, `board-lanes.mjs`, `quick-filters.mjs`
+- [x] T014 [US1] [test] Kept passing: `select-options.mjs`, `board-lanes.mjs`, `quick-filters.mjs`
 
 ---
 
 ## Phase 4: User Story 3 — turn a select into a status (P2)
 
-- [ ] T015 [US3] [test] Go: converting the default schema's select keeps every row's value and the board's columns (SC-002), REST and `update_schema`
+- [x] T015 [US3] [test] Go: converting the default schema's select keeps every row's value and the board's columns (SC-002), REST and `update_schema`
 - [x] T016 [US3] [backend] `defaultSchema` (`server/collections.go`) becomes a status with ids `todo`, `doing`, `done` and their groups (FR-018, R7); a test that a new database's board still groups by `status`
 
 ---
@@ -80,7 +80,7 @@ description: "Tasks for a Status property type"
 
 **Checkpoint (PR 1)**: Playwright `web/tests/status-property.mjs` part 1 (T023) green; wiki part 1 (T034).
 
-- [ ] T023 [test] New `web/tests/status-property.mjs`: add a status, options under headings, Move to by mouse and keyboard, refused last-option delete, convert the default board's select, columns in group order, a new row starts in Not started, set in a side peek
+- [x] T023 [test] New `web/tests/status-property.mjs`: add a status, options under headings, Move to by mouse and keyboard, refused last-option delete, convert the default board's select, columns in group order, a new row starts in Not started, set in a side peek
 
 ---
 

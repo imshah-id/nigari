@@ -458,3 +458,48 @@ func TestReadScopeCannotWriteAStatus(t *testing.T) {
 		t.Errorf("type is %v after a refused call", typ)
 	}
 }
+
+// Converting the Status select every database made before spec 016 has
+// (SC-002): each row keeps its value, the board keeps grouping by it, and the
+// options land in the groups their names say, on both doors.
+func TestDefaultSelectConvertsWithItsBoard(t *testing.T) {
+	d := newStatusDoors(t)
+	oldDefault := `[{"id":"status","name":"Status","type":"select","options":[
+		{"id":"todo","name":"To do","color":"#c4554d"},{"id":"doing","name":"In progress","color":"#b58a3b"},{"id":"done","name":"Done","color":"#2f7d4f"}]}]`
+	for _, door := range []string{"rest", "mcp"} {
+		col := d.s.makeCollection(t, d.ws, d.uid, "Old "+door, oldDefault)
+		d.s.db.Exec(`UPDATE collections SET views = ? WHERE page_id = ?`, defaultViews, col)
+		rows := map[string]string{}
+		for _, v := range []string{"todo", "doing", "done"} {
+			rows[d.s.makeRow(t, d.ws, d.uid, col, "Row "+v, `{"status":"`+v+`"}`)] = v
+		}
+		if door == "rest" {
+			if code, body := d.putSchema(t, col, strings.Replace(oldDefault, `"type":"select"`, `"type":"status"`, 1)); code != 200 {
+				t.Fatalf("REST: %d %s", code, body)
+			}
+		} else if err := d.updateSchema(t, col, `[{"id":"status","type":"status"}]`); err != nil {
+			t.Fatalf("update_schema: %v", err)
+		}
+		ids, groups := optionGroups(t, d.schemaOf(t, col), "status")
+		if strings.Join(ids, ",") != "todo,doing,done" || strings.Join(groups, ",") != "todo,in_progress,complete" {
+			t.Errorf("%s: options %v in groups %v", door, ids, groups)
+		}
+		for id, want := range rows {
+			var got string
+			d.s.db.QueryRow(`SELECT json_extract(props, '$.status') FROM pages WHERE id = ?`, id).Scan(&got)
+			if got != want {
+				t.Errorf("%s: a row's value went from %q to %q", door, want, got)
+			}
+		}
+		_, views, _ := d.s.loadCollection(col)
+		board := false
+		for _, v := range views {
+			if v["type"] == "board" && v["groupBy"] == "status" {
+				board = true
+			}
+		}
+		if !board {
+			t.Errorf("%s: the board no longer groups by status: %v", door, views)
+		}
+	}
+}
