@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -34,5 +34,4 @@
 - The Context section names code (from the code graph), as specs in this
   repository do; the requirements themselves stay at the level of behaviour.
   MCP tool names in FR-013 and story 4 are the agent-facing product surface.
-- Two clarifications open (FR-017 new row's value, FR-018 new databases'
-  default Status), put to the owner 2026-11-14.
+- Two clarifications (FR-017, FR-018) answered by the owner 2026-11-14.

@@ -55,6 +55,15 @@ How workflow state works today, from the code graph and the source
   (`changePropertyType`, non-destructive): rows keep their option ids, so a
   select turned into a status keeps every row's value.
 
+## Clarifications
+
+### Session 2026-11-14
+
+- Q: What does a new row start with? → A: The first To-do option, as in
+  Notion; not empty (owner, "A", recommendation).
+- Q: What is a new database's default Status? → A: A status; existing
+  databases stay as they are (owner, "A", recommendation).
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Track work with a Status property (Priority: P1)
@@ -237,10 +246,13 @@ convert a select.
   name).
 - **FR-016**: Existing databases MUST NOT change when nigari upgrades: a
   select named Status stays a select until a person or agent converts it.
-- **FR-017**: A new row MUST start with [NEEDS CLARIFICATION: empty, as a
-  select does today, or the first To-do option, as Notion does?].
-- **FR-018**: A newly created database's default Status property MUST be
-  [NEEDS CLARIFICATION: a status (groups from the start), or stay a select?].
+- **FR-017**: A new row MUST start with the first option of the To-do
+  group, by the interface, an agent, a template without a status value, a
+  public form and an import row with an empty status; a value the caller
+  gives, or a view's pin (FR-008), wins.
+- **FR-018**: A newly created database's default Status property MUST be a
+  status (To do, In progress, Done in their groups, keeping today's option
+  ids); databases that exist already are not touched (FR-016).
 
 ### Key Entities
 
