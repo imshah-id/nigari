@@ -3,6 +3,8 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -187,6 +189,22 @@ func (s *Server) handleListComments(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, list)
 }
 
+// checkCommentBody is the one check a comment's text passes before it is
+// stored, by the REST route and the MCP comments tool alike. It returns the
+// text as stored (trimmed). The length check lived only on the REST side, so
+// an agent could store a comment of any length that then landed in every
+// list of the page's comments (#645).
+func checkCommentBody(body string) (string, error) {
+	text := strings.TrimSpace(body)
+	if text == "" {
+		return "", errors.New("comment body is required")
+	}
+	if len([]rune(text)) > maxCommentLen {
+		return "", fmt.Errorf("comment is too long (at most %d characters)", maxCommentLen)
+	}
+	return text, nil
+}
+
 func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
 	pageID := r.PathValue("id")
 	u := requestUser(r)
@@ -202,17 +220,14 @@ func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
 		httpError(w, 400, "invalid JSON")
 		return
 	}
-	if strings.TrimSpace(body.Body) == "" {
-		httpError(w, 400, "comment body is required")
-		return
-	}
-	if len([]rune(body.Body)) > maxCommentLen {
-		httpError(w, 400, "comment is too long")
+	text, err := checkCommentBody(body.Body)
+	if err != nil {
+		httpError(w, 400, err.Error())
 		return
 	}
 	id := newID()
 	if _, err := s.db.Exec(`INSERT INTO comments (id, page_id, block_id, author_id, author_name, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		id, pageID, body.BlockID, u.ID, u.Name, strings.TrimSpace(body.Body), now()); err != nil {
+		id, pageID, body.BlockID, u.ID, u.Name, text, now()); err != nil {
 		httpError(w, 500, err.Error())
 		return
 	}

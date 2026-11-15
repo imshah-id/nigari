@@ -1291,7 +1291,9 @@ Deleting is deliberately **not** an action here (see below).
 
 Returns `Added comment <id>`, `Resolved comment <id>`, `Reopened comment <id>`.
 Errors: `unknown action "x" — use list (the default), add, resolve or reopen;
-deleting has its own tool`; `body is required for action=add`;
+deleting has its own tool`; `comment body is required`;
+`comment is too long (at most 10000 characters)` (the same check as in the
+interface);
 `comment_id is required for action=resolve`; `comment "…" not found`.
 
 The permission check on resolve and reopen runs against the comment's **page**,
