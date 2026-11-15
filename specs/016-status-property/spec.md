@@ -240,7 +240,8 @@ convert a select.
   descriptions say what a group condition is, replacing the
   `is_not [done, discarded]` advice.
 - **FR-014**: Sorting by a status MUST order rows by group, then by the
-  option's place, as a select sorts by option order.
+  option's place in its group (a select today sorts by its stored id's
+  text; that is not changed here).
 - **FR-015**: Public forms, public tables, CSV export and templates MUST
   treat a status as a select with fixed groups (show and write the option's
   name).
@@ -287,5 +288,6 @@ convert a select.
 - A status holds one value (no multi-status), as Notion's does.
 - A board grouped by status shows columns per option; collapsing columns
   into one per group is out of scope (a later view setting if wanted).
-- Formulas read a status as its option's name, as for a select; a
-  formula function for the group is out of scope.
+- Formulas compute numbers only (`evalFormula`) and do not read a select
+  today, so they do not read a status either; a formula function for the
+  group is out of scope.
