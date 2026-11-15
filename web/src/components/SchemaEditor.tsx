@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import type { CollectionConfig, PropDef, PropType, ViewDef } from '../types';
+import { isOptionType, type CollectionConfig, type PropDef, type PropType, type ViewDef } from '../types';
 import Portal from './Portal';
 import { useExclusiveModal } from '../modal';
 import { confirm } from '../dialog';
@@ -46,7 +46,7 @@ export default function SchemaEditor({
     let id = slug(name);
     while (schema.some((p) => p.id === id)) id += '_';
     const def: PropDef = { id, name, type: newType };
-    if (newType === 'select' || newType === 'multiselect') def.options = [];
+    if (isOptionType(newType)) def.options = [];
     if (newType === 'rollup') def.rollupAgg = 'sum';
     setSchema([...schema, def]);
     setNewName('');
@@ -103,7 +103,7 @@ export default function SchemaEditor({
     // grey — because only the stored colour counts there. After saving the two
     // agree, and export and MCP see real colours too.
     const colored = schema.map((p) =>
-      p.type === 'select' || p.type === 'multiselect'
+      isOptionType(p.type)
         ? { ...p, options: (p.options ?? []).map((o) => (o.color ? o : { ...o, color: autoOptionColor(o.name) })) }
         : p,
     );

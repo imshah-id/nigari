@@ -222,6 +222,14 @@ export function isOptionType(type: PropType | string | undefined): boolean {
   return type !== undefined && ['select', 'multiselect', 'status'].includes(type);
 }
 
+/** True for the types that hold exactly ONE option id: select and status. For
+ *  the places where multiselect must stay out (an empty value is '' not [], a
+ *  board's default columns, a chart's default grouping), so none of them has
+ *  to spell the pair out as literals (spec 016 R10). */
+export function isSingleOptionType(type: PropType | string | undefined): boolean {
+  return type !== undefined && ['select', 'status'].includes(type);
+}
+
 export interface PropDef {
   id: string;
   name: string;

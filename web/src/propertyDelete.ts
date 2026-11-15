@@ -8,7 +8,7 @@
 // back-relation is computed from them (derived.go), so it shows nothing once
 // they are gone.
 
-import type { PropDef, ViewDef } from './types';
+import { isOptionType, type PropDef, type ViewDef } from './types';
 
 type Translate = (key: string, vars?: Record<string, string>) => string;
 
@@ -37,7 +37,7 @@ export function tidyViewsAfterSchema(schema: PropDef[], views: ViewDef[]): ViewD
   const propIds = new Set(schema.map((p) => p.id));
   // A board may group by a relation as well; leaving relations out here reset
   // "group by System" to the first select property on every save.
-  const groupable = schema.filter((p) => p.type === 'select' || p.type === 'multiselect' || p.type === 'relation');
+  const groupable = schema.filter((p) => isOptionType(p.type) || p.type === 'relation');
   const dates = schema.filter((p) => p.type === 'date');
   return views.map((v) => {
     const next = { ...v };

@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import { api } from '../api';
-import type { PropDef, PropType } from '../types';
+import { isOptionType, type PropDef, type PropType } from '../types';
 import Portal from './Portal';
 import { OPTION_HEXES, optionPalette } from '../selectOptions';
 import { renameSelectOption, moveSelectOption, reorderSelectOption } from '../renameSelectOption';
@@ -350,7 +350,7 @@ export function PropertyFields({
 
   return (
     <>
-      {(p.type === 'select' || p.type === 'multiselect') && (
+      {isOptionType(p.type) && (
                 <div className="schema-options">
                     {(p.options ?? []).map((o) => {
                       const hex = o.color || autoOptionColor(o.name);
@@ -483,7 +483,7 @@ function WhereValue({
   // discarded. Ticking more than one writes the list; ticking exactly one keeps
   // writing the single value, so a condition made here still reads the same to
   // an older server.
-  if (def && (def.type === 'select' || def.type === 'multiselect') && (op === 'is' || op === 'is_not')) {
+  if (def && isOptionType(def.type) && (op === 'is' || op === 'is_not')) {
     const picked = values?.length ? values : value ? [value] : [];
     const toggle = (id: string) => {
       const next = picked.includes(id) ? picked.filter((x) => x !== id) : [...picked, id];
@@ -510,7 +510,7 @@ function WhereValue({
       </div>
     );
   }
-  if (def && (def.type === 'select' || def.type === 'multiselect')) {
+  if (def && isOptionType(def.type)) {
     return (
       <select className="prop-select" value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">{t('Select a value…')}</option>

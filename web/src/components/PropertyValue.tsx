@@ -978,7 +978,7 @@ export default function PropertyValue({
   // field reads "Empty" whatever its type, as it does for someone who can
   // edit. Computed types (formula, rollup, backrelation, last activity) keep
   // their own "—", and a checkbox is never empty.
-  if (ro && showEmpty && isUnset(value) && ['text', 'number', 'select', 'multiselect', 'date', 'url', 'person', 'relation', 'checklist'].includes(def.type)) {
+  if (ro && showEmpty && isUnset(value) && ['text', 'number', 'select', 'multiselect', 'status', 'date', 'url', 'person', 'relation', 'checklist'].includes(def.type)) {
     return <EmptyValue show />;
   }
 

@@ -3,7 +3,7 @@ import { SlidersHorizontal } from 'lucide-react';
 import { t } from '../i18n';
 import { CENTER_PEEK_SHIPPED } from '../peek';
 import { MAX_QUICK_FILTERS, quickFilterProps, subGroupProps } from '../quickFilters';
-import type { PropDef, ViewDef } from '../types';
+import { isSingleOptionType, type PropDef, type ViewDef } from '../types';
 import { IconButton } from '../ui/IconButton';
 import { Menu, MenuCheckboxItem, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSubmenu } from '../ui/Menu';
 import { ViewActionItems } from './CollectionMenus';
@@ -106,8 +106,8 @@ export default function ViewSettingsMenu({
   const toggleQuick = (id: string, on: boolean) =>
     onChange({ quickFilters: on ? [...offered, id] : offered.filter((x) => x !== id) });
   // The board's columns: its groupBy, or for a board saved without one the
-  // first select property, as BoardView draws it (and the server checks).
-  const laneCandidates = subGroupProps(schema, view.groupBy || schema.find((p) => p.type === 'select')?.id);
+  // first select or status property, as BoardView draws it (and the server checks).
+  const laneCandidates = subGroupProps(schema, view.groupBy || schema.find((p) => isSingleOptionType(p.type))?.id);
   // A timeline with no start property draws its bars from the first date
   // property (CollectionView's TimelineView call), so None would be a value
   // the view is not using: the item says which property that is.

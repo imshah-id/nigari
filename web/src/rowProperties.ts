@@ -7,7 +7,7 @@
 // whatever was changed elsewhere since: the bug handlePutCollection's comment
 // describes for views.
 
-import type { PropDef, PropType } from './types';
+import { isOptionType, type PropDef, type PropType } from './types';
 
 import { isUnset } from './isUnset';
 export { isUnset };
@@ -54,7 +54,7 @@ export function duplicateProperty(schema: readonly PropDef[], id: string, copyNa
 export function addProperty(schema: readonly PropDef[], type: PropType, name: string): PropDef[] {
   const n = name.trim() || 'Property';
   const def: PropDef = { id: freeId(schema, n), name: n, type };
-  if (type === 'select' || type === 'multiselect') def.options = [];
+  if (isOptionType(type)) def.options = [];
   if (type === 'rollup') def.rollupAgg = 'sum';
   return [...schema, def];
 }

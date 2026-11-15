@@ -72,6 +72,7 @@ export function zoneOf(def: PropDef, value: unknown): CardZone {
   switch (def.type) {
     case 'select':
     case 'multiselect':
+    case 'status':
       return 'chip';
     case 'number':
     case 'date':

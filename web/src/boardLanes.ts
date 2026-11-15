@@ -6,6 +6,8 @@
 // on another cell writes both values in one change (one request, one history
 // entry), so a card is never half-moved.
 
+import { isOptionType } from './types';
+
 export const NO_VALUE = '__unset__';
 
 // The separator inside a cell's key. A unit separator, not a colon: option,
@@ -51,7 +53,7 @@ export function laneIdsOf(value: unknown, lanes: Lane[] | Set<string>): string[]
  *  everything else the values the rows hold, in the order first met. Always
  *  a No value lane last, as a board always has its No value column. */
 export function lanesFor(prop: LaneProp, values: unknown[]): Lane[] {
-  if (prop.type === 'select' || prop.type === 'multiselect') {
+  if (isOptionType(prop.type)) {
     return [...(prop.options ?? []).map((o) => ({ id: o.id, name: o.name })), { id: NO_VALUE, name: '' }];
   }
   const seen = new Map<string, Lane>();

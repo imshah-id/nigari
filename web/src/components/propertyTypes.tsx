@@ -32,6 +32,8 @@ export const TYPES: { value: PropType; label: string }[] = [
  *  raw string; only the schema side is adjusted. */
 export function changePropertyType(p: PropDef, type: PropType): PropDef {
   const next: PropDef = { ...p, type };
+  // Stays a literal test: this is the conversion to select/multiselect only. What
+  // converting to or from a status does (groups, option ids) is its own task (T010).
   if (type === 'select' || type === 'multiselect') next.options = p.options ?? [];
   if (type === 'rollup' && !next.rollupAgg) next.rollupAgg = 'sum';
   return next;

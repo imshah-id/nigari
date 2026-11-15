@@ -17,17 +17,19 @@ import { tagColorClass } from '../tags';
 import { compare, firstWeekday, formatDay, formatMonth, isReadableDay, isUnfinishedRelativeDay, resolveSmartDate, toDayString, today, weekdayNames } from '../format';
 import { plural, t } from '../i18n';
 import { confirm, promptText } from '../dialog';
-import type {
-  CollectionConfig,
-  Filter,
-  FilterOp,
-  Page,
-  PageMeta,
-  PropDef,
-  PropOption,
-  PropType,
-  Sort,
-  ViewDef,
+import {
+  isOptionType,
+  isSingleOptionType,
+  type CollectionConfig,
+  type Filter,
+  type FilterOp,
+  type Page,
+  type PageMeta,
+  type PropDef,
+  type PropOption,
+  type PropType,
+  type Sort,
+  type ViewDef,
 } from '../types';
 import PropertyValue, { idList, loadRelationOptions, type RelOption } from './PropertyValue';
 import { openCollectionRow, openPageAux, RowOpenContext, useOpenRow } from '../pageOpen';
@@ -866,7 +868,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
     // A chart starts drawn, grouped by the first select (chartDefaults.ts),
     // never as an empty frame waiting for its first setting.
     const nv: ViewDef = type === 'chart' ? defaultChartView('bar', schema, id, viewTypeLabel(type)) : { id, name: viewTypeLabel(type), type };
-    if (type === 'board') nv.groupBy = schema.find((p) => p.type === 'select' || p.type === 'multiselect')?.id;
+    if (type === 'board') nv.groupBy = schema.find((p) => isOptionType(p.type))?.id;
     if (type === 'calendar') nv.dateProp = schema.find((p) => p.type === 'date')?.id;
     if (type === 'timeline') {
       const dates = schema.filter((p) => p.type === 'date');
@@ -1146,7 +1148,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
           sort={view.sort}
           rowOrder={rowOrder ?? new Map()}
           schema={visibleSchema}
-          groupBy={view.groupBy || schema.find((p) => p.type === 'select')?.id || ''}
+          groupBy={view.groupBy || schema.find((p) => isSingleOptionType(p.type))?.id || ''}
           tagColors={tagColors}
           commentCounts={commentCounts}
           onNavigate={onNavigate}
@@ -1286,7 +1288,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
 // A Notion-style form: renders the collection's editable properties as fields;
 // submitting creates a new row with the entered values. Computed types
 // (relation/rollup/formula) can't be filled in and are skipped.
-const FORM_TYPES: PropType[] = ['text', 'number', 'select', 'multiselect', 'date', 'checkbox', 'person'];
+const FORM_TYPES: PropType[] = ['text', 'number', 'select', 'multiselect', 'status', 'date', 'checkbox', 'person'];
 
 function FormView({
   collectionId,
@@ -1504,6 +1506,7 @@ export function formField(def: PropDef, value: unknown, onChange: (v: unknown) =
         />
       );
     case 'select':
+    case 'status':
       return (
         <select className="form-input form-select" value={(value as string) || ''} onChange={(e) => onChange(e.target.value || null)}>
           <option value="">—</option>
@@ -1716,7 +1719,7 @@ function FilterSortControls({
   const valuesFor = (propId: string): { value: string; label: string }[] => {
     const prop = schema.find((p) => p.id === propId);
     if (!prop) return [];
-    if (prop.type === 'select' || prop.type === 'multiselect') {
+    if (isOptionType(prop.type)) {
       return (prop.options ?? []).map((o) => ({ value: o.id, label: o.name }));
     }
     if (prop.type === 'checkbox') {
@@ -1777,7 +1780,7 @@ function FilterSortControls({
   function takesSeveral(propId: string): boolean {
     const ty = schema.find((p) => p.id === propId)?.type;
     return (
-      ty === 'select' || ty === 'multiselect' || ty === 'relation' || ty === 'backrelation'
+      isOptionType(ty) || ty === 'relation' || ty === 'backrelation'
     );
   }
 
@@ -2013,7 +2016,7 @@ function FilterSortControls({
                   {schema
                     .filter(
                       (p) =>
-                        p.type === 'select' || p.type === 'multiselect' || p.type === 'relation',
+                        isOptionType(p.type) || p.type === 'relation',
                     )
                     .map((p) => (
                       <option key={p.id} value={p.id}>

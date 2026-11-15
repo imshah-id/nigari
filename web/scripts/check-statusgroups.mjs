@@ -15,17 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 // that goes up or a new file fails, and so does a count that went down, until
 // the list is lowered to match.
 const SELECT_TESTS = {
-  'src/boardLanes.ts': 1,
-  'src/chartDefaults.ts': 1,
-  'src/components/BoardView.tsx': 3,
-  'src/components/CollectionView.tsx': 5,
-  'src/components/GalleryView.tsx': 1,
-  'src/components/PropertyFields.tsx': 3,
-  'src/components/SchemaEditor.tsx': 2,
-  'src/components/ViewSettingsMenu.tsx': 1,
-  'src/components/propertyTypes.tsx': 1,
-  'src/propertyDelete.ts': 1,
-  'src/rowProperties.ts': 1,
+  'src/components/propertyTypes.tsx': 1, // changePropertyType: the conversion to select/multiselect only (T010)
 };
 
 const webDir = fileURLToPath(new URL('..', import.meta.url));
