@@ -271,6 +271,10 @@ func (s *Server) mcpCreateDatabase(u *user, title, parentID, wsID string, schema
 		if _, err := checkPropertyVisibility(defs); err != nil {
 			return "", err
 		}
+		// A status's groups (spec 016, R9): no rows yet, so no conversion.
+		if err := s.prepareStatusSchema("", snapshotStatus(nil), defs); err != nil {
+			return "", err
+		}
 		b, err := json.Marshal(defs)
 		if err != nil {
 			return "", err

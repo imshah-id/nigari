@@ -136,7 +136,20 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 			httpErrorCode(w, 400, "invalid_property_visibility", err.Error())
 			return
 		}
-		if removed {
+		// A status's groups (spec 016, R9): guessed for a conversion, kept in
+		// group order, refused when one cannot be drawn. The same function as
+		// update_schema and create_database.
+		storedSchema, _, _ := s.loadCollection(id)
+		if err := s.prepareStatusSchema(id, snapshotStatus(storedSchema), sent); err != nil {
+			if isStatusErr(err) {
+				httpErrorCode(w, 400, "invalid_status_options", err.Error())
+			} else {
+				httpError(w, 500, err.Error())
+			}
+			return
+		}
+		// The options may have been ordered or filled: store what was checked.
+		if removed || hasStatus(sent) {
 			b, err := json.Marshal(sent)
 			if err != nil {
 				httpError(w, 500, err.Error())

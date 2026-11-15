@@ -1,0 +1,35 @@
+{
+  "comment": "The status conversion's word list (spec 016 FR-010, R6) and the cases both guesses are tested against: server/status.go embeds it, server/status_test.go and web/scripts/check-statusgroups.mjs check it. A name is matched whole, after lower case, straight apostrophes, hyphens and underscores as spaces, single spaces and no trailing punctuation. Anything not listed is To-do.",
+  "words": {
+    "complete": ["done", "complete", "completed", "finished", "closed", "shipped", "won't do", "wont do", "cancelled", "canceled", "discarded"],
+    "in_progress": ["in progress", "doing", "started", "active", "review", "in review"]
+  },
+  "cases": [
+    ["Done", "complete"],
+    ["DONE", "complete"],
+    ["Done.", "complete"],
+    ["Complete", "complete"],
+    ["Finished", "complete"],
+    ["Closed", "complete"],
+    ["Shipped", "complete"],
+    ["Won't do", "complete"],
+    ["Won’t do", "complete"],
+    ["Cancelled", "complete"],
+    ["Canceled", "complete"],
+    ["Discarded", "complete"],
+    ["In progress", "in_progress"],
+    ["in-progress", "in_progress"],
+    ["In  Progress", "in_progress"],
+    ["Doing", "in_progress"],
+    ["Started", "in_progress"],
+    ["Active", "in_progress"],
+    ["Review", "in_progress"],
+    ["In review", "in_progress"],
+    ["To do", "todo"],
+    ["Not started", "todo"],
+    ["Not done", "todo"],
+    ["Backlog", "todo"],
+    ["Ideas", "todo"],
+    ["", "todo"]
+  ]
+}

@@ -38,12 +38,15 @@ var validPropTypes = map[string]bool{
 	// build the column and an agent could not, so the one database this feature
 	// was written for never got it, while the task saying so read "done".
 	"backrelation": true,
+	// status — a select whose options each sit in one of three fixed groups
+	// (spec 016, status.go).
+	"status": true,
 }
 
 // propTypeNames is the same set in reading order, for the error an agent gets
 // and for the tool descriptions. It was spelled out by hand in four places, and
 // "backrelation" reached none of them — a test keeps it level with the map now.
-var propTypeNames = []string{"text", "number", "select", "multiselect", "date",
+var propTypeNames = []string{"text", "number", "select", "multiselect", "status", "date",
 	"checkbox", "checklist", "url", "person", "relation", "backrelation",
 	"rollup", "formula"}
 
@@ -258,6 +261,8 @@ func (s *Server) mcpUpdateSchema(pageID string, props json.RawMessage, remove []
 		}
 	}
 	str := func(m map[string]any, k string) string { v, _ := m[k].(string); return v }
+	// Before the merge writes into it: the types and status groups as stored.
+	was := snapshotStatus(schema)
 
 	taken := map[string]bool{}
 	for _, p := range schema {
@@ -330,6 +335,11 @@ func (s *Server) mcpUpdateSchema(pageID string, props json.RawMessage, remove []
 	// The rule PUT /api/collections applies to a row page's visibility
 	// (spec 015), checked on the merged schema.
 	if _, err := checkPropertyVisibility(schema); err != nil {
+		return "", err
+	}
+	// A status's groups, guessed, ordered and checked as on every door (spec
+	// 016, R9).
+	if err := s.prepareStatusSchema(pageID, was, schema); err != nil {
 		return "", err
 	}
 	// The rule PUT /api/collections applies: a property a locked view uses

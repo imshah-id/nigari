@@ -29,11 +29,11 @@ description: "Tasks for a Status property type"
 
 **Purpose**: `status` is a type, its options carry a group, every door checks it (R1, R2, R9). Blocks everything.
 
-- [ ] T001 [backend] `validPropTypes` and `propTypeNames` (`server/mcp_schema.go`) gain `status`; the test that keeps them level passes
-- [ ] T002 [backend] New `server/status.go`: the three groups, `checkStatusProps(schema)` (known group, every group ≥1 option, unique names), `normalizeStatusOptions` (stable sort by group, R2), `optionTypes` (select, multiselect, status) for R10
-- [ ] T003 [backend] `guessStatusGroup(name)` and the empty-group fill (R6), with `server/testdata/statusgroups.json` holding the word list's cases; conversion from multi-select refused when a row holds several values, saying how many
-- [ ] T004 [backend] Call check, order and guess from `handlePutCollection` (`400 invalid_status_options`), `mcpUpdateSchema` and `mcpCreateDatabase`; same sentence on all three
-- [ ] T005 [test] New `server/status_test.go`: each refusal on all three doors with nothing stored; options reordered on save; conversion cases from the JSON file; multi-select refusal. Mutation-checked (each door's call removed in turn)
+- [x] T001 [backend] `validPropTypes` and `propTypeNames` (`server/mcp_schema.go`) gain `status`; the test that keeps them level passes
+- [x] T002 [backend] New `server/status.go`: the three groups, `checkStatusProps(schema)` (known group, every group ≥1 option, unique names), `normalizeStatusOptions` (stable sort by group, R2), `optionTypes` (select, multiselect, status) for R10
+- [x] T003 [backend] `guessStatusGroup(name)` and the empty-group fill (R6), with `server/testdata/statusgroups.json` holding the word list's cases; conversion from multi-select refused when a row holds several values, saying how many
+- [x] T004 [backend] Call check, order and guess from `handlePutCollection` (`400 invalid_status_options`), `mcpUpdateSchema` and `mcpCreateDatabase`; same sentence on all three
+- [x] T005 [test] New `server/status_test.go`: each refusal on all three doors with nothing stored; options reordered on save; conversion cases from the JSON file; multi-select refusal. Mutation-checked (each door's call removed in turn)
 
 **Checkpoint**: an agent can create and convert a status; nothing in the browser yet.
 
