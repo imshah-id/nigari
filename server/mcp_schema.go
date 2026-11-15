@@ -954,6 +954,10 @@ func (s *Server) mcpCreateRows(u *user, pageID string, rows json.RawMessage, vie
 				return "", fmt.Errorf("created %d row(s), then failed setting properties on %q: %w", len(ids)+1, r.Title, err)
 			}
 		}
+		// Each row starts in To-do in a status it was not given (spec 016).
+		if err := s.fillStatusDefaults(pageID, id); err != nil {
+			return "", fmt.Errorf("created %d row(s), then row %q: %w", len(ids)+1, r.Title, err)
+		}
 		if rv != nil {
 			if ok, err := s.rowMatchesFilters(id, viewFilters); err == nil && !ok {
 				notMatching = append(notMatching, id)

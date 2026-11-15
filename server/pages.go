@@ -389,6 +389,14 @@ func (s *Server) handleCreatePage(w http.ResponseWriter, r *http.Request) {
 		httpError(w, 500, err.Error())
 		return
 	}
+	// A row of a database starts in To-do in each status it was not given
+	// (spec 016, FR-017). Nothing to do for a page outside a database.
+	if body.ParentID != nil {
+		if err := s.fillStatusDefaults(*body.ParentID, id); err != nil {
+			httpError(w, 500, err.Error())
+			return
+		}
+	}
 	if body.Type == "collection" {
 		if err := s.createDefaultCollection(id); err != nil {
 			httpError(w, 500, err.Error())

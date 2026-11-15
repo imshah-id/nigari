@@ -238,6 +238,12 @@ func (s *Server) handlePublicFormSubmit(w http.ResponseWriter, r *http.Request) 
 		httpError(w, 500, err.Error())
 		return
 	}
+	// A status the form did not ask for, or left empty, starts in To-do
+	// (spec 016, FR-017).
+	if err := s.fillStatusDefaults(colID, id); err != nil {
+		httpError(w, 500, err.Error())
+		return
+	}
 	if err := s.reindexPage(id); err != nil {
 		httpError(w, 500, err.Error())
 		return

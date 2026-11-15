@@ -318,3 +318,56 @@ func isStatusErr(err error) bool {
 	var e errStatusOptions
 	return errors.As(err, &e)
 }
+
+// statusDefaults is the value a new row of a database starts with in each of
+// its status properties: the first option of the To-do group (FR-017, owner's
+// answer Q1 "A").
+func (s *Server) statusDefaults(collectionID string) map[string]string {
+	schema, _, err := s.loadCollection(collectionID)
+	if err != nil {
+		return nil
+	}
+	out := map[string]string{}
+	for _, p := range schema {
+		id, _ := p["id"].(string)
+		if t, _ := p["type"].(string); t != "status" || !safePropID(id) {
+			continue
+		}
+		list, _ := p["options"].([]any)
+		for _, o := range list {
+			m, _ := o.(map[string]any)
+			if g, _ := m["group"].(string); g == "todo" {
+				if oid, _ := m["id"].(string); oid != "" {
+					out[id] = oid
+				}
+				break
+			}
+		}
+	}
+	return out
+}
+
+// fillStatusDefaults gives a row just made in a database the To-do default
+// in every status it does not hold yet (R4). It runs AFTER the door stored the
+// row and its values, so whatever the door wrote wins: the caller's value, a
+// view's pin, a template's value. One function called by every door that makes
+// a row (handleCreatePage, rowFromTemplate for both REST and MCP templates,
+// create_page, create_rows, the public form, ingest); TestEveryRowDoorStartsInToDo
+// lists them, so a door without the call fails there.
+//
+// Empty is missing: a public form or an import that sends "" for the status
+// gets the default, as FR-017 says.
+//
+// Not called by copies (duplicate, workspace import and transfer, blueprints):
+// a copy keeps what its original held, an empty status included.
+func (s *Server) fillStatusDefaults(collectionID, rowID string) error {
+	for prop, opt := range s.statusDefaults(collectionID) {
+		path := "$." + prop
+		if _, err := s.db.Exec(`UPDATE pages SET props = json_set(CASE WHEN json_valid(props) AND props <> '' THEN props ELSE '{}' END, ?, ?)
+			WHERE id = ? AND parent_id = ? AND (json_type(props, ?) IS NULL OR json_type(props, ?) = 'null' OR json_extract(props, ?) = '')`,
+			path, opt, rowID, collectionID, path, path, path); err != nil {
+			return err
+		}
+	}
+	return nil
+}

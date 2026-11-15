@@ -306,3 +306,107 @@ func TestNewDatabaseGetsAStatus(t *testing.T) {
 		t.Errorf("default options %v %v", ids, groups)
 	}
 }
+
+// Every door that makes a row of a database starts it in To-do in a status it
+// was not given (FR-017, R4): the list below is the doors, so a new door
+// without fillStatusDefaults fails here. A value the caller gives wins.
+func TestEveryRowDoorStartsInToDo(t *testing.T) {
+	d := newStatusDoors(t)
+	col := d.s.makeCollection(t, d.ws, d.uid, "Work", `[
+		{"id":"stage","name":"Stage","type":"status","options":[
+			{"id":"later","name":"Later","group":"todo"},{"id":"now","name":"Now","group":"in_progress"},{"id":"shipped","name":"Shipped","group":"complete"}]},
+		{"id":"note","name":"Note","type":"text"}]`)
+	stageOf := func(title string) any {
+		t.Helper()
+		var props string
+		if err := d.s.db.QueryRow(`SELECT props FROM pages WHERE parent_id = ? AND title = ?`, col, title).Scan(&props); err != nil {
+			t.Fatalf("row %q: %v", title, err)
+		}
+		var m map[string]any
+		json.Unmarshal([]byte(props), &m)
+		return m["stage"]
+	}
+	post := func(path, body string) {
+		t.Helper()
+		rec := httptest.NewRecorder()
+		req := httptest.NewRequest("POST", path, strings.NewReader(body))
+		req.Header.Set("Cookie", d.cookie)
+		req.Header.Set("Content-Type", "application/json")
+		d.s.ServeHTTP(rec, req)
+		if rec.Code != 200 {
+			t.Fatalf("POST %s: %d %s", path, rec.Code, rec.Body.String())
+		}
+	}
+
+	// A template of the database that holds no status.
+	tmpl := d.s.makeRow(t, d.ws, d.uid, col, "Template", `{"note":"from the template"}`)
+	d.s.db.Exec(`UPDATE pages SET is_template = 1, template_of = ? WHERE id = ?`, col, tmpl)
+
+	// A public form on the database.
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest("POST", "/api/collections/"+col+"/form-share", strings.NewReader(`{}`))
+	req.Header.Set("Cookie", d.cookie)
+	req.Header.Set("Content-Type", "application/json")
+	d.s.ServeHTTP(rec, req)
+	var share struct{ Token string }
+	json.Unmarshal(rec.Body.Bytes(), &share)
+	if share.Token == "" {
+		t.Fatalf("form share: %d %s", rec.Code, rec.Body.String())
+	}
+
+	doors := []struct {
+		name string
+		make func(title string)
+	}{
+		{"REST new row", func(title string) {
+			post("/api/pages", `{"parentId":"`+col+`","title":"`+title+`"}`)
+		}},
+		{"REST row from template", func(title string) {
+			post("/api/collections/"+col+"/from-template", `{"templateId":"`+tmpl+`","title":"`+title+`"}`)
+		}},
+		{"MCP create_page", func(title string) {
+			if _, err := callTool(t, d.s, d.u, "create_page", `{"parent_id":"`+col+`","title":"`+title+`"}`); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"MCP create_page from template", func(title string) {
+			if _, err := callTool(t, d.s, d.u, "create_page", `{"template_id":"`+tmpl+`","title":"`+title+`"}`); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"MCP create_rows", func(title string) {
+			if _, err := callTool(t, d.s, d.u, "create_rows", `{"page_id":"`+col+`","rows":[{"title":"`+title+`"}]}`); err != nil {
+				t.Fatal(err)
+			}
+		}},
+		{"public form, status left empty", func(title string) {
+			rec := httptest.NewRecorder()
+			req := httptest.NewRequest("POST", "/api/public/form/"+share.Token+"/submit", strings.NewReader(`{"title":"`+title+`","props":{"stage":""}}`))
+			req.Header.Set("Content-Type", "application/json")
+			d.s.ServeHTTP(rec, req)
+			if rec.Code != 200 {
+				t.Fatalf("form submit: %d %s", rec.Code, rec.Body.String())
+			}
+		}},
+		{"ingest", func(title string) {
+			d.s.runIngest("test-job", d.uid, col, d.ws, []ingestItem{{title: title, props: map[string]any{"Note": "imported"}}},
+				map[string]string{"note": "note", "stage": "stage"})
+		}},
+	}
+	for _, door := range doors {
+		title := "Row by " + door.name
+		door.make(title)
+		if got := stageOf(title); got != "later" {
+			t.Errorf("%s: stage = %v, want the first To-do option \"later\"", door.name, got)
+		}
+	}
+
+	// What the caller gives wins over the default.
+	if _, err := callTool(t, d.s, d.u, "create_rows", `{"page_id":"`+col+`","rows":[{"title":"Given","properties":{"stage":"now"}}]}`); err != nil {
+		t.Fatal(err)
+	}
+	post("/api/pages", `{"parentId":"`+col+`","title":"Given REST","props":{"stage":"shipped"}}`)
+	if stageOf("Given") != "now" || stageOf("Given REST") != "shipped" {
+		t.Errorf("a given value was overwritten: %v, %v", stageOf("Given"), stageOf("Given REST"))
+	}
+}

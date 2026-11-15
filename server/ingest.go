@@ -678,6 +678,11 @@ func (s *Server) runIngest(jobID, userID, parentID, workspaceID string, items []
 				}
 			}
 		}
+		// Into a database: a status the item did not set starts in To-do
+		// (spec 016, FR-017). Pages outside a database have no schema.
+		if parentID != "" && nameToID != nil {
+			s.fillStatusDefaults(parentID, id)
+		}
 		s.reindexPage(id)
 		s.ingest.update(jobID, func(j *ingestJob) { j.Created++ })
 	}

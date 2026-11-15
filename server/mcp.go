@@ -1110,6 +1110,13 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 					return "", fmt.Errorf("page created (%s) but properties failed: %w", id, err)
 				}
 			}
+			// A row of a database starts in To-do in each status it was not
+			// given (spec 016, FR-017), as over REST.
+			if parent != nil {
+				if err := s.fillStatusDefaults(*parent, id); err != nil {
+					return "", err
+				}
+			}
 			if err := s.reindexPage(id); err != nil {
 				return "", err
 			}
