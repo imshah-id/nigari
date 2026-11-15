@@ -15,11 +15,15 @@ import (
 // rows, `schema` defines typed properties, `views` are saved view configs
 // (table, board, list). Property values live in pages.props.
 
+// A new database's Status is a status (spec 016, FR-018), with the option ids
+// it had as a select, so the default board view (groupBy status), templates
+// and agents that name todo/doing/done keep working. Databases that exist are
+// not touched (FR-016): theirs stays a select until someone converts it.
 const defaultSchema = `[
- {"id":"status","name":"Status","type":"select","options":[
-   {"id":"todo","name":"To do","color":"#c4554d"},
-   {"id":"doing","name":"In progress","color":"#b58a3b"},
-   {"id":"done","name":"Done","color":"#2f7d4f"}]}
+ {"id":"status","name":"Status","type":"status","options":[
+   {"id":"todo","name":"To do","color":"#c4554d","group":"todo"},
+   {"id":"doing","name":"In progress","color":"#b58a3b","group":"in_progress"},
+   {"id":"done","name":"Done","color":"#2f7d4f","group":"complete"}]}
 ]`
 
 const defaultViews = `[

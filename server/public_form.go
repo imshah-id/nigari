@@ -39,7 +39,7 @@ func (p formSchemaProp) hasOption(id string) bool {
 // Computed/linked types (relation/rollup/formula) are never accepted.
 func formFillable(t string) bool {
 	switch t {
-	case "text", "number", "select", "multiselect", "date", "checkbox", "person":
+	case "text", "number", "select", "status", "multiselect", "date", "checkbox", "person":
 		return true
 	}
 	return false
@@ -264,7 +264,7 @@ func coerceFormValue(p formSchemaProp, v any) (any, bool) {
 			str = string([]rune(str)[:4000])
 		}
 		return str, true
-	case "select":
+	case "select", "status":
 		str, ok := v.(string)
 		if !ok || str == "" || !p.hasOption(str) {
 			return nil, false

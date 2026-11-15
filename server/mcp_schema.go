@@ -572,12 +572,12 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 		// multiselect belongs here: a row with three tags shows up under all
 		// three.
 		switch t := typeOf(g); t {
-		case "select", "multiselect", "relation":
+		case "select", "status", "multiselect", "relation":
 		case "":
 			// The view still names a property that was deleted since. Any
 			// change to such a board lands here, so the message says what to
 			// pass rather than only what is wrong.
-			return fmt.Errorf("board group_by: %q is no longer a property of this database. Pass group_by with a select, a multiselect or a relation property", g)
+			return fmt.Errorf("board group_by: %q is no longer a property of this database. Pass group_by with a select, a status, a multiselect or a relation property", g)
 		default:
 			return fmt.Errorf("board group_by: %q is a %s property. A board groups by a select, a multiselect or a relation", g, t)
 		}

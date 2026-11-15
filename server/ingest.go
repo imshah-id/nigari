@@ -459,7 +459,7 @@ func (s *Server) ensureIngestOptions(dbID string, items []ingestItem, nameToID m
 	for i, p := range schema {
 		id, _ := p["id"].(string)
 		typ, _ := p["type"].(string)
-		if typ != "select" && typ != "multiselect" {
+		if !optionTypes[typ] {
 			continue
 		}
 		opts, _ := p["options"].([]any)
@@ -483,17 +483,26 @@ func (s *Server) ensureIngestOptions(dbID string, items []ingestItem, nameToID m
 			// columns apart by hue. Taken in turn from optionPalette
 			// (import_csv.go) — the same source as the CSV import, so that no
 			// second truth appears.
-			opts = append(opts, map[string]any{
+			opt := map[string]any{
 				"id":    slugID(val, taken),
 				"name":  val,
 				"color": optionPalette[added%len(optionPalette)],
-			})
+			}
+			if typ == "status" {
+				// Placed by its name, as a conversion places one (spec 016, R6).
+				opt["group"] = guessStatusGroup(val)
+			}
+			opts = append(opts, opt)
 			have[strings.ToLower(val)] = true
 			added++
 		}
 		schema[i]["options"] = opts
 	}
 	if added > 0 {
+		// Every option has its group, so this only keeps them in group order.
+		if err := prepareStatusProps(schema, snapshotStatus(nil)); err != nil {
+			return 0, err
+		}
 		if err := s.saveCollection(dbID, schema, views); err != nil {
 			return 0, err
 		}

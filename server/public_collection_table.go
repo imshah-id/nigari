@@ -120,7 +120,7 @@ func publicCollectionTypedCell(value any, kind, property string, options map[str
 		if v, ok := value.(bool); ok && v {
 			return "✓"
 		}
-	case "select":
+	case "select", "status":
 		if v, ok := value.(string); ok {
 			return options[property+"/"+v]
 		}

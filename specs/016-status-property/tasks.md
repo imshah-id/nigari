@@ -41,10 +41,10 @@ description: "Tasks for a Status property type"
 
 ## Phase 2: Foundational — the browser knows the type
 
-- [ ] T006 [P] [ui] `PropType` gains `'status'`; `PropOption.group?`; `isOptionType(type)` in `web/src/types.ts`
-- [ ] T007 [P] [ui] New `web/src/statusGroups.ts` (pure): the groups and their labels through `t()`, `guessStatusGroup`, `fillEmptyGroups`, `orderByGroup`
-- [ ] T008 [P] [test] New `web/scripts/check-statusgroups.mjs`: T007 against `server/testdata/statusgroups.json`; fails a new `=== 'select'` meaning "has options" outside its reviewed list (R10); added to `npm run check`
-- [ ] T009 [P] [i18n] `invalid_status_options` in `web/src/serverErrors.ts`; the group names, Status, Not started, Done; de/es/nl
+- [x] T006 [P] [ui] `PropType` gains `'status'`; `PropOption.group?`; `isOptionType(type)` in `web/src/types.ts`
+- [x] T007 [P] [ui] New `web/src/statusGroups.ts` (pure): the groups and their labels through `t()`, `guessStatusGroup`, `fillEmptyGroups`, `orderByGroup`
+- [x] T008 [P] [test] New `web/scripts/check-statusgroups.mjs`: T007 against `server/testdata/statusgroups.json`; fails a new `=== 'select'` meaning "has options" outside its reviewed list (R10); added to `npm run check`
+- [x] T009 [P] [i18n] `invalid_status_options` in `web/src/serverErrors.ts`; the group names, Status, Not started, Done; de/es/nl
 
 ---
 
@@ -65,7 +65,7 @@ description: "Tasks for a Status property type"
 ## Phase 4: User Story 3 — turn a select into a status (P2)
 
 - [ ] T015 [US3] [test] Go: converting the default schema's select keeps every row's value and the board's columns (SC-002), REST and `update_schema`
-- [ ] T016 [US3] [backend] `defaultSchema` (`server/collections.go`) becomes a status with ids `todo`, `doing`, `done` and their groups (FR-018, R7); a test that a new database's board still groups by `status`
+- [x] T016 [US3] [backend] `defaultSchema` (`server/collections.go`) becomes a status with ids `todo`, `doing`, `done` and their groups (FR-018, R7); a test that a new database's board still groups by `status`
 
 ---
 

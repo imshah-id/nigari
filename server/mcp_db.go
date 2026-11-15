@@ -214,7 +214,7 @@ func reconcileDefaultViews(schemaStr string) string {
 			continue
 		}
 		switch t, _ := p["type"].(string); t {
-		case "select", "multiselect", "relation":
+		case "select", "status", "multiselect", "relation":
 			usable[id] = true
 			groupable = true
 			if first == "" {

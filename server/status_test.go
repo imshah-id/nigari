@@ -281,3 +281,28 @@ func TestMultiSelectBecomesStatusOnlyWithSingleValues(t *testing.T) {
 		t.Errorf("single values: %v", err)
 	}
 }
+
+// A new database's Status is a status, with the ids it had as a select, so
+// the default board still groups by it (FR-018, R7).
+func TestNewDatabaseGetsAStatus(t *testing.T) {
+	d := newStatusDoors(t)
+	if _, err := callTool(t, d.s, d.u, "create_database", `{"title":"Plans","workspace_id":"`+d.ws+`"}`); err != nil {
+		t.Fatal(err)
+	}
+	var id string
+	d.s.db.QueryRow(`SELECT id FROM pages WHERE title = 'Plans' AND type = 'collection'`).Scan(&id)
+	schema := d.schemaOf(t, id)
+	var status map[string]any
+	for _, p := range schema {
+		if p["id"] == "status" {
+			status = p
+		}
+	}
+	if status == nil || status["type"] != "status" {
+		t.Fatalf("the default Status is %v, want a status", status)
+	}
+	ids, groups := optionGroups(t, schema, "status")
+	if strings.Join(ids, ",") != "todo,doing,done" || strings.Join(groups, ",") != "todo,in_progress,complete" {
+		t.Errorf("default options %v %v", ids, groups)
+	}
+}
