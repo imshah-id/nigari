@@ -322,7 +322,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "ed3f2ea7c13e",
+        "web/src/components/CollectionView.tsx": "a982161cc90d",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -359,9 +359,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "ed3f2ea7c13e",
-        "web/src/components/BoardView.tsx": "08d1168bbecd",
-        "web/src/cardLayout.ts": "eb7f92584275",
+        "web/src/components/CollectionView.tsx": "a982161cc90d",
+        "web/src/components/BoardView.tsx": "4dac5818b928",
+        "web/src/cardLayout.ts": "81a08ba36ba8",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -396,7 +396,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "ed3f2ea7c13e",
+        "web/src/components/CollectionView.tsx": "a982161cc90d",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -440,7 +440,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "ed3f2ea7c13e",
+        "web/src/components/CollectionView.tsx": "a982161cc90d",
         "web/src/components/ChartFigure.tsx": "3fcca96f94d5",
         "web/src/components/ChartView.css": "ad6a7c9c7acf",
         "web/src/components/ChartSettings.tsx": "4f8c7aeacbc8",
@@ -503,7 +503,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "ed3f2ea7c13e",
+        "web/src/components/CollectionView.tsx": "a982161cc90d",
         "web/src/components/ChartSettings.tsx": "4f8c7aeacbc8",
         "web/src/components/ChartSettings.css": "16a9584f65dc",
         "web/src/components/ChartPane.tsx": "1fbe458f0d0b",
@@ -748,7 +748,7 @@
       ],
       "takenAt": {
         "web/src/components/AgentConnect.tsx": "5845471c4aee",
-        "server/mcp.go": "16e0601e616d",
+        "server/mcp.go": "5c12b3dbbdee",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       },
