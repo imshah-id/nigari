@@ -52,7 +52,10 @@ How a view's type works today, from the code graph and the source
 
 ### Session 2026-11-15
 
-*(none yet)*
+- Q: Calendar or Timeline on a database with no date property? → A:
+  Picking it offers to add a "Date" property, then switches (owner, "B";
+  the recommendation was a disabled choice with "Add a date property
+  first").
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -112,9 +115,11 @@ without a date property.
    unless the view already had one chosen from an earlier time as that
    type.
 2. **Given** a database without a date property, **When** a person picks
-   Calendar or Timeline, **Then** [NEEDS CLARIFICATION: the choice is shown
-   disabled with "Add a date property first", or picking it offers to add a
-   Date property and then switches?].
+   Calendar or Timeline, **Then** they are asked whether to add a date
+   property named "Date"; on yes it is added and the view switches to it;
+   on no nothing changes. Someone who may change the view but not the
+   database's properties (an embed in a document they edit, of a database
+   they only read) is told a date property is needed, and nothing changes.
 3. **Given** a view becoming a chart, **When** it has no chart settings yet,
    **Then** it is a bar chart counting rows by the first property a chart
    can group by (or a number chart when there is none), as a new chart view
@@ -208,6 +213,13 @@ calendar; refusals on a locked view and on an embed's form.
   a default the same way a new view of that type does: a board the first
   select or status property, a calendar or timeline the first date
   property, a chart a count by the first property it can group by.
+- **FR-004a**: Picking Calendar or Timeline on a database with no date
+  property MUST ask to add one ("Date", or a name not taken); on yes the
+  property is added (a schema change, with that door's checks and log) and
+  the view switches to it in the same step; if the person may not change
+  the database's properties, the choice says why and nothing changes. An
+  agent asking `set_view` for such a type is refused with the reason and
+  told to add a date property with `update_schema` first.
 - **FR-005**: A switch MUST NOT leave the view in a state the server would
   refuse on its next save (a chart's settings are checked as a new chart's
   are).
