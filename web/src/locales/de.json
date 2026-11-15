@@ -874,6 +874,7 @@
   "Workspace renamed": "Workspace umbenannt",
   "Workspace rules": "Workspace-Regeln",
   "Workspace rules are limited to 16000 characters.": "Workspace-Regeln sind auf 16000 Zeichen begrenzt.",
+  "A comment is limited to 10000 characters.": "Ein Kommentar ist auf 10000 Zeichen begrenzt.",
   "Workspace rules saved": "Workspace-Regeln gespeichert",
   "Workspace settings": "Workspace-Einstellungen",
   "Workspaces": "Workspaces",

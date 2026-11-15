@@ -146,6 +146,8 @@ export function serverMessage(code: string, fallback: string, data?: ErrorData):
       return t('This action requires signing in through a browser. An API token is not enough.');
     case 'rules_too_long':
       return t('Workspace rules are limited to 16000 characters.');
+    case 'comment_too_long':
+      return t('A comment is limited to 10000 characters.');
     case 'reason_too_short':
       return t(
         'Please give a reason somebody can follow (at least 10 characters). It is logged and shown to the people in charge of this workspace.',

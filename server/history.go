@@ -3,9 +3,12 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Page version history and comments (Welle 13).
@@ -187,6 +190,24 @@ func (s *Server) handleListComments(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, list)
 }
 
+// checkCommentBody is the one check a comment's text passes before it is
+// stored, by the REST route and the MCP comments tool alike. It returns the
+// text as stored (trimmed). The length check lived only on the REST side, so
+// an agent could store a comment of any length that then landed in every
+// list of the page's comments (#645).
+func checkCommentBody(body string) (string, error) {
+	text := strings.TrimSpace(body)
+	if text == "" {
+		return "", errors.New("comment body is required")
+	}
+	// Counted after trimming: the whitespace around a comment is never stored,
+	// so it does not count against the limit either.
+	if utf8.RuneCountInString(text) > maxCommentLen {
+		return "", coded("comment_too_long", fmt.Sprintf("A comment is limited to %d characters.", maxCommentLen))
+	}
+	return text, nil
+}
+
 func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
 	pageID := r.PathValue("id")
 	u := requestUser(r)
@@ -202,17 +223,14 @@ func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
 		httpError(w, 400, "invalid JSON")
 		return
 	}
-	if strings.TrimSpace(body.Body) == "" {
-		httpError(w, 400, "comment body is required")
-		return
-	}
-	if len([]rune(body.Body)) > maxCommentLen {
-		httpError(w, 400, "comment is too long")
+	text, err := checkCommentBody(body.Body)
+	if err != nil {
+		httpErrorFrom(w, 400, err)
 		return
 	}
 	id := newID()
 	if _, err := s.db.Exec(`INSERT INTO comments (id, page_id, block_id, author_id, author_name, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		id, pageID, body.BlockID, u.ID, u.Name, strings.TrimSpace(body.Body), now()); err != nil {
+		id, pageID, body.BlockID, u.ID, u.Name, text, now()); err != nil {
 		httpError(w, 500, err.Error())
 		return
 	}

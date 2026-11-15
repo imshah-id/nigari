@@ -103,12 +103,14 @@ func (s *Server) mcpComments(u *user, pageID, action, body, blockID, commentID s
 		}
 		return wrapUntrusted(string(out)), nil
 	case "add":
-		if strings.TrimSpace(body) == "" {
-			return "", fmt.Errorf("body is required for action=add")
+		// The same check as the REST route, in the same function (#645).
+		text, err := checkCommentBody(body)
+		if err != nil {
+			return "", err
 		}
 		id := newID()
 		if _, err := s.db.Exec(`INSERT INTO comments (id, page_id, block_id, author_id, author_name, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-			id, pageID, blockID, u.ID, u.Name, strings.TrimSpace(body), now()); err != nil {
+			id, pageID, blockID, u.ID, u.Name, text, now()); err != nil {
 			return "", err
 		}
 		return "Added comment " + id, nil
