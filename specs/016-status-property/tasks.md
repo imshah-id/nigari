@@ -9,7 +9,7 @@ description: "Tasks for a Status property type"
 
 **Tests**: required. Go tests on every door and refusal, the shared conversion cases, a parity pair, two benchmarks; one pure check; one new browser spec, four kept passing.
 
-**Issues**: none yet
+**Issues**: parent #18; T001–T036 are #646–#681, in order
 
 **Delivery**: two pull requests (plan Summary). PR 1 = Phases 1–5; PR 2 = Phases 6–7; Phase 8 closes each PR's own share.
 
