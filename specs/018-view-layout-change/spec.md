@@ -223,9 +223,9 @@ calendar; refusals on a locked view and on an embed's form.
 - **FR-005**: A switch MUST NOT leave the view in a state the server would
   refuse on its next save (a chart's settings are checked as a new chart's
   are).
-- **FR-006**: After the switch the menu MUST show the setting the new
-  layout depends on (board: group-by; calendar, timeline: dates; chart: the
-  chart settings), so the person can change the default.
+- **FR-006**: After the switch the person MUST be told the default the new
+  layout was given and where to change it (board: its Group button;
+  calendar, timeline: the date in Settings; chart: the chart settings).
 - **FR-007**: Changing a layout MUST be refused where any view change is:
   without write permission on the database (for its views) or the
   document (for an embed's views), and while the database's views are
