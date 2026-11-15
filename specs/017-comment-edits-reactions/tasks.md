@@ -9,7 +9,7 @@ description: "Tasks for editing comments and reacting to them"
 
 **Tests**: required. Go tests on every gate and refusal on both doors, the upgrade fixture, a parity pair, a list benchmark; one pure check; one new browser spec.
 
-**Issues**: none yet
+**Issues**: parent #22; T001–T026 are #682–#707, in order
 
 **Delivery**: #645 first (its own pull request); then one pull request for these tasks.
 
