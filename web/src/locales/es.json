@@ -1342,6 +1342,11 @@
   "Hide when empty": "Ocultar si está vacía",
   "Property name": "Nombre de la propiedad",
   "This property could not be saved: it can be shown, hidden while empty, or always hidden on a row’s page.": "No se pudo guardar esta propiedad: puede mostrarse, ocultarse mientras está vacía o ocultarse siempre en la página de una fila.",
+  "To-do": "Por hacer",
+  "In progress": "En curso",
+  "Complete": "Completado",
+  "Not started": "Sin empezar",
+  "These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.": "No se pueden guardar estas opciones de estado: cada opción necesita un grupo, cada grupo al menos una opción y cada nombre solo puede usarse una vez.",
   "Type": "Tipo",
   "{name} property": "Propiedad {name}",
   "Hide {n} properties": {

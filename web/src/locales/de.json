@@ -1342,6 +1342,11 @@
   "Hide when empty": "Ausblenden, wenn leer",
   "Property name": "Name der Eigenschaft",
   "This property could not be saved: it can be shown, hidden while empty, or always hidden on a row’s page.": "Diese Eigenschaft konnte nicht gespeichert werden: Auf der Seite einer Zeile kann sie angezeigt, ausgeblendet, solange sie leer ist, oder immer ausgeblendet werden.",
+  "To-do": "Zu erledigen",
+  "In progress": "In Arbeit",
+  "Complete": "Erledigt",
+  "Not started": "Nicht begonnen",
+  "These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.": "Diese Status-Optionen können nicht gespeichert werden: Jede Option braucht eine Gruppe, jede Gruppe mindestens eine Option, und jeder Name darf nur einmal vorkommen.",
   "Type": "Typ",
   "{name} property": "Eigenschaft {name}",
   "Hide {n} properties": {

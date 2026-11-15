@@ -184,6 +184,7 @@ export type PropType =
   | 'number'
   | 'select'
   | 'multiselect'
+  | 'status'
   | 'date'
   | 'checkbox'
   | 'checklist'
@@ -203,10 +204,22 @@ export interface ChecklistItem {
   done: boolean;
 }
 
+/** The three fixed groups of a status option, in workflow order (spec 016). */
+export type StatusGroup = 'todo' | 'in_progress' | 'complete';
+
 export interface PropOption {
   id: string;
   name: string;
   color: string;
+  /** Only on the options of a status property; the server keeps it on every one. */
+  group?: StatusGroup;
+}
+
+/** True for the property types whose values are option ids. Replaces the
+ *  strict-equals-select tests that mean "has options", so the next type with
+ *  options does not miss half the places (spec 016 R10; optionTypes in Go). */
+export function isOptionType(type: PropType | string | undefined): boolean {
+  return type !== undefined && ['select', 'multiselect', 'status'].includes(type);
 }
 
 export interface PropDef {

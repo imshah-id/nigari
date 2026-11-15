@@ -42,6 +42,10 @@ export function serverMessage(code: string, fallback: string, data?: ErrorData):
     case 'invalid_property_visibility':
       return t('This property could not be saved: it can be shown, hidden while empty, or always hidden on a row’s page.');
 
+    // ---- a status property's options (spec 016) ----
+    case 'invalid_status_options':
+      return t('These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.');
+
     // ---- a workspace's icon (#593) ----
     case 'bad_icon':
       return t('This icon cannot be used: an icon is an emoji, a built-in icon, or a picture uploaded to nigari.');
