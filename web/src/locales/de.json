@@ -1347,6 +1347,7 @@
   "Complete": "Erledigt",
   "Not started": "Nicht begonnen",
   "These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.": "Diese Status-Optionen können nicht gespeichert werden: Jede Option braucht eine Gruppe, jede Gruppe mindestens eine Option, und jeder Name darf nur einmal vorkommen.",
+  "{rows} hold more than one value. A status holds one: leave one value in each, then change the type.": "{rows} enthalten mehr als einen Wert. Ein Status hat nur einen: Lass in jeder nur einen Wert stehen und ändere dann den Typ.",
   "Type": "Typ",
   "{name} property": "Eigenschaft {name}",
   "Hide {n} properties": {

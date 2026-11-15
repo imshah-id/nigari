@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"sort"
 	"strings"
@@ -63,6 +64,17 @@ var optionTypes = map[string]bool{"select": true, "multiselect": true, "status":
 type errStatusOptions struct{ msg string }
 
 func (e errStatusOptions) Error() string { return e.msg }
+
+// errStatusRows is a multi-select that cannot become a status because rows
+// hold several of its values. Its own code (status_rows_hold_several): under
+// invalid_status_options the interface said "every option needs a group…",
+// and the person never learned that the rows were the reason.
+type errStatusRows struct {
+	msg  string
+	rows int
+}
+
+func (e errStatusRows) Error() string { return e.msg }
 
 // statusWords is the word list the conversion places options by (FR-010),
 // shared with the browser's guess through server/testdata/statusgroups.json:
@@ -287,7 +299,7 @@ func (s *Server) checkStatusConversion(collectionID string, was statusSnapshot, 
 		}
 		if n > 0 {
 			name, _ := p["name"].(string)
-			return errStatusOptions{fmt.Sprintf("%d rows hold more than one value of %q; a status holds one. Leave one value in each, then change the type", n, name)}
+			return errStatusRows{fmt.Sprintf("%d rows hold more than one value of %q; a status holds one. Leave one value in each, then change the type", n, name), n}
 		}
 	}
 	return nil
@@ -317,7 +329,19 @@ func hasStatus(schema []map[string]any) bool {
 
 func isStatusErr(err error) bool {
 	var e errStatusOptions
-	return errors.As(err, &e)
+	var r errStatusRows
+	return errors.As(err, &e) || errors.As(err, &r)
+}
+
+// httpStatusErr answers a refused status on REST: each refusal with its own
+// code, so the interface can say which it was.
+func httpStatusErr(w http.ResponseWriter, err error) {
+	var r errStatusRows
+	if errors.As(err, &r) {
+		httpErrorData(w, 400, "status_rows_hold_several", r.msg, map[string]any{"rows": r.rows})
+		return
+	}
+	httpErrorCode(w, 400, "invalid_status_options", err.Error())
 }
 
 // statusDefaults is the value a new row of a database starts with in each of
@@ -378,6 +402,8 @@ func (s *Server) fillStatusDefaults(collectionID, rowID string) error {
 // so the place is group first, then position in the group (R5). A row
 // without a value, or with one no longer offered, sorts after every option.
 // "" when the property is not a status: the caller keeps its plain sort.
+// The expression is the place, or len(options) for no value; the caller puts
+// that case last in both directions, as SQLite puts a select's NULLs.
 //
 // The value is read as a scalar or as the first element of an array (a
 // status converted from a single-value multi-select keeps ["id"]). The CASE
@@ -386,21 +412,21 @@ func (s *Server) fillStatusDefaults(collectionID, rowID string) error {
 // The schema is read from the read pool, like everything else in the rows
 // query: a rows read must not wait for the writer's connection
 // (TestARowsReadDoesNotNeedTheWriter, #82), and loadCollection uses it.
-func (s *Server) statusSortExpr(ctx context.Context, collectionID, propID string) (string, []any) {
+func (s *Server) statusSortExpr(ctx context.Context, collectionID, propID string) (string, []any, int) {
 	var raw string
 	if err := s.rdb.QueryRowContext(ctx, `SELECT schema FROM collections WHERE page_id = ?`, collectionID).Scan(&raw); err != nil {
-		return "", nil
+		return "", nil, 0
 	}
 	var schema []map[string]any
 	if json.Unmarshal([]byte(raw), &schema) != nil {
-		return "", nil
+		return "", nil, 0
 	}
 	for _, p := range schema {
 		if id, _ := p["id"].(string); id != propID {
 			continue
 		}
 		if t, _ := p["type"].(string); t != "status" {
-			return "", nil
+			return "", nil, 0
 		}
 		list, _ := p["options"].([]any)
 		var b strings.Builder
@@ -413,7 +439,7 @@ func (s *Server) statusSortExpr(ctx context.Context, collectionID, propID string
 			args = append(args, oid)
 		}
 		fmt.Fprintf(&b, " ELSE %d END", len(list))
-		return b.String(), args
+		return b.String(), args, len(list)
 	}
-	return "", nil
+	return "", nil, 0
 }

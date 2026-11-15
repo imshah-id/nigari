@@ -25,7 +25,11 @@ export function sortComparator<T extends { props: Record<string, unknown> }>(sor
     if (place) {
       // A status converted from a single-value multi-select keeps ["id"].
       const rank = (v: unknown) => place.get(String(Array.isArray(v) ? v[0] : v ?? '')) ?? place.size;
-      const cmp = rank(av) - rank(bv);
+      const ra = rank(av);
+      const rb = rank(bv);
+      // No status last in both directions, as the rows query puts it.
+      if ((ra === place.size) !== (rb === place.size)) return ra === place.size ? 1 : -1;
+      const cmp = ra - rb;
       return sort.dir === 'desc' ? -cmp : cmp;
     }
     const as = Array.isArray(av) ? av.join(',') : String(av ?? '');

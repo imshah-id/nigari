@@ -146,7 +146,7 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 		storedSchema, _, _ := s.loadCollection(id)
 		if err := s.prepareStatusSchema(id, snapshotStatus(storedSchema), sent); err != nil {
 			if isStatusErr(err) {
-				httpErrorCode(w, 400, "invalid_status_options", err.Error())
+				httpStatusErr(w, err)
 			} else {
 				httpError(w, 500, err.Error())
 			}
@@ -576,9 +576,11 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 			// A status sorts in its workflow order: by group, then by the
 			// option's place in it (spec 016, R5). Its stored id's text would
 			// put "doing" before "done" before "todo" by accident.
-			if expr, args := s.statusSortExpr(ctx, colID, propID); expr != "" {
-				orderSQL = expr + " " + d + ", position"
-				orderArgs = args
+			if expr, args, none := s.statusSortExpr(ctx, colID, propID); expr != "" {
+				// Rows with no status last whichever way, then the place.
+				orderSQL = "(" + expr + ") = " + strconv.Itoa(none) + ", " + expr + " " + d + ", position"
+				// The expression appears twice, so its arguments do too.
+				orderArgs = append(append([]any{}, args...), args...)
 			}
 		}
 	}

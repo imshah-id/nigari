@@ -268,7 +268,8 @@ func TestMultiSelectBecomesStatusOnlyWithSingleValues(t *testing.T) {
 	two := d.s.makeRow(t, d.ws, d.uid, col, "Two", `{"tags":["x","y"]}`)
 
 	asStatus := strings.Replace(schema, `"multiselect"`, `"status"`, 1)
-	if code, body := d.putSchema(t, col, asStatus); code != 400 || !strings.Contains(body, "1 rows hold more than one value") {
+	// Its own code, so the interface says the rows are the reason.
+	if code, body := d.putSchema(t, col, asStatus); code != 400 || !strings.Contains(body, "1 rows hold more than one value") || !strings.Contains(body, `"status_rows_hold_several"`) {
 		t.Errorf("REST: %d %s, want the refusal naming 1 row", code, body)
 	}
 	if err := d.updateSchema(t, col, `[{"id":"tags","type":"status"}]`); err == nil || !strings.Contains(err.Error(), "1 rows hold more than one value") {
@@ -439,7 +440,7 @@ func TestStatusSortsInWorkflowOrder(t *testing.T) {
 	if got := titles("stage:asc"); got != "Waiting,Busy,Finished,Blank" {
 		t.Errorf("asc: %s", got)
 	}
-	if got := titles("stage:desc"); got != "Blank,Finished,Busy,Waiting" {
+	if got := titles("stage:desc"); got != "Finished,Busy,Waiting,Blank" {
 		t.Errorf("desc: %s", got)
 	}
 }

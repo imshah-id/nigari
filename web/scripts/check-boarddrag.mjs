@@ -121,7 +121,7 @@ try {
   check('status sort: group order, an empty or unknown value last',
     [...staged].sort(bd.sortComparator(byStage, stageSchema)).map((r) => r.id), ['s2', 's4', 's1', 's3', 's5']);
   check('status sort, descending',
-    [...staged].sort(bd.sortComparator({ property: 'stage', dir: 'desc' }, stageSchema)).map((r) => r.id), ['s3', 's5', 's1', 's4', 's2']);
+    [...staged].sort(bd.sortComparator({ property: 'stage', dir: 'desc' }, stageSchema)).map((r) => r.id), ['s1', 's4', 's2', 's3', 's5']); // empty and unknown still last
   check('status sort without the schema: the text, as before',
     [...staged].sort(bd.sortComparator(byStage)).map((r) => r.id)[0], 's3');
   const stagedCard = { id: 'n', props: { stage: 'doing' } };

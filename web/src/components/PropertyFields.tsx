@@ -134,6 +134,12 @@ export function PropertyFields({
   const addStatusOption = (name: string, g: StatusGroup) => {
     const options = p.options ?? [];
     if (!name.trim()) return;
+    // A status's option names are unique (the server refuses two alike, and
+    // the whole dialog's save with them): said here, before anything is lost.
+    if (options.some((o) => o.name.trim().toLowerCase() === name.trim().toLowerCase())) {
+      toast(t('Enter a unique, non-empty name.'));
+      return;
+    }
     let oid = slug(name);
     while (options.some((o) => o.id === oid)) oid += '_';
     onPatch({ options: orderByGroup([...options, { id: oid, name: name.trim(), color: OPTION_COLORS[options.length % OPTION_COLORS.length], group: g }]) });
@@ -183,8 +189,9 @@ export function PropertyFields({
                               } else onPatch({ options: reordered });
                               setDragOption(null);
                               setDropOption(null);
+                              setDropGroup(null);
                             }}
-                            onDragEnd={() => { setDragOption(null); setDropOption(null); }}
+                            onDragEnd={() => { setDragOption(null); setDropOption(null); setDropGroup(null); }}
                             onKeyDown={(e) => {
                               if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
                               e.preventDefault();

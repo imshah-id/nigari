@@ -579,7 +579,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 			// pass rather than only what is wrong.
 			return fmt.Errorf("board group_by: %q is no longer a property of this database. Pass group_by with a select, a status, a multiselect or a relation property", g)
 		default:
-			return fmt.Errorf("board group_by: %q is a %s property. A board groups by a select, a multiselect or a relation", g, t)
+			return fmt.Errorf("board group_by: %q is a %s property. A board groups by a select, a status, a multiselect or a relation", g, t)
 		}
 	}
 	if viewType == "calendar" || viewType == "timeline" {

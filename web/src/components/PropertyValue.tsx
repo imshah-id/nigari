@@ -132,7 +132,8 @@ function SelectCell({
   const isStatus = def.type === 'status';
   // A status holds one id, but one converted from a multi-select may still be
   // stored as a list of one: it shows that option (spec 016, FR-011).
-  const vals = multi ? idList(value) : idList(value).slice(0, 1).map(String);
+  // A select keeps the old reading, so a number an agent stored still shows.
+  const vals = multi ? idList(value) : isStatus ? idList(value).slice(0, 1).map(String) : value ? [String(value)] : [];
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [colorFor, setColorFor] = useState<string | null>(null); // option id being recoloured
