@@ -397,7 +397,7 @@ var mcpTools = []map[string]any{
 			"properties": map[string]any{
 				"page_id":    map[string]any{"type": "string"},
 				"action":     map[string]any{"type": "string", "description": "list (default) | add | resolve | reopen"},
-				"body":       map[string]any{"type": "string", "description": "add only: the comment text."},
+				"body":       map[string]any{"type": "string", "description": fmt.Sprintf("add only: the comment text, at most %d characters (the same limit as in the interface).", maxCommentLen)},
 				"block_id":   map[string]any{"type": "string", "description": "add only: attach the comment to one block instead of the page."},
 				"comment_id": map[string]any{"type": "string", "description": "resolve and reopen only."},
 			},

@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Page version history and comments (Welle 13).
@@ -199,8 +200,10 @@ func checkCommentBody(body string) (string, error) {
 	if text == "" {
 		return "", errors.New("comment body is required")
 	}
-	if len([]rune(text)) > maxCommentLen {
-		return "", fmt.Errorf("comment is too long (at most %d characters)", maxCommentLen)
+	// Counted after trimming: the whitespace around a comment is never stored,
+	// so it does not count against the limit either.
+	if utf8.RuneCountInString(text) > maxCommentLen {
+		return "", coded("comment_too_long", fmt.Sprintf("A comment is limited to %d characters.", maxCommentLen))
 	}
 	return text, nil
 }
@@ -222,7 +225,7 @@ func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
 	}
 	text, err := checkCommentBody(body.Body)
 	if err != nil {
-		httpError(w, 400, err.Error())
+		httpErrorFrom(w, 400, err)
 		return
 	}
 	id := newID()

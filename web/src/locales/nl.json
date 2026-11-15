@@ -874,6 +874,7 @@
   "Workspace renamed": "Naam van werkruimte gewijzigd",
   "Workspace rules": "Regels van de werkruimte",
   "Workspace rules are limited to 16000 characters.": "De regels van de werkruimte zijn beperkt tot 16000 tekens.",
+  "A comment is limited to 10000 characters.": "Een opmerking is beperkt tot 10000 tekens.",
   "Workspace rules saved": "Regels van de werkruimte opgeslagen",
   "Workspace settings": "Instellingen van de werkruimte",
   "Workspaces": "Werkruimten",

@@ -20,9 +20,12 @@ func TestCommentLengthIsCheckedOnBothDoors(t *testing.T) {
 
 	count := func() int {
 		var n int
-		s.db.QueryRow(`SELECT COUNT(*) FROM comments WHERE page_id = ?`, page).Scan(&n)
+		if err := s.db.QueryRow(`SELECT COUNT(*) FROM comments WHERE page_id = ?`, page).Scan(&n); err != nil {
+			t.Fatalf("count comments: %v", err)
+		}
 		return n
 	}
+	var lastREST string
 	rest := func(body string) int {
 		b, _ := json.Marshal(map[string]string{"body": body})
 		rec := httptest.NewRecorder()
@@ -30,6 +33,7 @@ func TestCommentLengthIsCheckedOnBothDoors(t *testing.T) {
 		req.Header.Set("Cookie", cookie)
 		req.Header.Set("Content-Type", "application/json")
 		s.ServeHTTP(rec, req)
+		lastREST = rec.Body.String()
 		return rec.Code
 	}
 	mcp := func(body string) error {
@@ -54,15 +58,31 @@ func TestCommentLengthIsCheckedOnBothDoors(t *testing.T) {
 
 	if code := rest(tooLong); code != 400 {
 		t.Errorf("REST took a comment over the limit: %d", code)
+	} else if !strings.Contains(lastREST, `"comment_too_long"`) {
+		// The browser translates the refusal from this code (serverErrors.ts).
+		t.Errorf("REST refusal carries no comment_too_long code: %s", lastREST)
 	}
 	err := mcp(tooLong)
 	if err == nil {
 		t.Error("MCP took a comment over the limit")
-	} else if !strings.Contains(err.Error(), "too long") {
+	} else if !strings.Contains(err.Error(), "limited to") {
 		t.Errorf("MCP refusal does not say why: %v", err)
 	}
 	if count() != 2 {
 		t.Errorf("a comment over the limit was stored: %d comments", count())
+	}
+
+	// Whitespace around the text is trimmed before it is stored, and before it
+	// is counted: a comment at the limit with a trailing newline is taken by
+	// both doors.
+	if code := rest("\n" + atLimit + "\n  "); code != 200 {
+		t.Errorf("REST counted the trimmed whitespace: %d", code)
+	}
+	if err := mcp("\n" + atLimit + "\n  "); err != nil {
+		t.Errorf("MCP counted the trimmed whitespace: %v", err)
+	}
+	if count() != 4 {
+		t.Fatalf("want 4 comments stored, have %d", count())
 	}
 
 	// Empty after trimming is refused on both doors too.

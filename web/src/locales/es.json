@@ -897,6 +897,7 @@
   "Workspace renamed": "Espacio de trabajo renombrado",
   "Workspace rules": "Reglas del espacio de trabajo",
   "Workspace rules are limited to 16000 characters.": "Las reglas del espacio de trabajo están limitadas a 16000 caracteres.",
+  "A comment is limited to 10000 characters.": "Un comentario está limitado a 10000 caracteres.",
   "Workspace rules saved": "Reglas del espacio de trabajo guardadas",
   "Workspace settings": "Ajustes del espacio de trabajo",
   "Workspaces": "Espacios de trabajo",
