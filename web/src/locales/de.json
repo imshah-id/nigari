@@ -1356,5 +1356,6 @@
   "{n} more properties": {
     "one": "{n} weitere Eigenschaft",
     "other": "{n} weitere Eigenschaften"
-  }
+  },
+  "Each group needs at least one option. Add another to this group first.": "Jede Gruppe braucht mindestens eine Option. Füge dieser Gruppe zuerst eine weitere hinzu."
 }

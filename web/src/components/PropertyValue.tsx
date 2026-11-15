@@ -1,7 +1,9 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { confirm } from '../dialog';
 import type { ChecklistItem, PropDef, PropOption } from '../types';
+import { STATUS_GROUPS, guessStatusGroup, orderByGroup, statusGroupLabel } from '../statusGroups';
+import { toast } from '../toast';
 import Portal from './Portal';
 import { OPTION_HEXES, optionPalette, optionSlug } from '../selectOptions';
 import { daysUntil, formatDay, formatMoment, formatNumber } from '../format';
@@ -127,7 +129,10 @@ function SelectCell({
         : (o as PropOption),
     )
     .filter((o) => o && typeof o.name === 'string');
-  const vals = multi ? idList(value) : value ? [String(value)] : [];
+  const isStatus = def.type === 'status';
+  // A status holds one id, but one converted from a multi-select may still be
+  // stored as a list of one: it shows that option (spec 016, FR-011).
+  const vals = multi ? idList(value) : idList(value).slice(0, 1).map(String);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
   const [colorFor, setColorFor] = useState<string | null>(null); // option id being recoloured
@@ -180,7 +185,11 @@ function SelectCell({
     if (!query || !onOptionsChange) return;
     const oid = optionSlug(query, options);
     const color = OPTION_HEXES[options.length % OPTION_HEXES.length];
-    onOptionsChange([...options, { id: oid, name: query, color }]);
+    // A new status option is placed by its name like a converted one (FR-010);
+    // the options stay in group order.
+    onOptionsChange(isStatus
+      ? orderByGroup([...options, { id: oid, name: query, color, group: guessStatusGroup(query) }])
+      : [...options, { id: oid, name: query, color }]);
     if (multi) {
       onChange([...vals, oid]);
       setQ('');
@@ -194,6 +203,11 @@ function SelectCell({
     setColorFor(null);
   };
   const remove = async (oid: string) => {
+    const group = options.find((o) => o.id === oid)?.group;
+    if (isStatus && group && options.filter((o) => o.group === group).length === 1) {
+      toast(t('Each group needs at least one option. Add another to this group first.'));
+      return;
+    }
     close();
     const ok = await confirm(t('Delete option “{name}”?', { name: options.find((o) => o.id === oid)?.name ?? oid }), { confirmText: t('Delete option'), danger: true });
     if (!ok) return;
@@ -202,6 +216,26 @@ function SelectCell({
     else if (String(value) === oid) onChange('');
     setColorFor(null);
   };
+
+  const renderOpt = (o: PropOption) => (
+<div key={o.id} className={'select-option' + (selected(o.id) ? ' on' : '')}>
+                    <button className="select-option-main" onClick={() => pick(o.id)}>
+                      <span className="prop-chip" style={{ background: o.color + '2e', color: o.color }}>
+                        {o.name}
+                      </span>
+                      <span className="select-option-check">{selected(o.id) && <Check size={15} />}</span>
+                    </button>
+                    {onOptionsChange && (
+                      <button
+                        className="select-option-more"
+                        title={t('Colour / delete')}
+                        onClick={() => setColorFor(o.id)}
+                      >
+                        ⋯
+                      </button>
+                    )}
+                  </div>
+  );
 
   const editing = colorFor ? options.find((o) => o.id === colorFor) : null;
 
@@ -270,25 +304,19 @@ function SelectCell({
                   }}
                 />
                 <div className="select-options">
-                  {filtered.map((o) => (
-                    <div key={o.id} className={'select-option' + (selected(o.id) ? ' on' : '')}>
-                      <button className="select-option-main" onClick={() => pick(o.id)}>
-                        <span className="prop-chip" style={{ background: o.color + '2e', color: o.color }}>
-                          {o.name}
-                        </span>
-                        <span className="select-option-check">{selected(o.id) && <Check size={15} />}</span>
-                      </button>
-                      {onOptionsChange && (
-                        <button
-                          className="select-option-more"
-                          title={t('Colour / delete')}
-                          onClick={() => setColorFor(o.id)}
-                        >
-                          ⋯
-                        </button>
-                      )}
-                    </div>
-                  ))}
+                  {isStatus
+                    ? STATUS_GROUPS.map((g) => {
+                        const inGroup = filtered.filter((o) => o.group === g);
+                        if (!inGroup.length) return null;
+                        return (
+                          <Fragment key={g}>
+                            {/* A label, not a stop: the arrows and Tab go option to option. */}
+                            <div className="select-group-label" role="presentation">{statusGroupLabel(g)}</div>
+                            {inGroup.map(renderOpt)}
+                          </Fragment>
+                        );
+                      })
+                    : filtered.map(renderOpt)}
                   {query && !exact && onOptionsChange && (
                     <button className="select-create" onClick={create}>
                       <Plus size={15} /> Anlegen: „{query}"
@@ -1053,9 +1081,12 @@ export default function PropertyValue({
       }
       return <span className={'prop-computed' + (error ? ' error' : '')}>{text}</span>;
     }
-    case 'select': {
-      const opt = def.options?.find((o) => o.id === value);
-      if (ro) return value ? chip(opt, String(value)) : null;
+    case 'select':
+    case 'status': {
+      // A status stored as a list of one (converted from a multi-select) shows its one option.
+      const id = def.type === 'status' ? idList(value)[0] ?? '' : value;
+      const opt = def.options?.find((o) => o.id === id);
+      if (ro) return id ? chip(opt, String(id)) : null;
       return (
         <SelectCell
           def={def}

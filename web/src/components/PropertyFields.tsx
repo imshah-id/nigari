@@ -1,6 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
 import { api } from '../api';
-import { isOptionType, type PropDef, type PropType } from '../types';
+import { isOptionType, type PropDef, type PropOption, type PropType, type StatusGroup } from '../types';
+import { STATUS_GROUPS, orderByGroup, statusGroupLabel } from '../statusGroups';
+import { toast } from '../toast';
+import { Button } from '../ui/Button';
+import { Menu, MenuValueItem, MenuValues } from '../ui/Menu';
 import Portal from './Portal';
 import { OPTION_HEXES, optionPalette } from '../selectOptions';
 import { renameSelectOption, moveSelectOption, reorderSelectOption } from '../renameSelectOption';
@@ -107,6 +111,150 @@ export function PropertyFields({
       options: [...options, { id: oid, name: name.trim(), color: OPTION_COLORS[options.length % OPTION_COLORS.length] }],
     });
   };
+
+
+  const isStatus = p.type === 'status';
+  const EACH_GROUP = t('Each group needs at least one option. Add another to this group first.');
+  const lastOfGroup = (id: string, g: StatusGroup) => (p.options ?? []).filter((x) => x.group === g).length === 1 && (p.options ?? []).some((x) => x.id === id && x.group === g);
+  // Moving the only option out of a group would leave it empty (FR-002): refused
+  // here, as the server refuses the save, so nobody learns it from an error.
+  const leavesGroupEmpty = (id: string, to: StatusGroup) => {
+    const from = (p.options ?? []).find((x) => x.id === id)?.group;
+    if (!from || from === to || !lastOfGroup(id, from)) return false;
+    toast(EACH_GROUP);
+    return true;
+  };
+  /** An option to the end of a group (the Move to menu, a drop on a heading). */
+  const moveToGroup = (id: string, g: StatusGroup) => {
+    const options = p.options ?? [];
+    const o = options.find((x) => x.id === id);
+    if (!o || o.group === g || leavesGroupEmpty(id, g)) return;
+    onPatch({ options: orderByGroup([...options.filter((x) => x.id !== id), { ...o, group: g }]) });
+  };
+  const addStatusOption = (name: string, g: StatusGroup) => {
+    const options = p.options ?? [];
+    if (!name.trim()) return;
+    let oid = slug(name);
+    while (options.some((o) => o.id === oid)) oid += '_';
+    onPatch({ options: orderByGroup([...options, { id: oid, name: name.trim(), color: OPTION_COLORS[options.length % OPTION_COLORS.length], group: g }]) });
+  };
+  const [dropGroup, setDropGroup] = useState<StatusGroup | null>(null);
+
+    const renderOption = (o: PropOption) => {
+                      const hex = o.color || autoOptionColor(o.name);
+                      const key = `${p.id}:${o.id}`;
+                      return (
+                        <span key={o.id} className="opt-chip-wrap">
+                          {/* Option edits remain drafts until the Properties dialog is saved. */}
+                          <button
+                            type="button"
+                            className={'prop-chip opt-chip draggable-option' +
+                              (dragOption?.prop === p.id && dragOption.id === o.id ? ' option-dragging' : '') +
+                              (dropOption?.key === key ? (dropOption.after ? ' option-drop-after' : ' option-drop-before') : '')}
+                            draggable
+                            onDragStart={(e) => {
+                              e.stopPropagation();
+                              e.dataTransfer.effectAllowed = 'move';
+                              e.dataTransfer.setData('text/plain', o.id);
+                              setColorPick(null);
+                              setDragOption({ prop: p.id, id: o.id });
+                            }}
+                            onDragOver={(e) => {
+                              if (dragOption?.prop !== p.id || dragOption.id === o.id) return;
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.dataTransfer.dropEffect = 'move';
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              setDropOption({ key, after: e.clientX > rect.left + rect.width / 2 });
+                            }}
+                            onDragLeave={() => setDropOption((target) => target?.key === key ? null : target)}
+                            onDrop={(e) => {
+                              if (dragOption?.prop !== p.id) return;
+                              e.preventDefault();
+                              e.stopPropagation();
+                              const rect = e.currentTarget.getBoundingClientRect();
+                              const reordered = reorderSelectOption(p.options ?? [], dragOption.id, o.id,
+                                e.clientX > rect.left + rect.width / 2);
+                              // Dropped among another group's options, it joins that group (FR-004).
+                              if (isStatus) {
+                                if (o.group && !leavesGroupEmpty(dragOption.id, o.group)) {
+                                  onPatch({ options: orderByGroup(reordered.map((x) => (x.id === dragOption.id ? { ...x, group: o.group } : x))) });
+                                }
+                              } else onPatch({ options: reordered });
+                              setDragOption(null);
+                              setDropOption(null);
+                            }}
+                            onDragEnd={() => { setDragOption(null); setDropOption(null); }}
+                            onKeyDown={(e) => {
+                              if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+                              e.preventDefault();
+                              const dir = e.key === 'ArrowLeft' ? -1 : 1;
+                              const all = p.options ?? [];
+                              // A status option stays in its group: the neighbour across a heading is another group's.
+                              if (isStatus && all[all.findIndex((x) => x.id === o.id) + dir]?.group !== o.group) return;
+                              onPatch({ options: moveSelectOption(all, o.id, dir) });
+                            }}
+                            style={{ background: hex + '2e', color: hex }}
+                            title={t('Click to edit; drag to reorder. Keyboard: Alt + Left/Right.')}
+                            onClick={(e) => { setOptionAnchor(e.currentTarget); setOptionName(o.name); setColorPick(colorPick === key ? null : key); }}
+                          >
+                            {o.name}
+                          </button>
+                          {colorPick === key && (
+                            <OptionPopover name={optionName} anchor={optionAnchor} onClose={() => setColorPick(null)}>
+                                <div className="select-rename">
+                                  <input autoFocus className="prop-input" aria-label={t('Option name')}
+                                    value={optionName} onChange={(e) => {
+                                      const draft = e.target.value;
+                                      setOptionName(draft);
+                                      const options = renameSelectOption(p.options ?? [], o.id, draft);
+                                      if (options) onPatch({ options });
+                                    }} />
+                                  <button type="button" className="danger" aria-label={t('Delete option')} title={t('Delete option')} onClick={async () => {
+                                    setColorPick(null);
+                                    if (isStatus && o.group && lastOfGroup(o.id, o.group)) { toast(EACH_GROUP); return; }
+                                    const ok = await confirm(t('Delete option “{name}”?', { name: o.name }) + '\n' + t('Existing selections are not cleared.'), { confirmText: t('Delete option'), danger: true });
+                                    if (!ok) return;
+                                    onPatch({ options: (p.options ?? []).filter((item) => item.id !== o.id) });
+                                  }}><Trash2 size={16} /></button>
+                                </div>
+                                {!renameSelectOption(p.options ?? [], o.id, optionName) && <span className="form-hint" role="alert">{t('Enter a unique, non-empty name.')}</span>}
+                                {isStatus && (
+                                  <Menu
+                                    label={t('Move to')}
+                                    trigger={<Button variant="ghost" size="sm" className="schema-option-move">{t('Move to')}</Button>}
+                                    align="start"
+                                    className="schema-option-move-menu"
+                                  >
+                                    <MenuValues label={t('Move to')} reason="The three groups are values of one function, moveTo: the option goes to the one picked">
+                                      {STATUS_GROUPS.map((g) => (
+                                        <MenuValueItem key={g} checked={o.group === g} onClick={() => { moveToGroup(o.id, g); setColorPick(null); }}>
+                                          {statusGroupLabel(g)}
+                                        </MenuValueItem>
+                                      ))}
+                                    </MenuValues>
+                                  </Menu>
+                                )}
+                                {optionPalette().map((c) => (
+                                  <button
+                                    key={c.hex}
+                                    type="button"
+                                    className="tag-color-opt"
+                                    onClick={() => {
+                                      onPatch({ options: (p.options ?? []).map((x) => (x.id === o.id ? { ...x, color: c.hex } : x)) });
+                                      setColorPick(null);
+                                    }}
+                                  >
+                                    <span className="tag-swatch" style={{ background: c.hex }} />
+                                    <span className="tag-color-name">{c.name}</span>
+                                    {hex === c.hex && <Check size={14} />}
+                                  </button>
+                                ))}
+                            </OptionPopover>
+                          )}
+                        </span>
+                      );
+    };
 
   const relationProps = schema.filter((x) => x.type === 'relation');
 
@@ -351,105 +499,61 @@ export function PropertyFields({
   return (
     <>
       {isOptionType(p.type) && (
-                <div className="schema-options">
-                    {(p.options ?? []).map((o) => {
-                      const hex = o.color || autoOptionColor(o.name);
-                      const key = `${p.id}:${o.id}`;
-                      return (
-                        <span key={o.id} className="opt-chip-wrap">
-                          {/* Option edits remain drafts until the Properties dialog is saved. */}
-                          <button
-                            type="button"
-                            className={'prop-chip opt-chip draggable-option' +
-                              (dragOption?.prop === p.id && dragOption.id === o.id ? ' option-dragging' : '') +
-                              (dropOption?.key === key ? (dropOption.after ? ' option-drop-after' : ' option-drop-before') : '')}
-                            draggable
-                            onDragStart={(e) => {
-                              e.stopPropagation();
-                              e.dataTransfer.effectAllowed = 'move';
-                              e.dataTransfer.setData('text/plain', o.id);
-                              setColorPick(null);
-                              setDragOption({ prop: p.id, id: o.id });
-                            }}
-                            onDragOver={(e) => {
-                              if (dragOption?.prop !== p.id || dragOption.id === o.id) return;
-                              e.preventDefault();
-                              e.stopPropagation();
-                              e.dataTransfer.dropEffect = 'move';
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              setDropOption({ key, after: e.clientX > rect.left + rect.width / 2 });
-                            }}
-                            onDragLeave={() => setDropOption((target) => target?.key === key ? null : target)}
-                            onDrop={(e) => {
-                              if (dragOption?.prop !== p.id) return;
-                              e.preventDefault();
-                              e.stopPropagation();
-                              const rect = e.currentTarget.getBoundingClientRect();
-                              onPatch({ options: reorderSelectOption(p.options ?? [], dragOption.id, o.id,
-                                e.clientX > rect.left + rect.width / 2) });
-                              setDragOption(null);
-                              setDropOption(null);
-                            }}
-                            onDragEnd={() => { setDragOption(null); setDropOption(null); }}
+                <div className={'schema-options' + (isStatus ? ' schema-options-status' : '')}>
+                  {isStatus ? (
+                    STATUS_GROUPS.map((g) => (
+                      <div
+                        key={g}
+                        className={'schema-status-group' + (dropGroup === g ? ' drop-target' : '')}
+                        onDragOver={(e) => {
+                          if (dragOption?.prop !== p.id) return;
+                          e.preventDefault();
+                          e.dataTransfer.dropEffect = 'move';
+                          setDropGroup(g);
+                        }}
+                        onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDropGroup(null); }}
+                        onDrop={(e) => {
+                          if (dragOption?.prop !== p.id) return;
+                          e.preventDefault();
+                          moveToGroup(dragOption.id, g);
+                          setDragOption(null);
+                          setDropOption(null);
+                          setDropGroup(null);
+                        }}
+                      >
+                        {/* Not a stop for the keyboard: the heading names the chips below it. */}
+                        <div className="schema-status-label" role="presentation">{statusGroupLabel(g)}</div>
+                        <div className="schema-status-options">
+                          {(p.options ?? []).filter((o) => o.group === g).map(renderOption)}
+                          <input
+                            className="opt-input"
+                            placeholder={t('+ Option')}
+                            aria-label={t('+ Option') + ' · ' + statusGroupLabel(g)}
                             onKeyDown={(e) => {
-                              if (!e.altKey || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
-                              e.preventDefault();
-                              onPatch({ options: moveSelectOption(p.options ?? [], o.id, e.key === 'ArrowLeft' ? -1 : 1) });
+                              if (e.key === 'Enter') {
+                                addStatusOption((e.target as HTMLInputElement).value, g);
+                                (e.target as HTMLInputElement).value = '';
+                              }
                             }}
-                            style={{ background: hex + '2e', color: hex }}
-                            title={t('Click to edit; drag to reorder. Keyboard: Alt + Left/Right.')}
-                            onClick={(e) => { setOptionAnchor(e.currentTarget); setOptionName(o.name); setColorPick(colorPick === key ? null : key); }}
-                          >
-                            {o.name}
-                          </button>
-                          {colorPick === key && (
-                            <OptionPopover name={optionName} anchor={optionAnchor} onClose={() => setColorPick(null)}>
-                                <div className="select-rename">
-                                  <input autoFocus className="prop-input" aria-label={t('Option name')}
-                                    value={optionName} onChange={(e) => {
-                                      const draft = e.target.value;
-                                      setOptionName(draft);
-                                      const options = renameSelectOption(p.options ?? [], o.id, draft);
-                                      if (options) onPatch({ options });
-                                    }} />
-                                  <button type="button" className="danger" aria-label={t('Delete option')} title={t('Delete option')} onClick={async () => {
-                                    setColorPick(null);
-                                    const ok = await confirm(t('Delete option “{name}”?', { name: o.name }) + '\n' + t('Existing selections are not cleared.'), { confirmText: t('Delete option'), danger: true });
-                                    if (!ok) return;
-                                    onPatch({ options: (p.options ?? []).filter((item) => item.id !== o.id) });
-                                  }}><Trash2 size={16} /></button>
-                                </div>
-                                {!renameSelectOption(p.options ?? [], o.id, optionName) && <span className="form-hint" role="alert">{t('Enter a unique, non-empty name.')}</span>}
-                                {optionPalette().map((c) => (
-                                  <button
-                                    key={c.hex}
-                                    type="button"
-                                    className="tag-color-opt"
-                                    onClick={() => {
-                                      onPatch({ options: (p.options ?? []).map((x) => (x.id === o.id ? { ...x, color: c.hex } : x)) });
-                                      setColorPick(null);
-                                    }}
-                                  >
-                                    <span className="tag-swatch" style={{ background: c.hex }} />
-                                    <span className="tag-color-name">{c.name}</span>
-                                    {hex === c.hex && <Check size={14} />}
-                                  </button>
-                                ))}
-                            </OptionPopover>
-                          )}
-                        </span>
-                      );
-                    })}
-                  <input
-                    className="opt-input"
-                    placeholder={t('+ Option')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addOption((e.target as HTMLInputElement).value);
-                        (e.target as HTMLInputElement).value = '';
-                      }
-                    }}
-                  />
+                          />
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <>
+                      {(p.options ?? []).map(renderOption)}
+                      <input
+                        className="opt-input"
+                        placeholder={t('+ Option')}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            addOption((e.target as HTMLInputElement).value);
+                            (e.target as HTMLInputElement).value = '';
+                          }
+                        }}
+                      />
+                    </>
+                  )}
                 </div>
               )}
       {renderConfig(p)}
