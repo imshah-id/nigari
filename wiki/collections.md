@@ -49,8 +49,9 @@ already have. See
 
 Whichever route you take, a new collection starts with:
 
-- one property, **Status**, a select with the options **To do**, **In progress**
-  and **Done**;
+- one property, **Status**, a [status](properties.md#status) with the options
+  **To do**, **In progress** and **Done**, one in each of its three groups
+  (databases created before status existed keep a select until you convert it);
 - two views, **Board** (grouped by Status) and **Table**, in that order, so the
   board is what opens first.
 
@@ -236,7 +237,7 @@ right, the settings for the view you are on.
 | `+` (Add view) | Menu: **Table**, **Board**, **Gallery**, **Calendar**, **Timeline**, **List**, **Form**, **Chart**. The new view is named after its type and opens straight away. |
 | **Chart**, **What to show**, **Period**, **Value**, **Of** | Chart only: the kind of chart, what it groups by, a date's period, and what each group shows. See [Views](views.md#chart). |
 | **Filter** | Conditions on properties, ANDed. The button shows the count. |
-| **Sort** | One property, **Ascending** or **Descending**, or **No sort**. |
+| **Sort** | One property, **Ascending** or **Descending**, or **No sort**. A status sorts by group, then by its option's place in the group. |
 | **Group** | Board only: which property makes the columns. |
 | **Settings** (the sliders icon) | One menu for the view and the database. *View settings*: **Rename view**; **Property visibility** (which properties the view shows, with **Show all** and **Hide all**; the item reads `4 of 7`); **Open rows in** (see [How rows open](#how-rows-open)); on a timeline **Start date** and **End date** (leaving End empty gives one-day bars); on a table whose collection has a relation pointing back at itself, **Sub-items** (choosing it draws the table as a tree; **No sub-items** turns it off); then **Move left**, **Move right** and **Remove view** (the arrows grey out at the ends; with only one view left there is no **Move** or **Remove**). *Database settings*: **Edit properties**, the schema dialog (see below). Each item that holds a value shows it on the right. See [Views](views.md#settings). |
 | **New** | Creates a row. The view stays as it is; a click opens the row. The arrow beside it lists the database's own templates: see [Templates](templates.md#templates-that-belong-to-a-database). |
@@ -344,6 +345,10 @@ fields stay invisible until you hover the card so a status can still be set from
 outside. Open comments show as a small speech bubble with their count, and a
 coloured dot marks a row an agent is working on right now.
 
+Grouping by a **status** gives one column per option, in group order (To-do
+options, then In progress, then Complete). A card dropped in a column takes that
+option, and a new row made in a column starts with it.
+
 Grouping by a **relation** turns the rows of the other collection into the
 columns: one column per customer, per system, per whatever the rows point at.
 
@@ -371,7 +376,7 @@ the link itself in a box you can select. Anybody holding that link can add a row
 without an account. See [Forms](forms.md) and [Sharing](sharing.md).
 
 The fields are the visible properties, with the row title first and always
-required. Only seven types can be filled in: text, number, select,
+required. Only eight types can be filled in: text, number, select, status,
 multi-select, date, checkbox and person. A relation, backrelation, rollup,
 formula, checklist or URL property never appears on a form, in the app or on
 the public link, even when the view shows it everywhere else.
@@ -440,6 +445,10 @@ without an id is added. Passing property ids in that call's `remove_properties`
 list takes them away. This is deliberately different from the interface's Save,
 which writes the whole schema at once: an agent adding one column should not
 delete the rest by omission.
+
+Changing a property's type to **Status** keeps its option ids and row values and
+places each option in a group by its name; changing it back to a select drops
+the groups. [Properties](properties.md#status) lists the words used.
 
 One trap in the merge: a property sent without an id gets one derived from its
 name, and that derived id is then looked up in the existing schema. Sending
@@ -572,7 +581,7 @@ Collections section.
 
 ## Where to go next
 
-- [Properties](properties.md): all thirteen types, and what each one stores
+- [Properties](properties.md): all fourteen types, and what each one stores
 - [Views](views.md): table, board, gallery, calendar, timeline, list, form
 - [Relations and rollups](relations-and-rollups.md): pointing at other
   collections, and counting what points back

@@ -98,7 +98,7 @@ it. Pressing Enter in the Title field submits the form.
 ### Which fields appear
 
 Every property of the collection whose type can be filled in appears as a field,
-in schema order, labelled with the property's name. Seven of the thirteen
+in schema order, labelled with the property's name. Eight of the fourteen
 property types qualify.
 
 | Property type | On a form | What the field is |
@@ -107,6 +107,7 @@ property types qualify.
 | `number` | yes | a number box |
 | `select` | yes | a dropdown, with `—` for "no value" |
 | `multiselect` | yes | the options as chips; click to toggle |
+| `status` | yes | a dropdown, like a select |
 | `date` | yes | the browser's own date picker |
 | `checkbox` | yes | a checkbox |
 | `person` | yes | a single-line text box (see below) |
