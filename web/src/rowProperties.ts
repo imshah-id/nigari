@@ -10,6 +10,7 @@
 import { isOptionType, type PropDef, type PropType } from './types';
 
 import { isUnset } from './isUnset';
+import { defaultStatusOptions } from './statusGroups';
 export { isUnset };
 
 let idCounter = 0;
@@ -17,6 +18,15 @@ let idCounter = 0;
  *  dialog's rule, kept here so the dialog and the row's page make the same). */
 export const slug = (name: string): string =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || `p${++idCounter}`;
+
+/** An option id from its name, unique among the ids taken: the rule the
+ *  option editor's addOption has always used. Shared by every place that
+ *  makes a status's default options (spec 016). */
+export function optionId(name: string, taken: string[]): string {
+  let id = slug(name);
+  while (taken.includes(id)) id += '_';
+  return id;
+}
 
 /** An id no property in the schema has: the slug, with underscores added on a
  *  clash, as the dialog has always done. */
@@ -55,6 +65,9 @@ export function addProperty(schema: readonly PropDef[], type: PropType, name: st
   const n = name.trim() || 'Property';
   const def: PropDef = { id: freeId(schema, n), name: n, type };
   if (isOptionType(type)) def.options = [];
+  // A new status starts with one option per group (spec 016, FR-003), as in
+  // the Edit properties dialog: its groups may never be empty.
+  if (type === 'status') def.options = defaultStatusOptions(optionId);
   if (type === 'rollup') def.rollupAgg = 'sum';
   return [...schema, def];
 }

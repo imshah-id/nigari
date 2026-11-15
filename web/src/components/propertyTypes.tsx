@@ -1,6 +1,6 @@
 import type { PropDef, PropType } from '../types';
 import { fillEmptyGroups, orderByGroup } from '../statusGroups';
-import { slug } from '../rowProperties';
+import { optionId } from '../rowProperties';
 
 // A property's types, the picker and the type change: small enough to load
 // with every page, where PropertyFields (the type settings) loads only when a
@@ -30,14 +30,6 @@ export const TYPES: { value: PropType; label: string }[] = [
   { value: 'lastActivity', label: 'Last activity' },
   { value: 'formula', label: 'Formula' },
 ];
-
-// An option id from its name, unique among the ids taken: the rule addOption
-// in PropertyFields has always used ("In Progress" and "in-progress" slug alike).
-function optionId(name: string, taken: string[]): string {
-  let id = slug(name);
-  while (taken.includes(id)) id += '_';
-  return id;
-}
 
 /** A property with a new type. Non-destructive (Q23): existing row values stay
  *  in pages.props and are coerced at render, so a text→number switch keeps the

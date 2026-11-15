@@ -693,6 +693,20 @@ function OptionPopover({ anchor, name, onClose, children }: {
     <div className="schema-option-backdrop" onClick={onClose} />
     <div ref={ref} className="opt-color-pop schema-option-editor" style={position} onKeyDown={(e) => {
       if (e.key === 'Escape') { e.stopPropagation(); onClose(); }
+      // Tab stays inside the popover. It is drawn in a Portal, outside the
+      // dialog's panel, so the dialog's focus trap (modal.ts) did not know it
+      // and sent Tab from the name field back to the dialog's first field:
+      // Delete, Move to and the colours could not be reached by keyboard.
+      // Handled here, so the trap (which skips a handled key) leaves it alone.
+      if (e.key === 'Tab' && !e.altKey && !e.ctrlKey && !e.metaKey && ref.current) {
+        const items = Array.from(ref.current.querySelectorAll<HTMLElement>('input, button, [tabindex]:not([tabindex="-1"])'))
+          .filter((el) => !el.hasAttribute('disabled'));
+        if (!items.length) return;
+        const at = items.indexOf(document.activeElement as HTMLElement);
+        const next = e.shiftKey ? (at <= 0 ? items.length - 1 : at - 1) : (at + 1) % items.length;
+        e.preventDefault();
+        items[next].focus();
+      }
     }}>{children}</div>
   </Portal>;
 }

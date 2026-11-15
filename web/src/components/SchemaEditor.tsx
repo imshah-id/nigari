@@ -7,6 +7,8 @@ import { GripVertical } from 'lucide-react';
 import { t } from '../i18n';
 import { PropertyFields, PropertyTypeSelect, autoOptionColor, changePropertyType, slug, useTargetSchemas } from './PropertyFields';
 import { deletePropertyMessage, tidyViewsAfterSchema } from '../propertyDelete';
+import { optionId } from '../rowProperties';
+import { defaultStatusOptions } from '../statusGroups';
 
 
 export default function SchemaEditor({
@@ -47,6 +49,9 @@ export default function SchemaEditor({
     while (schema.some((p) => p.id === id)) id += '_';
     const def: PropDef = { id, name, type: newType };
     if (isOptionType(newType)) def.options = [];
+    // A new status starts with one option per group (spec 016, FR-003): its
+    // groups may never be empty, and the editor draws what will be saved.
+    if (newType === 'status') def.options = defaultStatusOptions(optionId);
     if (newType === 'rollup') def.rollupAgg = 'sum';
     setSchema([...schema, def]);
     setNewName('');
