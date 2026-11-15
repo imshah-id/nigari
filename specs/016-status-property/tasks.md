@@ -54,9 +54,9 @@ description: "Tasks for a Status property type"
 
 **Independent Test**: add a status, move an option to Complete, group a board by it.
 
-- [ ] T010 [US1] [ui] `propertyTypes.tsx`: Status in `TYPES`; `changePropertyType` converts with T007 (from select, from multi-select when allowed)
-- [ ] T011 [US1] [ui] `PropertyFields.tsx`: options under three group headings; add an option into a group; drag between groups; option menu **Move to** (`moveTo`) with a `MenuValues` of the groups; last-option delete refused with the sentence
-- [ ] T012 [US1] [ui] `PropertyValue.tsx`: the picker lists options under group headings; set and clear like a select
+- [x] T010 [US1] [ui] `propertyTypes.tsx`: Status in `TYPES`; `changePropertyType` converts with T007 (from select, from multi-select when allowed)
+- [x] T011 [US1] [ui] `PropertyFields.tsx`: options under three group headings; add an option into a group; drag between groups; option menu **Move to** (`moveTo`) with a `MenuValues` of the groups; last-option delete refused with the sentence
+- [x] T012 [US1] [ui] `PropertyValue.tsx`: the picker lists options under group headings; set and clear like a select
 - [x] T013 [US1] [ui] Replace the `=== 'select'` tests meaning "has options" with `isOptionType` / `optionTypes`: `BoardView`, `boardLanes.ts`, `cardLayout.ts`, `GalleryView`, `QuickFilters`, `quickFilters.ts`, `chartDefaults.ts`, `rowProperties.ts`, `propertyDelete.ts`, `ViewSettingsMenu`, `CollectionView`; server `viewopen.go` (quick filters, lanes, a board's default column property), `public_form.go`, `public_collection_table.go`, `import_csv.go` (export only, R11), `mcp_db.go`
 - [ ] T014 [US1] [test] Kept passing: `select-options.mjs`, `board-lanes.mjs`, `quick-filters.mjs`
 
@@ -72,11 +72,11 @@ description: "Tasks for a Status property type"
 ## Phase 5: New rows, sort, agents (FR-014, FR-017, US4)
 
 - [x] T017 [backend] `withStatusDefaults(schema, props)` in `server/status.go`, called by `handleCreatePage`, `handleRowFromTemplate`, `mcpCreateRows`, `propsInRowView` (create_page, templates), `handlePublicFormSubmit`, the CSV import and `runIngest`; a Go test makes a row through each door (the list is the calls) (R4)
-- [ ] T018 [backend] Status sort by group then option place: `ORDER BY CASE` in `collectionRowsQuery` (R5)
-- [ ] T019 [ui] `sortComparator` takes the option order, and its callers `applyView` **and `dropIndex`** pass it (R5)
+- [x] T018 [backend] Status sort by group then option place: `ORDER BY CASE` in `collectionRowsQuery` (R5)
+- [x] T019 [ui] `sortComparator` takes the option order, and its callers `applyView` **and `dropIndex`** pass it (R5)
 - [ ] T020 [mcp] `update_schema`, `create_database` descriptions: the type, `group` on options, the conversion; `capabilities.json` notes; parity pair "save a status schema" in `server/parity_property_test.go`
-- [ ] T021 [test] Go: sort order in the rows query; default value through every door; read scope refused on a status schema change
-- [ ] T022 [perf] Benchmark in `server/bench_world_test.go`: a status sort on the seeded database within the rows query's p95 budget
+- [x] T021 [test] Go: sort order in the rows query; default value through every door; read scope refused on a status schema change
+- [x] T022 [perf] Benchmark in `server/bench_world_test.go`: a status sort on the seeded database within the rows query's p95 budget
 
 **Checkpoint (PR 1)**: Playwright `web/tests/status-property.mjs` part 1 (T023) green; wiki part 1 (T034).
 

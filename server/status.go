@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -370,4 +371,49 @@ func (s *Server) fillStatusDefaults(collectionID, rowID string) error {
 		}
 	}
 	return nil
+}
+
+// statusSortExpr is the ORDER BY term for sorting by a status property: each
+// option's place in the stored options, which are kept in group order (R2),
+// so the place is group first, then position in the group (R5). A row
+// without a value, or with one no longer offered, sorts after every option.
+// "" when the property is not a status: the caller keeps its plain sort.
+//
+// The value is read as a scalar or as the first element of an array (a
+// status converted from a single-value multi-select keeps ["id"]). The CASE
+// lists the property's options, tens at most; the ids go in as arguments.
+//
+// The schema is read from the read pool, like everything else in the rows
+// query: a rows read must not wait for the writer's connection
+// (TestARowsReadDoesNotNeedTheWriter, #82), and loadCollection uses it.
+func (s *Server) statusSortExpr(ctx context.Context, collectionID, propID string) (string, []any) {
+	var raw string
+	if err := s.rdb.QueryRowContext(ctx, `SELECT schema FROM collections WHERE page_id = ?`, collectionID).Scan(&raw); err != nil {
+		return "", nil
+	}
+	var schema []map[string]any
+	if json.Unmarshal([]byte(raw), &schema) != nil {
+		return "", nil
+	}
+	for _, p := range schema {
+		if id, _ := p["id"].(string); id != propID {
+			continue
+		}
+		if t, _ := p["type"].(string); t != "status" {
+			return "", nil
+		}
+		list, _ := p["options"].([]any)
+		var b strings.Builder
+		args := []any{}
+		b.WriteString("CASE COALESCE(json_extract(props, '$." + propID + "[0]'), json_extract(props, '$." + propID + "'))")
+		for i, o := range list {
+			m, _ := o.(map[string]any)
+			oid, _ := m["id"].(string)
+			fmt.Fprintf(&b, " WHEN ? THEN %d", i)
+			args = append(args, oid)
+		}
+		fmt.Fprintf(&b, " ELSE %d END", len(list))
+		return b.String(), args
+	}
+	return "", nil
 }

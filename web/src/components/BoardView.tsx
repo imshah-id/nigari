@@ -303,7 +303,7 @@ export default function BoardView({
     // column too; then it is its own place there, as in its own column.
     if (cards.some((c) => c.id === dragged.id)) return -1;
     const moved = { ...dragged, props: { ...dragged.props, [groupBy]: columnValue(col) } };
-    return dropIndex(cards, moved, sort, (id) => rowOrder.get(id) ?? 0);
+    return dropIndex(cards, moved, sort, (id) => rowOrder.get(id) ?? 0, schema);
   };
   // On a board with lanes the marker is a line, not a card-sized gap: a gap
   // made the lane under the pointer taller and pushed every lane below it

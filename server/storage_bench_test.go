@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
 	"math/rand/v2"
@@ -124,6 +125,57 @@ func BenchmarkStorageQueryRows(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				l.time(func() {
 					if _, _, err := w.s.collectionRowsQuery(context.Background(), w.member(), w.rowsDB, filters, nil, "amount:desc", 50, 0, benchDay); err != nil {
+						b.Fatalf("query: %v", err)
+					}
+				})
+			}
+			l.report(b)
+		})
+	}
+}
+
+// query_rows sorted by a status (spec 016, R5): the same query as above, the
+// sort an ORDER BY CASE over the status's options instead of the value's
+// text. Budget: the rows query's (spec 002 research: 18 ms at 1k, 50 ms at
+// 10k, p95). The world's stage is a select; for this benchmark it is made a
+// status, grouped as the conversion would, and put back after, so the other
+// benchmarks run on the world they always had.
+func BenchmarkStorageQueryRowsStatusSort(b *testing.B) {
+	for _, n := range rowSizes() {
+		b.Run("rows="+sizeName(n), func(b *testing.B) {
+			w := sharedBenchWorld(b, 0, n)
+			schema, views, err := w.s.loadCollection(w.rowsDB)
+			if err != nil {
+				b.Fatal(err)
+			}
+			raw, _ := json.Marshal(schema)
+			b.Cleanup(func() {
+				var back []map[string]any
+				json.Unmarshal(raw, &back)
+				w.s.saveCollection(w.rowsDB, back, views)
+			})
+			for _, p := range schema {
+				if p["id"] == "stage" {
+					p["type"] = "status"
+				}
+			}
+			if err := prepareStatusProps(schema, snapshotStatus(nil)); err != nil {
+				b.Fatal(err)
+			}
+			if err := w.s.saveCollection(w.rowsDB, schema, views); err != nil {
+				b.Fatal(err)
+			}
+			// About as narrow as BenchmarkStorageQueryRows' filter (one stage
+			// of six there, amounts under 2000 of 10000 here), but on another
+			// property, so the rows still hold every stage to sort. Measured on a broad filter
+			// a plain sort and this one cost the same; the filter's width is
+			// what the time follows, not the CASE.
+			filters := []rowFilter{{Prop: "amount", Op: "lt", Value: "2000"}}
+			var l latencies
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				l.time(func() {
+					if _, _, err := w.s.collectionRowsQuery(context.Background(), w.member(), w.rowsDB, filters, nil, "stage:asc", 50, 0, benchDay); err != nil {
 						b.Fatalf("query: %v", err)
 					}
 				})

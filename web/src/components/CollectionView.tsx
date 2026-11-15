@@ -208,7 +208,7 @@ function applyView(rows: Row[], view: ViewDef, schema: PropDef[]): Row[] {
   }
   // The board's drop marker (dropIndex) sorts with the same comparator, so it
   // shows the place this sort will give a dropped card.
-  if (view.sort) out = [...out].sort(sortComparator<Row>(view.sort));
+  if (view.sort) out = [...out].sort(sortComparator<Row>(view.sort, schema));
   return out;
 }
 

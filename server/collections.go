@@ -564,6 +564,7 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 	whereSQL, args := s.rowsWhere(u, colID, flat, groups, now)
 
 	orderSQL := "position, created_at"
+	var orderArgs []any
 	if sortParam != "" {
 		propID, dir, _ := strings.Cut(sortParam, ":")
 		if safePropID(propID) {
@@ -572,6 +573,13 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 				d = "DESC"
 			}
 			orderSQL = "json_extract(props, '$." + propID + "') " + d + ", position"
+			// A status sorts in its workflow order: by group, then by the
+			// option's place in it (spec 016, R5). Its stored id's text would
+			// put "doing" before "done" before "todo" by accident.
+			if expr, args := s.statusSortExpr(ctx, colID, propID); expr != "" {
+				orderSQL = expr + " " + d + ", position"
+				orderArgs = args
+			}
 		}
 	}
 
@@ -580,7 +588,7 @@ func (s *Server) collectionRowsQuery(ctx context.Context, u *user, colID string,
 	// The total rides along as a window count. It used to be a COUNT(*) of
 	// its own, which scanned and filtered every row a second time: the sort
 	// already visits all of them, so counting there is nearly free (#79).
-	rows, err := s.rdb.QueryContext(ctx, `SELECT id, title, icon, cover, position, props, tags, COUNT(*) OVER () FROM pages WHERE `+whereSQL+` ORDER BY `+orderSQL+` LIMIT ? OFFSET ?`, append(args, limit, offset)...)
+	rows, err := s.rdb.QueryContext(ctx, `SELECT id, title, icon, cover, position, props, tags, COUNT(*) OVER () FROM pages WHERE `+whereSQL+` ORDER BY `+orderSQL+` LIMIT ? OFFSET ?`, append(append(args, orderArgs...), limit, offset)...)
 	if err != nil {
 		return nil, 0, readErr(ctx, err)
 	}

@@ -1,11 +1,13 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 // Spec 016: the status property. One function prepares a status on every
@@ -408,5 +410,50 @@ func TestEveryRowDoorStartsInToDo(t *testing.T) {
 	post("/api/pages", `{"parentId":"`+col+`","title":"Given REST","props":{"stage":"shipped"}}`)
 	if stageOf("Given") != "now" || stageOf("Given REST") != "shipped" {
 		t.Errorf("a given value was overwritten: %v, %v", stageOf("Given"), stageOf("Given REST"))
+	}
+}
+
+// Sorting by a status follows its workflow order: by group, then by the
+// option's place (R5), not by the ids' text, which would put "doing" before
+// "done" before "todo". Empty and unknown values come last; desc reverses.
+func TestStatusSortsInWorkflowOrder(t *testing.T) {
+	d := newStatusDoors(t)
+	col := d.s.makeCollection(t, d.ws, d.uid, "Work", `[{"id":"stage","name":"Stage","type":"status","options":[
+		{"id":"todo","name":"To do","group":"todo"},{"id":"doing","name":"In progress","group":"in_progress"},{"id":"done","name":"Done","group":"complete"}]}]`)
+	d.s.makeRow(t, d.ws, d.uid, col, "Finished", `{"stage":"done"}`)
+	d.s.makeRow(t, d.ws, d.uid, col, "Waiting", `{"stage":"todo"}`)
+	d.s.makeRow(t, d.ws, d.uid, col, "Blank", `{}`)
+	d.s.makeRow(t, d.ws, d.uid, col, "Busy", `{"stage":["doing"]}`)
+	titles := func(sort string) string {
+		t.Helper()
+		list, _, err := d.s.collectionRowsQuery(context.Background(), d.u, col, nil, nil, sort, 100, 0, time.Time{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		out := []string{}
+		for _, r := range list {
+			out = append(out, r["title"].(string))
+		}
+		return strings.Join(out, ",")
+	}
+	if got := titles("stage:asc"); got != "Waiting,Busy,Finished,Blank" {
+		t.Errorf("asc: %s", got)
+	}
+	if got := titles("stage:desc"); got != "Blank,Finished,Busy,Waiting" {
+		t.Errorf("desc: %s", got)
+	}
+}
+
+// A read-scope token cannot change a schema to add or convert a status: the
+// existing write gate holds for the new type.
+func TestReadScopeCannotWriteAStatus(t *testing.T) {
+	d := newStatusDoors(t)
+	col := d.s.makeCollection(t, d.ws, d.uid, "Work", `[{"id":"stage","name":"Stage","type":"select","options":[{"id":"a","name":"A"}]}]`)
+	reader := &user{ID: d.uid, Name: "Agent", TokenKind: tokenKindAPI, TokenScope: "read"}
+	if _, err := callTool(t, d.s, reader, "update_schema", `{"page_id":"`+col+`","properties":[{"id":"stage","type":"status"}]}`); err == nil {
+		t.Error("a read-scope token converted a select to a status")
+	}
+	if typ := d.schemaOf(t, col)[0]["type"]; typ != "select" {
+		t.Errorf("type is %v after a refused call", typ)
 	}
 }
