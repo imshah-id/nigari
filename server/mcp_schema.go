@@ -452,6 +452,8 @@ type viewSpec struct {
 	ChartSort         *string         `json:"chart_sort"`
 	HiddenGroups      *[]string       `json:"hidden_groups"`
 	ChartStyle        *map[string]any `json:"chart_style"`
+	// A status counted by its groups (spec 016, R8), stored as statusGroups.
+	StatusGroups *bool `json:"status_groups"`
 }
 
 var validFilterOps = map[string]bool{
@@ -703,10 +705,10 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 func applyChartSpec(view map[string]any, spec viewSpec) error {
 	chartArgs := spec.ChartKind != nil || spec.Period != nil || spec.Aggregate != nil ||
 		spec.AggregateProperty != nil || spec.ShowEmpty != nil || spec.ShowZero != nil ||
-		spec.ChartSort != nil || spec.HiddenGroups != nil || spec.ChartStyle != nil
+		spec.ChartSort != nil || spec.HiddenGroups != nil || spec.ChartStyle != nil || spec.StatusGroups != nil
 	if t, _ := view["type"].(string); t != "chart" {
 		if chartArgs {
-			return fmt.Errorf("chart_kind, period, aggregate, aggregate_property, chart_sort, hidden_groups, show_empty, show_zero and chart_style are settings of a chart view; this view is a %s", t)
+			return fmt.Errorf("chart_kind, period, aggregate, aggregate_property, chart_sort, hidden_groups, show_empty, show_zero, chart_style and status_groups are settings of a chart view; this view is a %s", t)
 		}
 		return nil
 	}
@@ -728,7 +730,7 @@ func applyChartSpec(view map[string]any, spec viewSpec) error {
 	if a, _ := view["agg"].(string); a == "" || a == "count" {
 		delete(view, "aggProp")
 	}
-	for key, val := range map[string]*bool{"showEmpty": spec.ShowEmpty, "showZero": spec.ShowZero} {
+	for key, val := range map[string]*bool{"showEmpty": spec.ShowEmpty, "showZero": spec.ShowZero, "statusGroups": spec.StatusGroups} {
 		if val != nil {
 			view[key] = *val
 		}

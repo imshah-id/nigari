@@ -185,6 +185,72 @@ func BenchmarkStorageQueryRowsStatusSort(b *testing.B) {
 	}
 }
 
+// query_rows filtered by a status's group (spec 016 SC-003): "open work",
+// group_is_not complete, sorted by amount like BenchmarkStorageQueryRows. The
+// condition becomes an is_not over the options in Complete per query (R3), so
+// it costs what that filter costs. Budget: the rows query's (spec 002
+// research: 18 ms at 1k, 50 ms at 10k, p95). The world's stage is made a
+// status for the run and put back after, as in the status sort benchmark.
+func BenchmarkStorageQueryRowsStatusGroup(b *testing.B) {
+	for _, n := range rowSizes() {
+		b.Run("rows="+sizeName(n), func(b *testing.B) {
+			w := sharedBenchWorld(b, 0, n)
+			benchStageAsStatus(b, w)
+			filters := []rowFilter{{Prop: "stage", Op: "group_is_not", Values: []string{"complete"}}}
+			var l latencies
+			b.ResetTimer()
+			for i := 0; i < b.N; i++ {
+				l.time(func() {
+					if _, _, err := w.s.collectionRowsQuery(context.Background(), w.member(), w.rowsDB, filters, nil, "amount:desc", 50, 0, benchDay); err != nil {
+						b.Fatalf("query: %v", err)
+					}
+				})
+			}
+			l.report(b)
+		})
+	}
+}
+
+// benchStageAsStatus makes the shared world's stage a status for one
+// benchmark (the conversion's guess places its options, every empty group
+// gets a default) and puts the select back when it ends.
+func benchStageAsStatus(b *testing.B, w *benchWorld) {
+	b.Helper()
+	schema, views, err := w.s.loadCollection(w.rowsDB)
+	if err != nil {
+		b.Fatal(err)
+	}
+	raw, _ := json.Marshal(schema)
+	b.Cleanup(func() {
+		var back []map[string]any
+		json.Unmarshal(raw, &back)
+		w.s.saveCollection(w.rowsDB, back, views)
+	})
+	// Two of the six seeded stages per group, so "open work" keeps two
+	// thirds of the rows, as a working database does; by name alone all six
+	// (s1..s6) would be guessed To-do and Complete would hold nothing.
+	groupOf := map[string]string{"s1": "todo", "s2": "todo", "s3": "in_progress", "s4": "in_progress", "s5": "complete", "s6": "complete"}
+	for _, p := range schema {
+		if p["id"] != "stage" {
+			continue
+		}
+		p["type"] = "status"
+		list, _ := p["options"].([]any)
+		for _, o := range list {
+			if m, ok := o.(map[string]any); ok {
+				id, _ := m["id"].(string)
+				m["group"] = groupOf[id]
+			}
+		}
+	}
+	if err := prepareStatusProps(schema, snapshotStatus(nil)); err != nil {
+		b.Fatal(err)
+	}
+	if err := w.s.saveCollection(w.rowsDB, schema, views); err != nil {
+		b.Fatal(err)
+	}
+}
+
 // A grouped count, the aggregation behind a chart: rows per stage, in one
 // GROUP BY over the rows the member may see (groupCounts). 1k and 10k run on
 // every pull request; the 100k size its budget is written for needs

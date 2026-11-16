@@ -533,8 +533,17 @@ func resolveStatusGroups(schema []map[string]any, f rowFilter) rowFilter {
 	if !statusGroupOps[f.Op] {
 		return f
 	}
-	ids, ok := optionsInGroups(schema, f.Prop, f.vals())
-	if !ok {
+	// Only known groups count. A condition that names none yet is
+	// unfinished and narrows nothing, like any condition without a value
+	// (where()), and as the browser reads it (statusFilter.ts).
+	var groups []string
+	for _, g := range f.vals() {
+		if statusGroupIndex(g) >= 0 {
+			groups = append(groups, g)
+		}
+	}
+	ids, ok := optionsInGroups(schema, f.Prop, groups)
+	if !ok || len(groups) == 0 {
 		f.Prop = ""
 		return f
 	}

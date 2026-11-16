@@ -257,6 +257,13 @@ func mergeViewState(view map[string]any, personal map[string]json.RawMessage) (f
 			for _, q := range offered {
 				prop, _ := q.(string)
 				if v := picks[prop]; prop != "" && v != "" {
+					// A whole status group picked on the chip is kept as
+					// "group:<id>" (spec 016), the browser's spelling
+					// (statusPick.ts): it filters by group, not by an option.
+					if g, ok := strings.CutPrefix(v, "group:"); ok && statusGroupIndex(g) >= 0 {
+						merged = append(merged, map[string]any{"property": prop, "op": "group_is", "value": "", "values": []any{g}})
+						continue
+					}
 					merged = append(merged, map[string]any{"property": prop, "op": "is", "value": v})
 				}
 			}
