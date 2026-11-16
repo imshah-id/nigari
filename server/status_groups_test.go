@@ -249,3 +249,49 @@ func TestChartCountsAStatusByGroup(t *testing.T) {
 		t.Errorf("query_rows status_groups: %v %s", err, out)
 	}
 }
+
+// A rollup's group condition left behind when the related status became a
+// select narrows nothing, and must not block every later schema save of its
+// database (code review): only a rollup the save changes is checked.
+func TestStaleRollupGroupConditionDoesNotBlockSaves(t *testing.T) {
+	g := newGroupFixture(t)
+	projects := g.s.makeCollection(t, g.ws, g.uid, "Projects", `[
+		{"id":"tasks","name":"Tasks","type":"relation","relationCollection":"`+g.col+`"}]`)
+	if err := g.updateSchema(t, projects, `[{"name":"Done","type":"rollup","rollupRelation":"tasks","rollupTarget":"hours","rollupAgg":"count",
+		"rollupWhereProp":"stage","rollupWhereOp":"group_is","rollupWhereValues":["complete"]}]`); err != nil {
+		t.Fatal(err)
+	}
+	if err := g.updateSchema(t, g.col, `[{"id":"stage","type":"select"}]`); err != nil {
+		t.Fatalf("status back to select: %v", err)
+	}
+	if err := g.updateSchema(t, projects, `[{"name":"Notes","type":"text"}]`); err != nil {
+		t.Errorf("an unrelated save was refused over the stale rollup: %v", err)
+	}
+	if code, body := g.putSchema(t, projects, mustJSON(t, g.schemaOf(t, projects))); code != 200 {
+		t.Errorf("REST save of the schema as stored: %d %s", code, body)
+	}
+}
+
+// A person's own filters: a group condition with no group yet is kept (it
+// narrows nothing), one on a property that is not a status is left out, and
+// neither refuses the save of the rest (code review).
+func TestPersonalGroupConditionsDoNotRefuseTheSave(t *testing.T) {
+	g := newGroupFixture(t)
+	schema, _, _ := g.s.loadCollection(g.col)
+	state, err := cleanViewState([]byte(`{"filters":[
+		{"property":"stage","op":"group_is","values":[]},
+		{"property":"kind","op":"group_is","values":["complete"]},
+		{"property":"kind","op":"is","value":"bug"}],"sort":{"property":"hours","dir":"desc"}}`), schema)
+	if err != nil {
+		t.Fatalf("refused: %v", err)
+	}
+	b, _ := json.Marshal(state["filters"])
+	got := string(b)
+	if !strings.Contains(got, `"stage"`) || strings.Contains(got, `"group_is","property":"kind"`) || !strings.Contains(got, `"bug"`) {
+		t.Errorf("filters kept: %s, want the unfinished stage condition and the kind is bug, not the kind group condition", got)
+	}
+	if state["sort"] == nil {
+		t.Error("the sort was lost")
+	}
+}
+

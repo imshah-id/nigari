@@ -159,14 +159,22 @@ func prepareStatusProps(schema []map[string]any, was statusSnapshot) error {
 type statusSnapshot struct {
 	types  map[string]string
 	groups map[string]map[string]string
+	// rollups holds each rollup's condition as stored, so a save checks
+	// only the group conditions it changes (code review): a stored one whose
+	// related status has since become a select narrows nothing and must not
+	// block every later schema save of the database.
+	rollups map[string]string
 }
 
 func snapshotStatus(schema []map[string]any) statusSnapshot {
-	snap := statusSnapshot{types: map[string]string{}, groups: map[string]map[string]string{}}
+	snap := statusSnapshot{types: map[string]string{}, groups: map[string]map[string]string{}, rollups: map[string]string{}}
 	for _, p := range schema {
 		id, _ := p["id"].(string)
 		t, _ := p["type"].(string)
 		snap.types[id] = t
+		if t == "rollup" {
+			snap.rollups[id] = rollupCondition(p)
+		}
 		if t != "status" {
 			continue
 		}
@@ -318,7 +326,7 @@ func (s *Server) prepareStatusSchema(collectionID string, was statusSnapshot, ne
 	}
 	// A rollup's group condition (spec 016, FR-007): on a status of the
 	// related database only. Here, so all three schema doors check it.
-	return s.checkRollupGroupConditions(next)
+	return s.checkRollupGroupConditions(next, was)
 }
 
 // hasStatus says whether a schema holds a status, whose options a door may
@@ -575,9 +583,8 @@ func checkGroupCondition(schema []map[string]any, label, prop, op string, values
 	if _, ok := optionsInGroups(schema, prop, nil); !ok {
 		return errGroupFilter{fmt.Sprintf("%s: %s works only on a status property, and %q is not one", label, op, prop)}
 	}
-	if len(values) == 0 {
-		return errGroupFilter{fmt.Sprintf("%s: %s needs at least one group: %s", label, op, strings.Join(statusGroupIDs, ", "))}
-	}
+	// No group yet is an unfinished condition: stored, and it narrows
+	// nothing until a group is ticked, like any condition without a value.
 	for _, g := range values {
 		if statusGroupIndex(g) < 0 {
 			return errGroupFilter{fmt.Sprintf("%s: %q is not a group; the groups are %s", label, g, strings.Join(statusGroupIDs, ", "))}
@@ -651,11 +658,18 @@ func rollupTargetCollection(schema []map[string]any, rollup map[string]any) stri
 	return ""
 }
 
+// rollupCondition is what a rollup's group condition depends on, as one
+// comparable string.
+func rollupCondition(p map[string]any) string {
+	b, _ := json.Marshal([]any{p["rollupRelation"], p["rollupWhereProp"], p["rollupWhereOp"], p["rollupWhereValue"], p["rollupWhereValues"]})
+	return string(b)
+}
+
 // checkRollupGroupConditions refuses a rollup whose condition names groups
 // of a property that is not a status in the related database. Run by every
-// schema door with prepareStatusSchema. The related schema is read once per
-// database.
-func (s *Server) checkRollupGroupConditions(schema []map[string]any) error {
+// schema door with prepareStatusSchema, for the rollups the save adds or
+// whose condition it changes. The related schema is read once per database.
+func (s *Server) checkRollupGroupConditions(schema []map[string]any, was statusSnapshot) error {
 	loaded := map[string][]map[string]any{}
 	for _, p := range schema {
 		if t, _ := p["type"].(string); t != "rollup" {
@@ -664,6 +678,11 @@ func (s *Server) checkRollupGroupConditions(schema []map[string]any) error {
 		op, _ := p["rollupWhereOp"].(string)
 		if !statusGroupOps[op] {
 			continue
+		}
+		if id, _ := p["id"].(string); id != "" {
+			if stored, ok := was.rollups[id]; ok && stored == rollupCondition(p) {
+				continue
+			}
 		}
 		target := rollupTargetCollection(schema, p)
 		related, ok := loaded[target]

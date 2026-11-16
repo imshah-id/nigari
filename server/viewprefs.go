@@ -135,6 +135,13 @@ func cleanViewState(raw []byte, schema []map[string]any) (map[string]any, error)
 			if prop == "" || !has(prop) {
 				continue
 			}
+			// A person's own group condition on a property that is not (or no
+			// longer) a status is left out rather than refusing the whole
+			// save: it narrows nothing, and a sort or a pick on the view must
+			// still be kept (code review).
+			if op, _ := f["op"].(string); statusGroupOps[op] && checkGroupCondition(schema, "filter", prop, op, filterValues(f)) != nil {
+				continue
+			}
 			entry, err := checkViewFilter(f, "filter", has, schema)
 			if err != nil {
 				return nil, err

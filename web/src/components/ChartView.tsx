@@ -117,7 +117,7 @@ export default function ChartView(props: ChartViewProps) {
   useEffect(() => {
     setDrill(null);
     if (!selected || !groupProp) return;
-    const extra = groupFilter(groupProp.id, groupProp.type, period, selected.keys);
+    const extra = groupFilter(groupProp.id, groupProp.type, period, selected.keys, chartByGroup(view, groupProp));
     if (!extra) return;
     let live = true;
     void api

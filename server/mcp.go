@@ -1364,7 +1364,7 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 			// With a grouping or an aggregate (or a chart view) the answer is the
 			// chart's numbers instead of rows (spec 004): the same function the
 			// interface's chart reads.
-			if args.GroupBy != nil || args.Aggregate != nil || args.AggregateProperty != nil || args.ViewID != "" || args.StatusGroups != nil {
+			if args.GroupBy != nil || args.Aggregate != nil || args.AggregateProperty != nil || args.ViewID != "" {
 				req := aggRequest{ViewID: args.ViewID, GroupBy: args.GroupBy, Period: args.Period,
 					Aggregate: args.Aggregate, AggregateProp: args.AggregateProperty, StatusGroups: args.StatusGroups}
 				return s.mcpAggregate(u, args.PageID, req, filters, args.Filter != nil, parsed, today)
