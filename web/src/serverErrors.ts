@@ -162,6 +162,10 @@ export function serverMessage(code: string, fallback: string, data?: ErrorData):
       return t('Workspace rules are limited to 16000 characters.');
     case 'comment_too_long':
       return t('A comment is limited to 10000 characters.');
+    case 'comment_not_author':
+      return t('Only its author can edit a comment.');
+    case 'unknown_reaction':
+      return t('That reaction is not one of the six a comment takes.');
     case 'reason_too_short':
       return t(
         'Please give a reason somebody can follow (at least 10 characters). It is logged and shown to the people in charge of this workspace.',

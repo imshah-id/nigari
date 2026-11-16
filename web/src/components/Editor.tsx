@@ -267,6 +267,7 @@ export default function Editor(props: EditorProps) {
         <CommentsPanel
           pageId={page.id}
           myUserId={props.user.id}
+          canWrite={props.canEdit}
           open
           onClose={() => showComments(false)}
         />

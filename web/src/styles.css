@@ -3611,7 +3611,8 @@ body.is-col-resizing {
 [contenteditable]:focus-visible,
 .page-title:focus-visible,
 .page-desc:focus-visible,
-.cp-compose textarea:focus-visible {
+.cp-compose textarea:focus-visible,
+.cp-edit textarea:focus-visible {
   outline: none;
 }
 
@@ -4276,53 +4277,6 @@ body.is-col-resizing {
   background: var(--accent-soft);
   color: var(--accent);
   vertical-align: middle;
-}
-
-/* Comments */
-
-.comment-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 320px;
-  overflow-y: auto;
-  margin: 8px 0;
-}
-
-.comment {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 8px 10px;
-  background: var(--bg);
-}
-
-.comment.resolved {
-  opacity: 0.55;
-}
-
-.comment-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 13px;
-}
-
-.comment-time {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.comment-body {
-  font-size: 13.5px;
-  margin: 4px 0 6px;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-
-.comment-actions {
-  display: flex;
-  gap: 6px;
 }
 
 /* Share-link expiry selector */
@@ -8163,19 +8117,84 @@ a,
 .cp-item:hover .cp-actions,
 .cp-item:focus-within .cp-actions { opacity: 1; }
 @media (hover: none) { .cp-actions { opacity: 1; } }
+/* The actions are ui/ buttons now (spec 017); these keep them as quiet as
+   the hand-built links they replaced, so a comment does not read as a form. */
 .cp-act {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11.5px;
-  color: var(--muted);
-  background: transparent;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  gap: var(--space-50);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
 }
-.cp-act:hover { color: var(--fg); text-decoration: underline; }
-.cp-act.danger:hover { color: #d44c47; }
+
+/* "(edited)" after the time: a button, because it opens the earlier texts. */
+.cp-edited {
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+  padding-inline: var(--space-50);
+}
+.cp-versions-title {
+  margin: 0 0 var(--space-200);
+  font-size: var(--font-size-sm);
+}
+.cp-versions-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-300);
+}
+.cp-versions-list time,
+.cp-versions-empty {
+  display: block;
+  margin: 0 0 var(--space-50);
+  font-size: var(--font-size-2xs);
+  color: var(--color-text-muted);
+}
+
+/* Editing in place: the same box as writing a new one. */
+.cp-edit-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-100);
+  margin-top: var(--space-100);
+}
+.cp-edit-foot .cp-hint { margin-right: auto; }
+
+/* Reactions: a chip per reaction under the text, pressed when it is yours. */
+.cp-reactions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-50);
+  margin-top: var(--space-100);
+}
+.cp-chip {
+  gap: var(--space-50);
+  border: 1px solid var(--color-border-default);
+  border-radius: var(--radius-scale-full);
+  padding-inline: var(--space-100);
+}
+.cp-chip[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-default);
+}
+.cp-chip-count { font-size: var(--font-size-2xs); }
+/* The add button shows with the other actions, on hover or focus; on a touch
+   screen always (below). */
+.cp-react { opacity: 0; transition: opacity var(--motion-duration-fast); }
+.cp-item:hover .cp-react,
+.cp-item:focus-within .cp-react,
+.cp-react[data-popup-open] { opacity: 1; }
+@media (hover: none) { .cp-react { opacity: 1; } }
+.cp-picker { width: auto; }
+.cp-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: var(--space-50);
+}
+.cp-picker-item { font-size: var(--font-size-lg); }
+.cp-picker-item[aria-pressed='true'] { background: var(--color-accent-soft); }
 
 /* Six lines, and it grows. The old box was two, which is a caption — people
    here write a paragraph and then another one. */
@@ -8184,7 +8203,8 @@ a,
   border-top: 1px solid var(--border);
   padding: 12px 16px 14px;
 }
-.cp-compose textarea {
+.cp-compose textarea,
+.cp-edit textarea {
   width: 100%;
   box-sizing: border-box;
   /* It grows with what you type (see grow() in CommentsPanel), so it starts
@@ -8204,7 +8224,8 @@ a,
   border-radius: 8px;
   padding: 10px 12px;
 }
-.cp-compose textarea:focus { outline: none; border-color: var(--accent); }
+.cp-compose textarea:focus,
+.cp-edit textarea:focus { outline: none; border-color: var(--accent); }
 .cp-compose-foot {
   display: flex;
   align-items: center;

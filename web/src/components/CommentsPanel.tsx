@@ -2,9 +2,14 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import { toast } from '../toast';
 import type { Comment } from '../types';
-import { Check, MessageSquareText, Trash2, X } from 'lucide-react';
-import { formatRelative } from '../format';
+import { MessageSquareText, X } from 'lucide-react';
 import { t, plural } from '../i18n';
+import { Button } from '../ui/Button';
+import { IconButton } from '../ui/IconButton';
+import CommentItem, { grow, initials, nameColor } from './CommentItem';
+
+// Re-exported: the person property draws the same avatar.
+export { initials, nameColor };
 
 // Comments as a panel beside the document.
 //
@@ -45,30 +50,17 @@ export function setCommentsPanelOpen(open: boolean): void {
   else localStorage.removeItem(PANEL_KEY);
 }
 
-const when = (iso: string) => formatRelative(iso);
-
-// Derive the colour from the name, so the same person always gets the same one.
-export function nameColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  const hues = [210, 145, 275, 25, 340, 190, 95, 55];
-  return `hsl(${hues[h % hues.length]} 55% 45%)`;
-}
-
-export function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
-}
-
 export default function CommentsPanel({
   pageId,
   myUserId,
+  canWrite,
   open,
   onClose,
 }: {
   pageId: string;
   myUserId: string;
+  /** Whether the person may write on the page: resolve, edit and react. */
+  canWrite: boolean;
   open: boolean;
   onClose: () => void;
 }) {
@@ -112,30 +104,12 @@ export default function CommentsPanel({
     }
   };
 
-  const toggleResolve = async (c: Comment) => {
-    await api.resolveComment(c.id, !c.resolvedAt).catch(() => {});
-    load();
-  };
-  const remove = async (c: Comment) => {
-    await api.deleteComment(c.id).catch(() => {});
-    load();
-  };
-
   const openOnes = comments.filter((c) => !c.resolvedAt);
   const resolved = comments.filter((c) => c.resolvedAt);
   const visible = showResolved ? comments : openOnes;
 
   // Mounted but invisible: the count above has to be right before anybody looks.
   if (!open) return null;
-
-  // Grow with what is written. A textarea has no content height of its own, so
-  // the height is reset to auto first: otherwise scrollHeight keeps reporting
-  // the height the box already has, and it could only ever get taller, never
-  // shrink back when text is deleted.
-  const grow = (el: HTMLTextAreaElement) => {
-    el.style.height = 'auto';
-    el.style.height = el.scrollHeight + 'px';
-  };
 
   return (
     <aside className="comments-panel" aria-label={t('Comments')}>
@@ -145,9 +119,7 @@ export default function CommentsPanel({
           {t('Comments')}
           {openOnes.length > 0 && <span className="cp-count">{openOnes.length}</span>}
         </span>
-        <button className="icon-btn" title={t('Close')} onClick={onClose}>
-          <X size={15} />
-        </button>
+        <IconButton label={t('Close')} icon={<X size={15} />} onClick={onClose} />
       </div>
 
       {resolved.length > 0 && (
@@ -168,38 +140,9 @@ export default function CommentsPanel({
           // already the invitation, so this only has to explain the silence.
           <p className="cp-empty">{t('Nothing here yet. Write the first one.')}</p>
         ) : (
-          visible.map((c) => {
-            const name = c.authorName || t('unknown');
-            return (
-              <article key={c.id} className={'cp-item' + (c.resolvedAt ? ' is-resolved' : '')}>
-                <div className="cp-item-head">
-                  <span
-                    className="cp-avatar"
-                    style={{ background: c.authorAvatar ? 'transparent' : c.authorColor || nameColor(name) }}
-                  >
-                    {c.authorAvatar ? <img src={c.authorAvatar} alt="" /> : initials(name)}
-                  </span>
-                  <span className="cp-author">{name}</span>
-                  <time className="cp-time">{when(c.createdAt)}</time>
-                </div>
-                <div className="cp-body">{c.body}</div>
-                <div className="cp-actions">
-                  <button
-                    className="cp-act"
-                    title={c.resolvedAt ? t('Reopen') : t('Mark as resolved')}
-                    onClick={() => void toggleResolve(c)}
-                  >
-                    <Check size={13} /> {c.resolvedAt ? t('Reopen') : t('Resolved')}
-                  </button>
-                  {c.authorId === myUserId && (
-                    <button className="cp-act danger" title={t('Delete')} onClick={() => void remove(c)}>
-                      <Trash2 size={13} />
-                    </button>
-                  )}
-                </div>
-              </article>
-            );
-          })
+          visible.map((c) => (
+            <CommentItem key={c.id} comment={c} myUserId={myUserId} canWrite={canWrite} onChanged={load} />
+          ))
         )}
       </div>
 
@@ -223,9 +166,9 @@ export default function CommentsPanel({
         />
         <div className="cp-compose-foot">
           <span className="cp-hint">{t('⌘↵ to send')}</span>
-          <button className="btn primary btn-sm" type="submit" disabled={!body.trim()}>
+          <Button variant="primary" size="sm" type="submit" disabled={!body.trim()}>
             {t('Send')}
-          </button>
+          </Button>
         </div>
       </form>
 
