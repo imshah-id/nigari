@@ -163,9 +163,9 @@
       "wiki": "wiki/history-and-audit.md"
     },
     "comments": {
-      "summary": "List, add, resolve, reopen and delete comments",
+      "summary": "List, add, edit (author only, earlier versions kept), react to, resolve, reopen and delete comments",
       "agent": "allowed",
-      "rest": ["GET /api/pages/{id}/comments", "POST /api/pages/{id}/comments", "POST /api/comments/{id}/resolve", "DELETE /api/comments/{id}", "GET /api/comment-counts"],
+      "rest": ["GET /api/pages/{id}/comments", "POST /api/pages/{id}/comments", "POST /api/comments/{id}/resolve", "DELETE /api/comments/{id}", "PATCH /api/comments/{id}", "GET /api/comments/{id}/versions", "PUT /api/comments/{id}/reactions/{reaction}", "DELETE /api/comments/{id}/reactions/{reaction}", "GET /api/comment-counts"],
       "mcp": ["comments", "delete_comment"],
       "wiki": "wiki/comments-and-notes.md"
     },
