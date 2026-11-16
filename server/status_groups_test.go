@@ -294,4 +294,3 @@ func TestPersonalGroupConditionsDoNotRefuseTheSave(t *testing.T) {
 		t.Error("the sort was lost")
 	}
 }
-
