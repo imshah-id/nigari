@@ -82,7 +82,7 @@ description: "Tasks for editing comments and reacting to them"
 - [x] T023 [perf] Benchmark `pageComments` on 200 comments × 3 reactions, before and after (SC-003); numbers in the PR
 - [x] T024 [test] New `web/tests/comment-edits.mjs`: edit by keyboard, versions, no Edit for another person, react/unreact, the label, a resolved comment's reactions, in a side peek
 - [x] T025 [wiki] `wiki/comments-and-notes.md` (at-a-glance table, editing, reactions, deleting over MCP, the MCP table), `wiki/mcp-tools.md`, `docs/what-it-does.md`; shot `comments-panel` retaken
-- [ ] T026 [test] Reviews before the PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone; `/security-review` (a permission gate changes, FR-009); `codegraph sync` then `codegraph callers` on every exported symbol added or moved
+- [x] T026 [test] Reviews before the PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone; `/security-review` (a permission gate changes, FR-009); `codegraph sync` then `codegraph callers` on every exported symbol added or moved
 
 ---
 
