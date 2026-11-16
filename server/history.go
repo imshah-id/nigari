@@ -3,12 +3,9 @@ package server
 import (
 	"database/sql"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
-	"unicode/utf8"
 )
 
 // Page version history and comments (Welle 13).
@@ -136,157 +133,7 @@ func (s *Server) handleRestoreRevision(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, map[string]bool{"ok": true})
 }
 
-// ---- Comments ----
-
-type commentJSON struct {
-	ID         string  `json:"id"`
-	BlockID    string  `json:"blockId"`
-	AuthorID   string  `json:"authorId"`
-	AuthorName string  `json:"authorName"`
-	Body       string  `json:"body"`
-	CreatedAt  string  `json:"createdAt"`
-	ResolvedAt *string `json:"resolvedAt"`
-	// The author's colour/picture, so the same person looks the same
-	// everywhere — the comment column used to roll a colour out of the name
-	// that had nothing to do with the real user colour.
-	AuthorColor  string `json:"authorColor"`
-	AuthorAvatar string `json:"authorAvatar"`
-}
-
-func (s *Server) pageComments(pageID string) ([]commentJSON, error) {
-	// LEFT JOIN: the author may be deleted — the comment stays.
-	rows, err := s.db.Query(`SELECT c.id, c.block_id, c.author_id, c.author_name, c.body, c.created_at, c.resolved_at,
-		COALESCE(u.color, ''), COALESCE(u.avatar, '')
-		FROM comments c LEFT JOIN users u ON u.id = c.author_id
-		WHERE c.page_id = ? ORDER BY c.created_at`, pageID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	list := []commentJSON{}
-	for rows.Next() {
-		var c commentJSON
-		var resolved sql.NullString
-		rows.Scan(&c.ID, &c.BlockID, &c.AuthorID, &c.AuthorName, &c.Body, &c.CreatedAt, &resolved, &c.AuthorColor, &c.AuthorAvatar)
-		if resolved.Valid {
-			c.ResolvedAt = &resolved.String
-		}
-		list = append(list, c)
-	}
-	return list, nil
-}
-
-func (s *Server) handleListComments(w http.ResponseWriter, r *http.Request) {
-	pageID := r.PathValue("id")
-	if !s.canReadReq(r, pageID) {
-		httpError(w, 404, "page not found")
-		return
-	}
-	list, err := s.pageComments(pageID)
-	if err != nil {
-		httpError(w, 500, err.Error())
-		return
-	}
-	writeJSON(w, list)
-}
-
-// checkCommentBody is the one check a comment's text passes before it is
-// stored, by the REST route and the MCP comments tool alike. It returns the
-// text as stored (trimmed). The length check lived only on the REST side, so
-// an agent could store a comment of any length that then landed in every
-// list of the page's comments (#645).
-func checkCommentBody(body string) (string, error) {
-	text := strings.TrimSpace(body)
-	if text == "" {
-		return "", errors.New("comment body is required")
-	}
-	// Counted after trimming: the whitespace around a comment is never stored,
-	// so it does not count against the limit either.
-	if utf8.RuneCountInString(text) > maxCommentLen {
-		return "", coded("comment_too_long", fmt.Sprintf("A comment is limited to %d characters.", maxCommentLen))
-	}
-	return text, nil
-}
-
-func (s *Server) handleCreateComment(w http.ResponseWriter, r *http.Request) {
-	pageID := r.PathValue("id")
-	u := requestUser(r)
-	if !s.canWriteReq(r, pageID) {
-		httpError(w, 403, "forbidden")
-		return
-	}
-	var body struct {
-		Body    string `json:"body"`
-		BlockID string `json:"blockId"`
-	}
-	if err := decodeJSON(w, r, &body); err != nil {
-		httpError(w, 400, "invalid JSON")
-		return
-	}
-	text, err := checkCommentBody(body.Body)
-	if err != nil {
-		httpErrorFrom(w, 400, err)
-		return
-	}
-	id := newID()
-	if _, err := s.db.Exec(`INSERT INTO comments (id, page_id, block_id, author_id, author_name, body, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-		id, pageID, body.BlockID, u.ID, u.Name, text, now()); err != nil {
-		httpError(w, 500, err.Error())
-		return
-	}
-	writeJSON(w, map[string]string{"id": id})
-}
-
-// handleResolveComment toggles a comment's resolved state.
-func (s *Server) handleResolveComment(w http.ResponseWriter, r *http.Request) {
-	commentID := r.PathValue("id")
-	var pageID string
-	if s.db.QueryRow(`SELECT page_id FROM comments WHERE id = ?`, commentID).Scan(&pageID) != nil {
-		httpError(w, 404, "comment not found")
-		return
-	}
-	if !s.canWriteReq(r, pageID) {
-		httpError(w, 403, "forbidden")
-		return
-	}
-	var body struct {
-		Resolved bool `json:"resolved"`
-	}
-	decodeJSON(w, r, &body)
-	var resolvedAt any
-	if body.Resolved {
-		resolvedAt = now()
-	}
-	s.db.Exec(`UPDATE comments SET resolved_at = ? WHERE id = ?`, resolvedAt, commentID)
-	writeJSON(w, map[string]bool{"ok": true})
-}
-
-func (s *Server) handleDeleteComment(w http.ResponseWriter, r *http.Request) {
-	commentID := r.PathValue("id")
-	var pageID, authorID string
-	if s.db.QueryRow(`SELECT page_id, author_id FROM comments WHERE id = ?`, commentID).Scan(&pageID, &authorID) != nil {
-		httpError(w, 404, "comment not found")
-		return
-	}
-	// Author or a workspace admin may delete.
-	u := requestUser(r)
-	var ws string
-	s.db.QueryRow(`SELECT workspace_id FROM pages WHERE id = ?`, pageID).Scan(&ws)
-	// And the credential has to be allowed into that workspace: the request
-	// names a comment, not a page, so no page check covered it, and a token
-	// deleted comments wherever its person had written one (delete_comment over
-	// MCP had the same hole).
-	if !s.credentialMayEnter(u, ws) {
-		httpError(w, 404, "comment not found")
-		return
-	}
-	if authorID != u.ID && !s.isWorkspaceAdmin(u.ID, ws) {
-		httpError(w, 403, "forbidden")
-		return
-	}
-	s.db.Exec(`DELETE FROM comments WHERE id = ?`, commentID)
-	writeJSON(w, map[string]bool{"ok": true})
-}
+// ---- Comments: the handlers, gates and list are in comments.go ----
 
 // handleCommentCounts returns the number of OPEN comments per page of a
 // workspace, in one go.

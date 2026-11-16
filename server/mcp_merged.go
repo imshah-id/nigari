@@ -88,12 +88,24 @@ func (s *Server) mcpRevisions(u *user, pageID, action, revisionID string, limit 
 
 // --- comments ---------------------------------------------------------------
 
-// mcpComments replaces get_comments, add_comment and resolve_comment.
-// delete_comment stays its own tool: see the note at the top of this file.
-func (s *Server) mcpComments(u *user, pageID, action, body, blockID, commentID string, resolved *bool) (string, error) {
+// mcpComments replaces get_comments, add_comment and resolve_comment, and
+// carries spec 017's edit, history, react and unreact. delete_comment stays
+// its own tool: see the note at the top of this file.
+//
+// Every action that names a comment goes through the gate in comments.go the
+// REST route uses; mcpCall has already checked page_id at the level the action
+// needs (read for list and history, write for the rest), but the comment may
+// sit on another page, so its own page is checked here.
+func (s *Server) mcpComments(u *user, pageID, action, body, blockID, commentID, reaction string, resolved *bool) (string, error) {
+	needID := func() error {
+		if commentID == "" {
+			return fmt.Errorf("comment_id is required for action=%s", action)
+		}
+		return nil
+	}
 	switch action {
 	case "", "list":
-		list, err := s.pageComments(pageID)
+		list, err := s.pageComments(pageID, u.ID)
 		if err != nil {
 			return "", err
 		}
@@ -115,23 +127,74 @@ func (s *Server) mcpComments(u *user, pageID, action, body, blockID, commentID s
 		}
 		return "Added comment " + id, nil
 	case "resolve", "reopen":
-		if commentID == "" {
-			return "", fmt.Errorf("comment_id is required for action=%s", action)
+		if err := needID(); err != nil {
+			return "", err
 		}
-		// The permission check cannot ride on page_id here: the caller names a
-		// comment. Without resolving it to its page, a guessed comment id would
-		// write into somebody else's workspace.
-		pid, ok := s.commentPage(commentID)
-		if !ok || !s.canWrite(u.ID, pid) || !s.credentialMayEnter(u, s.pageWorkspace(pid)) {
-			return "", fmt.Errorf("comment %q not found", commentID)
+		if _, err := s.commentForWrite(u, commentID); err != nil {
+			return "", mcpCommentError(commentID, err)
 		}
 		want := action == "resolve"
 		if resolved != nil {
 			want = *resolved
 		}
 		return s.mcpResolveComment(commentID, want)
+	case "edit":
+		if err := needID(); err != nil {
+			return "", err
+		}
+		c, err := s.commentForEdit(u, commentID)
+		if err != nil {
+			return "", mcpCommentError(commentID, err)
+		}
+		changed, err := s.editComment(c, u, "agent", u.Name+" (MCP)", body)
+		if err != nil {
+			return "", err
+		}
+		if !changed {
+			return "Comment " + commentID + " already says that; nothing changed", nil
+		}
+		return "Edited comment " + commentID + "; the earlier text is kept (action=history)", nil
+	case "history":
+		if err := needID(); err != nil {
+			return "", err
+		}
+		c, err := s.commentForRead(u, commentID)
+		if err != nil {
+			return "", mcpCommentError(commentID, err)
+		}
+		list, err := s.commentVersions(c.ID)
+		if err != nil {
+			return "", err
+		}
+		out, err := json.Marshal(list)
+		if err != nil {
+			return "", err
+		}
+		return wrapUntrusted(string(out)), nil
+	case "react", "unreact":
+		if err := needID(); err != nil {
+			return "", err
+		}
+		c, err := s.commentForWrite(u, commentID)
+		if err != nil {
+			return "", mcpCommentError(commentID, err)
+		}
+		key, err := parseReaction(reaction, true)
+		if err != nil {
+			return "", err
+		}
+		if action == "react" {
+			if err := s.setReaction(u, c.ID, key); err != nil {
+				return "", err
+			}
+			return "Reacted with " + key + " to comment " + c.ID, nil
+		}
+		if err := s.removeReaction(u, c.ID, key); err != nil {
+			return "", err
+		}
+		return "Took back " + key + " on comment " + c.ID, nil
 	}
-	return "", fmt.Errorf("unknown action %q — use list (the default), add, resolve or reopen; deleting has its own tool", action)
+	return "", fmt.Errorf("unknown action %q — use list (the default), add, edit, history, react, unreact, resolve or reopen; deleting has its own tool", action)
 }
 
 // --- sharing ----------------------------------------------------------------

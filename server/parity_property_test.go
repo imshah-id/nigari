@@ -53,6 +53,12 @@ var parityActs = []parityAct{
 	{"read", "GET", "/api/pages/%s", "", "get_page", `{"page_id":"%s"}`, false},
 	{"rename", "PATCH", "/api/pages/%s", `{"title":"Renamed"}`, "update_page", `{"page_id":"%s","title":"Renamed"}`, false},
 	{"comment", "POST", "/api/pages/%s/comments", `{"body":"A comment"}`, "comments", `{"page_id":"%s","action":"add","body":"A comment"}`, false},
+	// Editing a comment and reacting to one (spec 017): each page carries a
+	// comment "c<page id>" written by the credential's holder (see
+	// parityCommentActs), so the author check passes and the page's and the
+	// credential's gates decide, through the one gate both doors call.
+	{"edit comment", "PATCH", "/api/comments/c%s", `{"body":"Edited"}`, "comments", `{"page_id":"%[1]s","action":"edit","comment_id":"c%[1]s","body":"Edited"}`, false},
+	{"react", "PUT", "/api/comments/c%s/reactions/heart", "", "comments", `{"page_id":"%[1]s","action":"react","comment_id":"c%[1]s","reaction":"heart"}`, false},
 	{"trash", "DELETE", "/api/pages/%s", "", "set_trashed", `{"page_id":"%s","trashed":true}`, false},
 	{"share", "POST", "/api/pages/%s/share", `{}`, "set_sharing", `{"page_id":"%s","public":true}`, false},
 	{"history", "GET", "/api/pages/%s/revisions", "", "revisions", `{"page_id":"%s"}`, false},
@@ -114,6 +120,11 @@ var parityActs = []parityAct{
 // (spec 013) before both doors try them. A set, not a field of parityAct, so
 // the positional entries above need not change.
 var parityLockedActs = map[string]bool{"change a view while locked": true}
+
+// parityCommentActs are the acts that name a comment rather than a page: each
+// of the case's pages gets one, "c<page id>", written by the credential's
+// holder.
+var parityCommentActs = map[string]bool{"edit comment": true, "react": true}
 
 // parityWorkspaceActs are acts on a workspace rather than a page: %s is the
 // workspace the case's pages live in, in the path, the body and the arguments.
@@ -298,6 +309,14 @@ func TestAgentParityHoldsForEveryCredentialShape(t *testing.T) {
 			}
 		}
 		tok := w.credential(t, holder, kind, scope, narrowTo)
+		if parityCommentActs[act.name] {
+			for _, p := range pages {
+				if _, err := w.s.db.Exec(`INSERT INTO comments (id, page_id, author_id, author_name, body, created_at) VALUES (?, ?, ?, 'Someone', 'A comment', ?)`,
+					"c"+p, p, holder, now()); err != nil {
+					t.Fatalf("comment: %v", err)
+				}
+			}
+		}
 
 		ids := pages
 		if onWorkspace {

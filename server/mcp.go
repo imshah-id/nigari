@@ -351,7 +351,7 @@ var mcpTools = []map[string]any{
 	},
 	{
 		"name":        "delete_comment",
-		"description": "Delete a comment permanently.",
+		"description": "Delete a comment permanently. Only its author or an admin of the page's workspace may; anyone else is refused, as in the interface.",
 		"inputSchema": map[string]any{"type": "object",
 			"properties": map[string]any{"comment_id": map[string]any{"type": "string"}},
 			"required":   []string{"comment_id"}},
@@ -393,14 +393,15 @@ var mcpTools = []map[string]any{
 	},
 	{
 		"name":        "comments",
-		"description": "Comments on a page. action: list (the default) | add | resolve | reopen. Deleting has its own tool, deliberately — it should be a choice, not an enum value you land on by mistake.",
+		"description": "Comments on a page. action: list (the default; each comment carries editedAt and its reactions) | add | edit (change the text of a comment YOU wrote; nobody else's, not even as an admin; the earlier text is kept) | history (a comment's earlier texts, newest first) | react | unreact (with reaction: one of thumbs_up 👍, heart ❤️, tada 🎉, smile 😄, eyes 👀, check ✅; the key or the emoji) | resolve | reopen. Deleting has its own tool, deliberately — it should be a choice, not an enum value you land on by mistake.",
 		"inputSchema": map[string]any{"type": "object",
 			"properties": map[string]any{
 				"page_id":    map[string]any{"type": "string"},
-				"action":     map[string]any{"type": "string", "description": "list (default) | add | resolve | reopen"},
-				"body":       map[string]any{"type": "string", "description": fmt.Sprintf("add only: the comment text, at most %d characters (the same limit as in the interface).", maxCommentLen)},
+				"action":     map[string]any{"type": "string", "description": "list (default) | add | edit | history | react | unreact | resolve | reopen"},
+				"body":       map[string]any{"type": "string", "description": fmt.Sprintf("add and edit: the comment text, at most %d characters (the same limit as in the interface).", maxCommentLen)},
 				"block_id":   map[string]any{"type": "string", "description": "add only: attach the comment to one block instead of the page."},
-				"comment_id": map[string]any{"type": "string", "description": "resolve and reopen only."},
+				"comment_id": map[string]any{"type": "string", "description": "every action but list and add."},
+				"reaction":   map[string]any{"type": "string", "description": "react and unreact: thumbs_up, heart, tada, smile, eyes or check (or the emoji itself)."},
 			},
 			"required": []string{"page_id"}},
 	},
@@ -843,6 +844,8 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 		RevisionID string `json:"revision_id"`
 		CommentID  string `json:"comment_id"`
 		Resolved   *bool  `json:"resolved"`
+		// comments react/unreact (spec 017): a key or its glyph.
+		Reaction string `json:"reaction"`
 		// Agent parity A4.
 		WorkspaceID   string `json:"workspace_id"`
 		DatabaseID    string `json:"database_id"`
@@ -899,7 +902,10 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 	case "database_templates":
 		mutating = args.Action != "" && args.Action != "list"
 	case "comments":
-		mutating = args.Action == "add" || args.Action == "resolve" || args.Action == "reopen"
+		// list and history read; every other action writes, an unknown one
+		// included, so a read-only token never reaches the action switch with
+		// a word it does not know.
+		mutating = args.Action != "" && args.Action != "list" && args.Action != "history"
 	}
 	// Any call naming a page is a sign of life for whatever THIS account has
 	// checked in there, so an agent working inside nigari stays fresh without
@@ -1175,12 +1181,13 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 			}
 			return strings.Join(done, " "), nil
 		case "delete_comment":
-			// The comment tools name no page_id, so the central check does not bite.
-			// Without resolving the comment to its page, a guessed id would write
-			// into somebody else's workspace.
-			pid, ok := s.commentPage(args.CommentID)
-			if !ok || !s.canWrite(userID, pid) || !s.credentialMayEnter(u, s.pageWorkspace(pid)) {
-				return "", fmt.Errorf("comment %q not found", args.CommentID)
+			// The comment tools name no page_id, so the central check does not
+			// bite: the gate resolves the comment to its page. The same gate as
+			// DELETE /api/comments/{id} — its author or a workspace admin. This
+			// tool used to let anyone who could write on the page delete
+			// anybody's comment (FR-009).
+			if _, err := s.commentForDelete(u, args.CommentID); err != nil {
+				return "", mcpCommentError(args.CommentID, err)
 			}
 			return s.mcpDeleteComment(args.CommentID)
 		case "whoami":
@@ -1407,7 +1414,7 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 		case "revisions":
 			return s.mcpRevisions(u, args.PageID, args.Action, args.RevisionID, args.Limit)
 		case "comments":
-			return s.mcpComments(u, args.PageID, args.Action, args.Body, args.BlockID, args.CommentID, args.Resolved)
+			return s.mcpComments(u, args.PageID, args.Action, args.Body, args.BlockID, args.CommentID, args.Reaction, args.Resolved)
 		case "set_sharing":
 			return s.mcpSetSharing(requestBase{publicBase}, args.PageID, args.Public, args.ExpiresInDays, args.Password)
 		case "set_trashed":
@@ -1448,7 +1455,15 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 		// change of layout only.
 		// An embed's views are the document's, not the database's: no
 		// auditViewChanges for them, so the generic entry stands (spec 014).
-		ownAudit := name == "set_view" || name == "delete_view"
+		//
+		// comments edit writes its own as well ("comment.edit", the same entry
+		// as the REST route, from editComment); a second, generic one would
+		// count one edit twice.
+		//
+		// Reactions write none at all, as over REST (spec 017, R7): they are
+		// acknowledgements, not changes.
+		ownAudit := name == "set_view" || name == "delete_view" ||
+			(name == "comments" && (args.Action == "edit" || args.Action == "react" || args.Action == "unreact"))
 		if args.EmbedID != "" {
 			ownAudit = false
 		}

@@ -358,7 +358,8 @@ func (s *Server) printOptionsFor(p *page) printOptions {
 	// Fetched whatever the default says, because the bar can switch comments on
 	// without going back to the server — and a toggle that needs a round trip
 	// reopens the print dialog, which is the thing being fixed here.
-	if list, err := s.pageComments(p.ID); err == nil {
+	// No viewer: an export shows no reactions, so whose they are does not matter.
+	if list, err := s.pageComments(p.ID, ""); err == nil {
 		o.CommentL = list
 	}
 	return o
@@ -527,6 +528,12 @@ func (srv *Server) pageHTML(p *page, printMode bool, o printOptions) string {
 			b.WriteString(`<p class="doc-comment"><span class="who">` + esc(c.AuthorName) + `</span>`)
 			if len(c.CreatedAt) >= 10 {
 				b.WriteString(`<span class="when">` + esc(c.CreatedAt[:10]) + `</span>`)
+			}
+			// The current text, marked when it is not the first one (spec 017):
+			// a printed copy must not pass an edited comment off as what was
+			// first written.
+			if c.EditedAt != nil {
+				b.WriteString(`<span class="when">(edited)</span>`)
 			}
 			b.WriteString("<br>" + esc(c.Body) + "</p>")
 		}

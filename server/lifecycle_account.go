@@ -124,16 +124,18 @@ func (s *Server) removeUnreferencedFiles(refs map[string]bool) {
 		}
 		// The CURRENT content is not the only thing that counts. A revision can
 		// be restored (history.go writes it back verbatim), a comment can link
-		// to the file, and a profile picture lives in the same directory.
+		// to the file (and so can an earlier text of one, readable under
+		// "(edited)", spec 017), and a profile picture lives in the same directory.
 		// Without these three queries the clean-up left a dead image inside a
 		// restorable version of SOMEBODY ELSE'S page.
 		var elsewhere int
 		s.db.QueryRow(`SELECT
 			(SELECT COUNT(*) FROM page_revisions WHERE content LIKE ?) +
 			(SELECT COUNT(*) FROM comments WHERE body LIKE ?) +
+			(SELECT COUNT(*) FROM comment_versions WHERE body LIKE ?) +
 			(SELECT COUNT(*) FROM workspaces WHERE image LIKE ?) +
 			(SELECT COUNT(*) FROM users WHERE avatar LIKE ?)`,
-			like, like, like, like).Scan(&elsewhere)
+			like, like, like, like, like).Scan(&elsewhere)
 		if elsewhere > 0 {
 			continue
 		}

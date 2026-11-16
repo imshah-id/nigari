@@ -44,7 +44,10 @@ func TestUpgradeStepTwoAddsViewPrefsAndLock(t *testing.T) {
 		t.Fatal("step-1.db has no database to carry through the step")
 	}
 
-	ran, err := upgradeDB(path)
+	// Steps 1 and 2 only: this test is about step 2. With the whole list, the
+	// next step ran too and the test failed for a step it does not check.
+	stepsToTwo := upgradeSteps()[:2]
+	ran, err := upgradeWith(path, stepsToTwo)
 	if err != nil {
 		t.Fatalf("upgrade: %v", err)
 	}
@@ -73,7 +76,7 @@ func TestUpgradeStepTwoAddsViewPrefsAndLock(t *testing.T) {
 	}
 
 	// A second start: no step pending, the shape exactly as the first left it.
-	ran, err = upgradeDB(path)
+	ran, err = upgradeWith(path, stepsToTwo)
 	if err != nil {
 		t.Fatalf("second start: %v", err)
 	}

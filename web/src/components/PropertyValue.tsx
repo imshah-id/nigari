@@ -8,7 +8,7 @@ import Portal from './Portal';
 import { OPTION_HEXES, optionPalette, optionSlug } from '../selectOptions';
 import { daysUntil, formatDay, formatMoment, formatNumber } from '../format';
 import { showActivityFor } from './ActivityLogHost';
-import { initials, nameColor } from './CommentsPanel';
+import { initials, nameColor } from '../avatar';
 import { Check, ExternalLink, Link2 as LinkIcon, Plus, Trash2 } from 'lucide-react';
 import { PageIcon } from '../pageIcon';
 import { t } from '../i18n';

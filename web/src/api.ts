@@ -561,6 +561,20 @@ export const api = {
       body: JSON.stringify({ resolved }),
     }),
   deleteComment: (id: string) => req<{ ok: boolean }>(`/api/comments/${id}`, { method: 'DELETE' }),
+  // Spec 017: only the author edits (the server refuses anyone else with
+  // comment_not_author); the earlier texts are for anyone who reads the page.
+  editComment: (id: string, body: string) =>
+    req<{ ok: boolean; changed: boolean }>(`/api/comments/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ body }),
+    }),
+  commentVersions: (id: string) => req<import('./types').CommentVersion[]>(`/api/comments/${id}/versions`),
+  // PUT and DELETE rather than a toggle: a retried request lands where it was
+  // meant to instead of undoing itself.
+  setReaction: (id: string, reaction: string, on: boolean) =>
+    req<{ ok: boolean }>(`/api/comments/${id}/reactions/${encodeURIComponent(reaction)}`, {
+      method: on ? 'PUT' : 'DELETE',
+    }),
 
   // The raw trail. There is no edit and no single delete on purpose — see
   // server/notelog.go. clearNotes drops the whole of it and is the only removal

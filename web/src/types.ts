@@ -155,6 +155,25 @@ export interface Comment {
   authorColor?: string;
   authorAvatar?: string;
   resolvedAt: string | null;
+  /** Set once its author edited it; the earlier texts are behind
+   *  api.commentVersions (spec 017). */
+  editedAt: string | null;
+  /** One entry per reaction someone gave, in the picker's order. */
+  reactions: CommentReaction[];
+}
+
+export interface CommentReaction {
+  reaction: string;
+  count: number;
+  users: { id: string; name: string }[];
+  /** Whether the person looking reacted with it. */
+  mine: boolean;
+}
+
+export interface CommentVersion {
+  body: string;
+  /** When this text was replaced by the next one. */
+  replacedAt: string;
 }
 
 // One entry of a page's raw trail. No resolvedAt, no editedAt and no author id

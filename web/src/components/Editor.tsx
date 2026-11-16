@@ -27,12 +27,11 @@ import CollectionView from './CollectionView';
 // for anyway before it draws (spec 015: the main bundle's cap).
 const RowProperties = lazy(() => import('./RowProperties'));
 import { HistoryModal } from './PageHistory';
-import CommentsPanel, {
-  COMMENTS_CHANGED,
-  commentsPanelOpen,
-  initials,
-  setCommentsPanelOpen,
-} from './CommentsPanel';
+// Loaded when it first opens: most pages are read with the panel shut, and
+// it carries the editing and reaction controls (spec 017).
+const CommentsPanel = lazy(() => import('./CommentsPanel'));
+import { COMMENTS_CHANGED, commentsPanelOpen, setCommentsPanelOpen } from '../commentsPanelState';
+import { initials } from '../avatar';
 import NoteTrail from './NoteTrail';
 import { FilePreview, isPreviewable } from './FilePreview';
 import StructurePanel, { structurePanelOpen, setStructurePanelOpen } from './StructurePanel';
@@ -264,12 +263,15 @@ export default function Editor(props: EditorProps) {
         )}
       </PageHeader>
       {commentsOpen && canComment && (
+        <Suspense fallback={null}>
         <CommentsPanel
           pageId={page.id}
           myUserId={props.user.id}
+          canWrite={props.canEdit}
           open
           onClose={() => showComments(false)}
         />
+        </Suspense>
       )}
       {tplEditId && (
         <TemplateEditDialog templateId={tplEditId} editorProps={props} onClose={() => setTplEditId(null)} />
