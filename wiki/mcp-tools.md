@@ -842,8 +842,9 @@ points matter here:
   reads exactly like "nothing points here", which is worse than an error.
 - A **rollup** may carry a condition. `rollupAgg` is `sum`, `count`, `avg`,
   `min`, `max` or `percent`. For several values use `rollupWhereValues` rather
-  than `rollupWhereValue`: "open" usually means *is not* done and *is not*
-  discarded, and one comparison cannot say that.
+  than `rollupWhereValue`. On a status, "open" is best said as `rollupWhereOp`
+  `group_is_not` with `rollupWhereValues: ["complete"]`, not as *is not* done and
+  *is not* discarded, which has to be kept up to date by hand.
 - A **checklist** value is a list of sub-tasks, `[{"text":"…","done":false}]`,
   and shows its own progress. Do not add a second percentage column beside it.
 
@@ -858,7 +859,12 @@ has, and sending `type: "select"` again keeps the options and drops the groups.
 Options are stored in group order; a new row starts with the first `todo` option
 unless you give a value. A status with an option of unknown group, a group with
 no option, or two options of one name is refused with `invalid_status_options`.
-Filtering by group is not built yet.
+**Filtering and rolling up by group.** On a status, a rollup condition may use
+`rollupWhereOp` `group_is` or `group_is_not` with `rollupWhereValues` naming
+groups (`todo`, `in_progress`, `complete`). `group_is ["complete"]` means done
+whatever the options are called, and follows options added or moved later. The
+same two operators work in filters (see `query_rows` and `set_view`). On a
+property that is not a status they are refused with `invalid_group_filter`.
 
 A property may carry `pageVisibility`: `"hide_empty"` (hidden on a row's page
 while the row has no value), `"hide"` (always folded away there) or `"show"` to
@@ -891,6 +897,7 @@ properties, and removing ones no view uses, work as always.
 | `period` | string | no: with a date `group_by` |
 | `aggregate` | string | no |
 | `aggregate_property` | string | no |
+| `status_groups` | boolean | no: with `group_by` on a status |
 | `view_id` | string | no: a chart view |
 
 Each filter is `{property, op, value}`, all ANDed together. `property` is a
@@ -906,6 +913,7 @@ filter titles with `search` instead. Operators:
 | `between` | inside `value`…`value2`, inclusive at both ends. Does nothing until both are set |
 | `is_empty` | unset, empty string, or an empty list |
 | `is_not_empty` | anything else, and the default when `op` and `value` are both left out |
+| `group_is`, `group_is_not` | **status only**: `values` names groups (`todo`, `in_progress`, `complete`), not options. `{"property":"status","op":"group_is_not","values":["complete"]}` is "open work" and stays right when an option is added to Complete or moved. On any other property it is refused with `invalid_group_filter` |
 
 `is` and `is_not` also take a **set**: pass `values` instead of `value` and they
 read *any of* / *none of*. `{"property":"klasse","op":"is_not","values":["a","h"]}`
@@ -1097,6 +1105,7 @@ Create a view, or change one.
 | `show_empty` | boolean | chart |
 | `show_zero` | boolean | chart |
 | `chart_style` | object | chart |
+| `status_groups` | boolean | chart, grouped by a status |
 | `embed_id` | string | no: the views of an embedded database |
 | `copy_of` | string | creating, with `embed_id` |
 
@@ -1126,8 +1135,12 @@ group_by`, and a calendar or timeline with `date_prop: ""` likewise. To be rid
 of the grouping you delete the view.
 
 Filters take the same operators `query_rows` does. A board people actually work
-in usually needs one: without a "status is not done" filter the finished column
-grows forever and pushes the work aside.
+in usually needs one: without a filter the finished column grows forever and
+pushes the work aside. On a status, use `group_is_not` with `["complete"]`. It
+keeps working when options are added or moved, and a group condition on a
+property that is not a status is refused with `invalid_group_filter`. A view
+filtered by exactly one group gives new rows that group's first option; several
+groups pin nothing.
 
 `open_in` decides how a click on one of the view's rows opens it for people:
 `full_page` (the tab goes to the row, the default), `side_peek` (the row
@@ -1170,6 +1183,9 @@ settings. `chart_kind` is `bar` (the default), `hbar` (horizontal bars), `line`,
 select, multi-select, person, checkbox, date or relation property, and `period`
 for a date (`day`, `week`, `month`, `year`). `aggregate` and
 `aggregate_property` say what each group shows, as in `query_rows`.
+With `group_by` on a status, `status_groups: true` counts its groups (`todo`,
+`in_progress`, `complete`, in that order) instead of its options, in both
+`query_rows` and a chart view; on any other property it is ignored.
 `group_by: "__row"` draws one bar, point or slice per row (**Each row** in the
 interface); it takes the same `aggregate` and `aggregate_property` rule as in
 `query_rows`, so a `count` is refused.

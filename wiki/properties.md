@@ -236,9 +236,33 @@ The whole name is matched, ignoring case, hyphens and punctuation at the end, so
 default option. Check the placement afterwards, and move any option the guess
 got wrong. Converting back to a select keeps the options and drops the groups.
 
-**Filters** and the value picker behave as for a select. **Sorts** by group
+**Filters** and the value picker behave as for a select, and a status adds two
+conditions of its own, **Group is** and **Group is not**. You tick one or more
+groups (*Group is not: Complete* is "open work"). The condition follows the
+options: add an option to Complete, or move one into or out of it, and the rows
+with that option are in or out at once, without editing the view. That is why
+"open work" is better written as *Group is not Complete* than as *is not* Done,
+Discarded: the second list has to be kept up to date by hand. A group condition
+on a property that is not a status is refused when you save it. If a status is
+later turned back into a select, a group condition left on a view narrows
+nothing. When a view is filtered by exactly **one** group, a new row made in
+that view gets that group's first option; with several groups, nothing is
+pinned. **Sorts** by group
 first, then by the option's position within the group, so To-do comes before In
 progress before Complete, which is how a person reads a status.
+
+**Rollups** can use the same condition on a status of the related database:
+*count the tasks* where *Status* **Group is** *Complete*. See
+[Relations and rollups](relations-and-rollups.md).
+
+**Quick filters.** The chip of a status lists the three groups first, then the
+options under their group's heading. Picking a group narrows the view to every
+option in it.
+
+**Charts** grouped by a status can count by **option** (one bar per option, as
+before) or by **group**: **Group by** in the chart settings offers **Option** and
+**Status group**, and the second draws three bars in the order To-do, In
+progress, Complete.
 
 **On a board** grouped by a status there is one column per option, in group
 order, plus the catch-all column for rows with no value. In a public form and in
@@ -246,10 +270,6 @@ a shared table a status is treated as a select.
 
 **New databases** are created with a Status property of this type. A database
 that already exists keeps its Status as a select until you convert it.
-
-**Not built yet, coming in a later release:** filtering or rolling up by group
-("group is" and "group is not"), a quick-filter chip by group, and charts
-grouped by group. Until then, filter by the individual options.
 
 ### date
 
