@@ -8119,14 +8119,18 @@ a,
 @media (hover: none) { .cp-actions { opacity: 1; } }
 /* The actions are ui/ buttons now (spec 017); these keep them as quiet as
    the hand-built links they replaced, so a comment does not read as a form. */
-.cp-act {
+/* .ui-button. in front of each: Button.css' variant rules (a ghost's
+   transparent border, its text colour) otherwise win, and the chips came out
+   borderless with "yours" shown by a faint tint alone (the spec 017 audit). */
+.ui-button.cp-act {
   gap: var(--space-50);
   font-size: var(--font-size-2xs);
   color: var(--color-text-muted);
 }
 
 /* "(edited)" after the time: a button, because it opens the earlier texts. */
-.cp-edited {
+.ui-button.cp-edited {
+  font-family: var(--font-family-sans);
   font-size: var(--font-size-2xs);
   color: var(--color-text-muted);
   padding-inline: var(--space-50);
@@ -8169,16 +8173,19 @@ a,
   gap: var(--space-50);
   margin-top: var(--space-100);
 }
-.cp-chip {
+.ui-button.cp-chip {
   gap: var(--space-50);
   border: 1px solid var(--color-border-default);
   border-radius: var(--radius-scale-full);
   padding-inline: var(--space-100);
 }
-.cp-chip[aria-pressed='true'] {
+/* Yours: the accent border and a heavier count as well as the tint, so the
+   difference is not carried by colour alone. */
+.ui-button.cp-chip[aria-pressed='true'] {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-default);
 }
+.ui-button.cp-chip[aria-pressed='true'] .cp-chip-count { font-weight: 700; }
 .cp-chip-count { font-size: var(--font-size-2xs); }
 /* The add button shows with the other actions, on hover or focus; on a touch
    screen always (below). */
@@ -8194,7 +8201,22 @@ a,
   gap: var(--space-50);
 }
 .cp-picker-item { font-size: var(--font-size-lg); }
-.cp-picker-item[aria-pressed='true'] { background: var(--color-accent-soft); }
+.ui-button.cp-picker-item[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent-default);
+}
+.cp-versions-list:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+/* A finger needs more than the 26 pixels a pointer gets. */
+@media (pointer: coarse) {
+  .ui-button.cp-chip,
+  .ui-button.cp-act,
+  .ui-button.cp-edited,
+  .ui-button.cp-react,
+  .ui-button.cp-picker-item {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
 
 /* Six lines, and it grows. The old box was two, which is a caption — people
    here write a paragraph and then another one. */

@@ -133,18 +133,22 @@ export default function CommentItem({
             }
           >
             <h3 className="cp-versions-title">{t('Earlier versions')}</h3>
-            {versions === null ? (
-              <p className="cp-versions-empty">{t('Loading…')}</p>
-            ) : (
-              <ol className="cp-versions-list">
-                {versions.map((v, i) => (
+            {/* Always there and focusable: the popover puts the focus on its
+                first focusable element as it opens, before the versions have
+                loaded, and it went to the hidden Close button. The list also
+                scrolls by keyboard this way. */}
+            <ol className="cp-versions-list" tabIndex={0} aria-label={t('Earlier versions')} aria-busy={versions === null}>
+              {versions === null ? (
+                <li className="cp-versions-empty">{t('Loading…')}</li>
+              ) : (
+                versions.map((v, i) => (
                   <li key={i}>
                     <time>{t('Until {time}', { time: formatMoment(v.replacedAt, 'datetime') })}</time>
                     <div className="cp-body">{v.body}</div>
                   </li>
-                ))}
-              </ol>
-            )}
+                ))
+              )}
+            </ol>
           </Popover>
         )}
       </div>
@@ -224,7 +228,25 @@ export default function CommentItem({
               onOpenChange={setPickerOpen}
               trigger={<IconButton label={t('Add reaction')} icon={<SmilePlus size={14} />} size="sm" className="cp-react" />}
             >
-              <div className="cp-picker-grid">
+              <div
+                className="cp-picker-grid"
+                role="group"
+                // The arrows are the picker's own, as in a menu: without this
+                // the page's arrow navigation (nav.ts) takes them first.
+                data-nav-skip=""
+                aria-label={t('Add reaction')}
+                onKeyDown={(e) => {
+                  // The arrows move between the six and stay inside the
+                  // picker; the page's own arrow handling took the focus out.
+                  if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const items = [...e.currentTarget.querySelectorAll<HTMLElement>('button')];
+                  const at = items.indexOf(document.activeElement as HTMLElement);
+                  const next = (at + (e.key === 'ArrowRight' ? 1 : -1) + items.length) % items.length;
+                  items[next]?.focus();
+                }}
+              >
                 {COMMENT_REACTIONS.map((r) => {
                   const on = c.reactions.some((x) => x.reaction === r.key && x.mine);
                   return (

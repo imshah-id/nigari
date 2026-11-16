@@ -51,13 +51,20 @@ await withFixture(async ({ page, context, api, base, workspace, path }) => {
   await item(mine.id).getByRole('button', { name: '(edited)' }).click();
   const versions = page.getByRole('dialog', { name: 'Earlier versions' });
   await versions.getByText('The frist draft').waitFor();
+  // Focus lands on the list, visibly, not on the popover's hidden Close.
+  await eventually(async () => page.evaluate(() => document.activeElement?.classList.contains('cp-versions-list') ?? false));
   await page.keyboard.press('Escape');
   await versions.waitFor({ state: 'hidden' });
 
   // React through the picker, then Mo reacts too: the chip counts 2 and names both.
   await item(mine.id).hover();
   await item(mine.id).getByRole('button', { name: 'Add reaction' }).click();
-  await page.getByRole('dialog', { name: 'Add reaction' }).getByRole('button', { name: 'Heart' }).click();
+  // The arrows move between the six and stay inside the picker.
+  const picker = page.getByRole('dialog', { name: 'Add reaction' });
+  await picker.getByRole('button', { name: 'Thumbs up' }).focus();
+  await page.keyboard.press('ArrowRight');
+  assert.equal(await page.evaluate(() => document.activeElement?.getAttribute('aria-label')), 'Heart', 'ArrowRight left the picker');
+  await page.keyboard.press('Enter');
   const heart = () => item(mine.id).locator('.cp-chip');
   await eventually(async () => (await heart().count()) === 1 && (await heart().getAttribute('aria-pressed')) === 'true');
   await other.request.fetch(`${base}/api/comments/${mine.id}/reactions/heart`, { method: 'PUT' });
