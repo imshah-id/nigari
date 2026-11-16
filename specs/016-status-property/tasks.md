@@ -110,9 +110,9 @@ description: "Tasks for a Status property type"
 
 ## Phase 8: Polish (each PR its own share)
 
-- [ ] T034 [wiki] `wiki/collections.md` (the type, groups, conversion; PR 2: filters, rollups, charts by group), `wiki/mcp-tools.md`, `docs/what-it-does.md`; screenshots listing `PropertyFields.tsx`, `PropertyValue.tsx`, `BoardView.tsx` or `CollectionView.tsx` retaken
-- [ ] T035 [test] `web/tests/status-property.mjs` part 2: filter by group, quick filter chip, rollup progress; `new-row-filters.mjs` passes
-- [ ] T036 [test] Reviews before each PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone; `codegraph sync` then `codegraph callers` on every exported symbol added or moved
+- [x] T034 [wiki] `wiki/collections.md` (the type, groups, conversion; PR 2: filters, rollups, charts by group), `wiki/mcp-tools.md`, `docs/what-it-does.md`; screenshots listing `PropertyFields.tsx`, `PropertyValue.tsx`, `BoardView.tsx` or `CollectionView.tsx` retaken
+- [x] T035 [test] `web/tests/status-property.mjs` part 2: filter by group, quick filter chip, rollup progress; `new-row-filters.mjs` passes
+- [x] T036 [test] Reviews before each PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone; `codegraph sync` then `codegraph callers` on every exported symbol added or moved
 
 ---
 
