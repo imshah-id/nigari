@@ -1308,14 +1308,25 @@ Errors: `unknown action "x" — use list (the default), get or restore`;
 | Parameter | Type | Required |
 | --- | --- | --- |
 | `page_id` | string | yes |
-| `action` | string | no: `list` (default), `add`, `resolve`, `reopen` |
-| `body` | string | `add` only |
+| `action` | string | no: `list` (default), `add`, `edit`, `history`, `react`, `unreact`, `resolve`, `reopen` |
+| `body` | string | `add` and `edit` |
 | `block_id` | string | `add` only |
-| `comment_id` | string | `resolve` and `reopen` |
+| `comment_id` | string | every action but `list` and `add` |
+| `reaction` | string | `react` and `unreact` |
 
-`list` returns the page's comments as JSON. `add` posts one; give `block_id` to
-attach it to a single block instead of the page. `resolve` ticks one off,
-`reopen` un-ticks it.
+`list` returns the page's comments as JSON, each with `editedAt` and its
+`reactions` (per reaction: the key, the count, who gave it, and whether you
+did). `add` posts one; give `block_id` to attach it to a single block instead
+of the page. `edit` changes the text of a comment **your own account wrote**,
+and nobody else's, not even as a workspace admin; the text it replaces is kept.
+`history` returns those earlier texts, newest first. `react` adds your
+reaction and `unreact` takes it back; `reaction` is one of `thumbs_up`,
+`heart`, `tada`, `smile`, `eyes` and `check`, or the emoji itself (👍 ❤️ 🎉 😄 👀
+✅). `resolve` ticks one off, `reopen` un-ticks it.
+
+`list` and `history` are reads: a read-only token may call them. Every other
+action, and any action word the tool does not know, needs a write token. The
+text `list` and `history` return is wrapped as untrusted content.
 
 There is also an undeclared `resolved` boolean, and where it appears it wins:
 `action: "resolve"` together with `resolved: false` reopens the comment. Two
@@ -1324,14 +1335,18 @@ action alone unless you have a reason.
 
 Deleting is deliberately **not** an action here (see below).
 
-Returns `Added comment <id>`, `Resolved comment <id>`, `Reopened comment <id>`.
-Errors: `unknown action "x" — use list (the default), add, resolve or reopen;
-deleting has its own tool`; `comment body is required`;
+Returns `Added comment <id>`, `Edited comment <id>; …`, `Comment <id> already
+says that; nothing changed`, `Reacted with heart to comment <id>`, `Took back
+heart on comment <id>`, `Resolved comment <id>`, `Reopened comment <id>`.
+Errors: `unknown action "x" — use list (the default), add, edit, history, react,
+unreact, resolve or reopen; deleting has its own tool`; `comment body is
+required`; `Only its author can edit a comment.`; `Unknown reaction; use one
+of: …` (naming the six);
 `A comment is limited to 10000 characters.` (the same check as in the
 interface, `maxCommentLen`);
 `comment_id is required for action=resolve`; `comment "…" not found`.
 
-The permission check on resolve and reopen runs against the comment's **page**,
+Every action that names a comment checks the comment's **page**,
 resolved from the comment id: a guessed id cannot write into somebody else's
 workspace.
 
@@ -1342,8 +1357,11 @@ workspace.
 | `comment_id` | string | yes |
 
 Deletes a comment permanently. Its own tool on purpose: destroying should be a
-choice of tool, not an enum value. Errors: `comment "…" not found`, which is
-also the answer for a comment on a page you may not write to.
+choice of tool, not an enum value. Only the comment's author or an admin of the
+page's workspace may, the same rule as the interface and the API; anyone else
+gets `Only its author or a workspace admin can delete a comment.` Errors:
+`comment "…" not found`, which is also the answer when your credential may not
+enter that workspace.
 
 ### note
 

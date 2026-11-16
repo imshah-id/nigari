@@ -153,5 +153,21 @@ const pages = await call('GET', '/api/pages');
 const welcome = pages.find((p) => p.title === 'Welcome to nigari');
 if (welcome) await call('POST', `/api/pages/${welcome.id}/share`, {});
 
+// Two comments on the welcome page for the comments panel's shot: one edited,
+// with reactions, so the picture shows "(edited)" and the chips (spec 017).
+if (welcome) {
+  const first = await call('POST', `/api/pages/${welcome.id}/comments`, {
+    body: 'Could the second paragraph say who this page is for?',
+  });
+  await call('PATCH', `/api/comments/${first.id}`, {
+    body: 'Could the opening paragraph say who this page is for?',
+  });
+  await call('PUT', `/api/comments/${first.id}/reactions/thumbs_up`);
+  await call('PUT', `/api/comments/${first.id}/reactions/eyes`);
+  await call('POST', `/api/pages/${welcome.id}/comments`, {
+    body: 'Added a line on that. Resolve this when it reads right to you.',
+  });
+}
+
 console.log(`\n  seeded ${BASE}: ${pages.length} pages, 2 collections, ${rows.length} rows`);
 console.log(`  now: node scripts/shoot-wiki.mjs\n`);

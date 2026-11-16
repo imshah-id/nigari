@@ -449,6 +449,9 @@ export function ActivityModal({ onClose, pageId, pageTitle }: { onClose: () => v
   const phrase = (e: AuditEntry): { text: string; namesDetail: boolean; comma: boolean } => {
     if (e.action === 'views.lock') return { text: t('Views locked by {name}', { name: e.actorName }), namesDetail: false, comma: true };
     if (e.action === 'views.unlock') return { text: t('Views unlocked by {name}', { name: e.actorName }), namesDetail: false, comma: true };
+    // An edited comment (spec 017): the detail is the comment's id, which
+    // means nothing to a reader, so only the page is named.
+    if (e.action === 'comment.edit') return { text: `${e.actorName} ${t('edited a comment on')}`, namesDetail: true, comma: false };
     if (viewLabel[e.action]) return { text: `${e.actorName}: ${viewLabel[e.action]} “${e.detail.slice(0, 60)}”`, namesDetail: true, comma: true };
     return { text: `${e.actorName} ${label[e.action] ?? e.action}`, namesDetail: false, comma: false };
   };

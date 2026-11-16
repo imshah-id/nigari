@@ -1379,5 +1379,6 @@
   "Until {time}": "Hasta {time}",
   "You": "Tú",
   "{names} reacted with {reaction}": "{names} reaccionó con {reaction}",
-  "⌘↵ to save": "⌘↵ para guardar"
+  "⌘↵ to save": "⌘↵ para guardar",
+  "edited a comment on": "editó un comentario en"
 }

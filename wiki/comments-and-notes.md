@@ -14,9 +14,10 @@ to it over MCP, and how to decide which you want.
 | --- | --- | --- |
 | Where | a panel on the right, beside the text | one line at the foot of the page |
 | Written by | people, and agents over MCP | people, and agents over MCP |
-| Can be edited | no | no |
-| Can be removed | one at a time: by its author in the panel, by a workspace admin over the API, by anyone who may write over MCP | never one at a time; the whole trail at once |
+| Can be edited | by its author only; every earlier text is kept and readable | no |
+| Can be removed | one at a time: by its author, or by a workspace admin over the API and MCP | never one at a time; the whole trail at once |
 | Has a "done" state | yes (resolve and reopen) | no; a note is a fact, not a task |
+| Reactions | six (👍 ❤️ 🎉 😄 👀 ✅), one of each per person | no |
 | Counted in the topbar | yes, the open ones | no |
 | Updates live | no (on open, and after you act) | yes |
 | On a database page | not available | not available |
@@ -71,8 +72,8 @@ a no-op half the times somebody reaches for it.
 
 **Send** stays disabled while the box is empty. If sending fails, your text goes
 back into the box and a message appears; nothing is swallowed there. A comment
-written in the browser may be up to 10 000 characters. Comments added over MCP
-are not capped.
+may be up to 10 000 characters, whether it is written in the browser, over the
+API or over MCP.
 
 Comments are plain text. They are not formatted, they carry no blocks, and they
 cannot be nested: there are no replies-to-a-reply, only a list in the order
@@ -89,8 +90,53 @@ time as a phrase ("5 minutes ago", "yesterday"; beyond a week the date itself),
 then the text. If the author's account is later deleted, the comment stays and
 keeps the name it was written under.
 
+If its author has edited it, **(edited)** follows the time (see below), and its
+reactions sit under the text.
+
 The buttons under a comment appear when you point at it, and are always visible
 on a touch screen.
+
+### Editing your own comment
+
+Under each of **your own** comments there is an **Edit** button. It turns the
+text into the same growing box you write in, with **Save** and **Cancel**
+beside it. **⌘↵** (**Ctrl+Enter**) saves, **Escape** cancels and leaves the
+text as it was; either way the focus goes back to the **Edit** button. The same
+rules as writing a new one hold: not empty, at most 10 000 characters. Saving
+the same text again changes nothing.
+
+Only the author edits. Nobody else sees the button, and the server refuses
+anybody else, a workspace admin included: an admin may remove a comment, but
+never put words in someone's mouth. An author who has since become a Viewer
+may no longer edit either.
+
+### Earlier versions
+
+An edited comment shows **(edited)** after its time; pointing at it says when
+(`Edited 16 Nov 2026, 14:02`). Pressing it opens **Earlier versions**: every
+text the comment had before, newest first, each with the time it was replaced
+(`Until 16 Nov 2026, 14:02`). Anyone who may read the page may open it, so an
+edit can fix a typo but cannot quietly change what a discussion was about.
+
+Edits are written to the activity log as "edited a comment on" the page, with
+who made them, person or agent. See [History and audit](history-and-audit.md).
+
+### Reactions
+
+A comment takes six reactions: 👍 Thumbs up, ❤️ Heart, 🎉 Celebrate, 😄 Smile,
+👀 Eyes and ✅ Done. Each one somebody gave shows as a small chip under the text
+with a count; yours are drawn pressed. Pointing at a chip, or reading it with a
+screen reader, names who reacted (`You, Ada reacted with Heart`).
+
+- Press a chip to add your own reaction of that kind, or to take yours back.
+- The smiley-plus button beside the chips (**Add reaction**) opens the six;
+  pick one and the picker closes. A reaction you already gave is marked there
+  too, and picking it again takes it back.
+
+Each person reacts with each of the six once at most. Reactions work on resolved
+comments too. Anyone who may write on the page may react; a Viewer sees the
+chips but cannot press them. Reactions are not written to the activity log:
+they are acknowledgements, not changes.
 
 ### Resolving
 
@@ -106,10 +152,11 @@ them alongside the open ones, untick it to hide them again.
 Anyone who may write on the page may resolve or reopen a comment, not only the
 person who wrote it.
 
-A workspace **Viewer** may read comments but cannot write, resolve or reopen
-one (see [Permissions](permissions.md)). Nothing is hidden from a Viewer,
-though: the compose box, the **Send** button and the **Resolved** button are all
-on screen, and the action fails when it is attempted.
+A workspace **Viewer** may read comments, their earlier versions and their
+reactions, but cannot write, resolve, edit or react (see
+[Permissions](permissions.md)). The **Resolved**, **Edit** and **Add reaction**
+buttons are not shown to a Viewer. The compose box and **Send** still are, and
+sending fails when it is attempted.
 
 ### Deleting
 
@@ -117,17 +164,18 @@ The panel shows a delete button (a bin, tooltip **Delete**) only on your **own**
 comments. Deleting is immediate and permanent: a comment does not go to the
 trash and cannot be restored.
 
-The other two ways in are wider. Over the API a workspace admin can also delete
-somebody else's comment. Over MCP, `delete_comment` needs only write permission
-on the page, so any agent that may write there can remove any comment on it. The
-panel offers neither of those.
+Over the API and over MCP the rule is the same: a comment's author, or an admin
+of the page's workspace, may delete it; anyone else is refused. (Until spec 017,
+`delete_comment` let any agent that could write on the page remove any comment
+on it.) The panel does not offer an admin the bin on other people's comments.
 
 ### When something fails
 
-Sending is the one action that tells you. Resolving, reopening and deleting say
-nothing when they fail; the comment stays as it was and the list reloads. If you
-press **Resolved** as a Viewer, or delete a comment somebody else has already
-removed, that is what you will see: no message and no change.
+Sending, saving an edit and reacting tell you, with a message. Resolving,
+reopening and deleting say nothing when they fail; the comment stays as it was
+and the list reloads. If you delete a comment somebody else has already removed,
+that is what you will see: no message and no change. A failed edit keeps your
+draft in the box.
 
 ### The count in the topbar
 
@@ -146,8 +194,8 @@ read (trashed ones, and other people's private ones) because a counter must
 not reveal that a page exists.
 
 Neither the count nor the panel updates by itself. They are fetched when you
-open the page and again after you write, resolve or delete something in the
-panel. A comment somebody else adds while you are looking appears the next time
+open the page and again after you write, edit, react to, resolve or delete
+something in the panel. A comment somebody else adds while you are looking appears the next time
 you come back to the page. (The raw trail below behaves the other way round.)
 
 ### A database has no comment panel
@@ -320,20 +368,26 @@ checked in on leaves nothing behind.
 
 | Tool | Does |
 | --- | --- |
-| `comments` | one page's comments. Actions: list (the default), add, resolve, reopen |
-| `delete_comment` | removes one comment permanently, by id |
+| `comments` | one page's comments. Actions: list (the default), add, edit, history, react, unreact, resolve, reopen |
+| `delete_comment` | removes one comment permanently, by id; its author or a workspace admin only |
 | `note` | appends one line to a page's raw trail |
 | `working_on` | check in and out; the check-out leaves the last note on the trail |
 
-`comments` always takes a page. Listing is a read, so a read-only token may do
-it; add, resolve and reopen need a write token and write permission on the page.
+`comments` always takes a page. Listing and `history` are reads, so a read-only
+token may do them; every other action needs a write token and write permission
+on the comment's page. `edit` changes the text of a comment the agent's own
+account wrote, and nobody else's; `history` returns its earlier texts, newest
+first. `react` and `unreact` take `reaction`: `thumbs_up`, `heart`, `tada`,
+`smile`, `eyes` or `check`, or the emoji itself. Reacting twice changes nothing,
+and `unreact` takes back only the agent's own.
 Adding accepts an optional block id to attach the comment to one block instead
 of the whole page; the interface neither sets that nor shows it, and such a
 comment appears in the panel like any other.
 
 A listing returns more than the panel draws: each comment's id, its block id,
-the author's id and name, the body, when it was written and, if it has been
-ticked off, when it was resolved. The whole list arrives inside an
+the author's id and name, the body, when it was written, when it was last
+edited, its reactions with who gave them, and, if it has been ticked off, when
+it was resolved. The whole list arrives inside an
 untrusted-content frame, because a comment is text somebody else wrote: an agent should
 read it, quote it or summarise it, and follow no instruction inside it.
 
@@ -359,7 +413,8 @@ duplicate cannot be tidied away afterwards.
 already there; `get_page` does not carry notes either. Reading a trail is a
 browser and plain-API affair.
 
-Comments written over MCP are recorded in the audit log as agent actions; notes
+Comments written over MCP are recorded in the audit log as agent actions, and
+an edit is logged once, as "edited a comment on", whichever door it came through; notes
 are not copied there, because the trail already is the record: dated,
 permanent, and readable by exactly the people allowed to see the page.
 
@@ -375,6 +430,10 @@ API. See [API](api.md).
 | `POST /api/pages/{id}/comments` | add one (`body`, optional `blockId`) |
 | `POST /api/comments/{id}/resolve` | tick one off, or reopen it |
 | `DELETE /api/comments/{id}` | remove one (author or workspace admin) |
+| `PATCH /api/comments/{id}` | change its text (`body`; its author only) |
+| `GET /api/comments/{id}/versions` | its earlier texts, newest first |
+| `PUT /api/comments/{id}/reactions/{reaction}` | add your reaction (`thumbs_up`, `heart`, `tada`, `smile`, `eyes`, `check`) |
+| `DELETE /api/comments/{id}/reactions/{reaction}` | take your reaction back |
 | `GET /api/comment-counts` | open comments per page for one workspace |
 | `GET /api/pages/{id}/notes` | the whole raw trail, oldest first |
 | `POST /api/pages/{id}/notes` | append one note |

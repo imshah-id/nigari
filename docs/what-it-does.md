@@ -108,8 +108,9 @@ Uploaded PDFs are searched by their text content too.
 Workspaces hold pages; people are members of workspaces with a role. A page can
 be private to its owner even inside a shared workspace.
 
-Comments sit at the bottom of a document where the text is, not in a column that
-steals width. Every page keeps its version history, and you can read or restore
+Comments sit beside the text in a panel you can close. Their author can edit
+them, with every earlier version kept for anyone who reads the page, and people
+react with one of six emoji. Every page keeps its version history, and you can read or restore
 an older state. Backlinks show which pages point here; a graph view shows the
 connections across a workspace.
 

@@ -197,6 +197,7 @@
       "caption": "Comments stand beside the text, not under it, and can be closed when you only want to read.",
       "shows": [
         "web/src/components/CommentsPanel.tsx",
+        "web/src/components/CommentItem.tsx",
         "web/src/tokens.css",
         "web/src/theme.css"
       ],
