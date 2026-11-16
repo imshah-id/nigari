@@ -89,7 +89,7 @@
       ],
       "takenAt": {
         "web/src/components/Sidebar.tsx": "1f3e2d8c86ed",
-        "web/src/components/Editor.tsx": "22c63fd2adbb",
+        "web/src/components/Editor.tsx": "ddacd5c7b3ee",
         "web/src/App.tsx": "7500814b42c9",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
@@ -154,7 +154,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Editor.tsx": "22c63fd2adbb",
+        "web/src/components/Editor.tsx": "ddacd5c7b3ee",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -219,7 +219,8 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CommentsPanel.tsx": "a270152a9957",
+        "web/src/components/CommentsPanel.tsx": "fc1b5f254860",
+        "web/src/components/CommentItem.tsx": "d390546afe17",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -612,7 +613,7 @@
       ],
       "takenAt": {
         "server/public.go": "86b2a62a07d2",
-        "web/src/components/Editor.tsx": "22c63fd2adbb",
+        "web/src/components/Editor.tsx": "ddacd5c7b3ee",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       }
@@ -644,7 +645,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/UserMenu.tsx": "0b23c8b4ba3e",
+        "web/src/components/UserMenu.tsx": "e06ab144311f",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       },
@@ -679,7 +680,7 @@
       ],
       "takenAt": {
         "server/users.go": "136e05917103",
-        "web/src/components/UserMenu.tsx": "0b23c8b4ba3e",
+        "web/src/components/UserMenu.tsx": "e06ab144311f",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       },
@@ -749,7 +750,7 @@
       ],
       "takenAt": {
         "web/src/components/AgentConnect.tsx": "5845471c4aee",
-        "server/mcp.go": "c4858f31e19d",
+        "server/mcp.go": "6559fa033932",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d"
       },
@@ -1084,7 +1085,7 @@
       "element": ".ui-dialog",
       "takenAt": {
         "web/src/components/AdminSettings.tsx": "bd43933cd921",
-        "server/export_html.go": "3d8acbdbd4fa",
+        "server/export_html.go": "289f0ae9019d",
         "web/src/tokens.css": "febe0adc0e97",
         "web/src/theme.css": "0ef4724d4a6d",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
