@@ -32,6 +32,11 @@ type aggSpec struct {
 	Period  string // day|week|month|year, date groupings only
 	Agg     string // count|sum|avg|min|max
 	AggProp string // the number, formula or rollup property, unless counting
+	// StatusGroups counts a status by its groups (To-do, In progress,
+	// Complete) instead of by option (spec 016, R8). Ignored for any other
+	// property: a setting left on a status turned back into a select counts
+	// by option.
+	StatusGroups bool
 }
 
 // aggGroup is one group of the answer. Value is nil when the group has no
@@ -130,6 +135,17 @@ func schemaProp(schema []map[string]any, id string) map[string]any {
 func propType(p map[string]any) string {
 	t, _ := p["type"].(string)
 	return t
+}
+
+// byStatusGroup says whether this grouping counts a status by its groups.
+func byStatusGroup(spec aggSpec, p map[string]any) bool {
+	return spec.StatusGroups && p != nil && propType(p) == "status"
+}
+
+// sqlText quotes a value as an SQL string literal. Option ids come from a
+// schema any script can PUT, so they are escaped rather than trusted.
+func sqlText(s string) string {
+	return "'" + strings.ReplaceAll(s, "'", "''") + "'"
 }
 
 func groupableList() string { return "select, multiselect, person, checkbox, date or relation" }
@@ -265,6 +281,19 @@ func groupKeySQL(spec aggSpec, p map[string]any) (key, join string) {
 	}
 	path := "'$." + spec.GroupBy + "'"
 	ex := "json_extract(pages.props, " + path + ")"
+	if byStatusGroup(spec, p) {
+		// Each option maps to its group in the same pass (R8), so a sum or
+		// an average per group is computed over the rows, never from the
+		// options' own totals. An option no longer offered keeps its id.
+		opt := "COALESCE(CAST(je.value AS TEXT), '')"
+		var b strings.Builder
+		b.WriteString("CASE " + opt)
+		for id, g := range statusOptionGroups([]map[string]any{p})[spec.GroupBy] {
+			b.WriteString(" WHEN " + sqlText(id) + " THEN " + sqlText(g))
+		}
+		b.WriteString(" ELSE " + opt + " END")
+		return b.String(), "LEFT JOIN json_each(pages.props, " + path + ") AS je"
+	}
 	switch propType(p) {
 	case "row":
 		return "pages.id", ""
@@ -505,6 +534,16 @@ func groupKeysGo(spec aggSpec, p map[string]any, rowID string, props map[string]
 		return []string{aggAllKey}
 	}
 	v := props[spec.GroupBy]
+	if byStatusGroup(spec, p) {
+		groups := statusOptionGroups([]map[string]any{p})[spec.GroupBy]
+		keys := groupKeysGo(aggSpec{GroupBy: spec.GroupBy}, p, rowID, props)
+		for i, k := range keys {
+			if g, ok := groups[k]; ok {
+				keys[i] = g
+			}
+		}
+		return keys
+	}
 	switch propType(p) {
 	case "row":
 		return []string{rowID}
@@ -603,6 +642,30 @@ func (s *Server) finishGroups(ctx context.Context, u *user, res *aggResult, spec
 			continue
 		}
 		kept = append(kept, res.Groups[i])
+	}
+	if byStatusGroup(spec, p) {
+		// The three groups, labelled and in workflow order. A key that is
+		// not a group is an option no longer offered: kept, marked, last.
+		for i := range kept {
+			if statusGroupIndex(kept[i].Key) >= 0 {
+				kept[i].Label = statusGroupLabel[kept[i].Key]
+			} else {
+				kept[i].Label = kept[i].Key
+				kept[i].Missing = true
+			}
+		}
+		sort.SliceStable(kept, func(i, j int) bool {
+			gi, gj := statusGroupIndex(kept[i].Key), statusGroupIndex(kept[j].Key)
+			if (gi < 0) != (gj < 0) {
+				return gi >= 0
+			}
+			return gi < gj
+		})
+		res.Groups = kept
+		if empty != nil {
+			res.Groups = append(res.Groups, *empty)
+		}
+		return nil
 	}
 	switch propType(p) {
 	case "row":
@@ -908,7 +971,7 @@ func isoWeekStart(key string) (time.Time, error) {
 // chartViewFields are the keys of a view that describe its chart. A save that
 // changes none of them is not checked against the schema (normalizeViews).
 var chartViewFields = []string{"chartKind", "groupBy", "groupPeriod", "agg", "aggProp",
-	"showEmpty", "chartSort", "hiddenGroups", "showZero", "chartStyle"}
+	"showEmpty", "chartSort", "hiddenGroups", "showZero", "chartStyle", "statusGroups"}
 
 // checkChartView validates a chart view's settings in place (spec 004,
 // data-model.md). Both doors call it: PUT /api/collections/{id} through
@@ -981,7 +1044,7 @@ func checkChartView(view map[string]any, schema []map[string]any, withSchema boo
 	if chartSort != "" && !oneOf(chartSort, chartSorts) {
 		return errChart{fmt.Sprintf("chartSort must be auto, label_asc, label_desc, value_asc or value_desc, not %q", chartSort)}
 	}
-	for _, k := range []string{"showEmpty", "showZero"} {
+	for _, k := range []string{"showEmpty", "showZero", "statusGroups"} {
 		if raw, ok := view[k]; ok && raw != nil {
 			if _, isBool := raw.(bool); !isBool {
 				return errChart{fmt.Sprintf("%s must be true or false", k)}
@@ -1079,6 +1142,9 @@ type aggRequest struct {
 	AggregateProp *string       `json:"aggregateProp"`
 	Filters       *[]filterJSON `json:"filters"`
 	Today         string        `json:"today"`
+	// A status counted by its groups (spec 016, R8): the view's
+	// statusGroups, or this when given.
+	StatusGroups *bool `json:"statusGroups"`
 }
 
 // resolve turns the request into what aggregateRows takes. A view of another
@@ -1118,6 +1184,7 @@ func (s *Server) resolveAggRequest(ctx context.Context, colID string, req aggReq
 			spec.Period = get("groupPeriod")
 		}
 		spec.Agg, spec.AggProp = get("agg"), get("aggProp")
+		spec.StatusGroups, _ = view["statusGroups"].(bool)
 		if fs, ok := view["filters"].([]any); ok {
 			b, _ := json.Marshal(fs)
 			var list []filterJSON
@@ -1143,6 +1210,9 @@ func (s *Server) resolveAggRequest(ctx context.Context, colID string, req aggReq
 	}
 	if req.AggregateProp != nil {
 		spec.AggProp = *req.AggregateProp
+	}
+	if req.StatusGroups != nil {
+		spec.StatusGroups = *req.StatusGroups
 	}
 	if req.Filters != nil {
 		flat = nil

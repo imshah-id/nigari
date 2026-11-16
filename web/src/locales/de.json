@@ -1358,5 +1358,12 @@
     "one": "{n} weitere Eigenschaft",
     "other": "{n} weitere Eigenschaften"
   },
-  "Each group needs at least one option. Add another to this group first.": "Jede Gruppe braucht mindestens eine Option. Füge dieser Gruppe zuerst eine weitere hinzu."
+  "Each group needs at least one option. Add another to this group first.": "Jede Gruppe braucht mindestens eine Option. Füge dieser Gruppe zuerst eine weitere hinzu.",
+  "Group is": "Gruppe ist",
+  "Group is not": "Gruppe ist nicht",
+  "Group by": "Gruppieren nach",
+  "Option": "Option",
+  "Status group": "Statusgruppe",
+  "{name} (group)": "{name} (Gruppe)",
+  "A group condition works only on a status property.": "Eine Gruppenbedingung funktioniert nur bei einer Status-Eigenschaft."
 }

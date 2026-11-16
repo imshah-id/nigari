@@ -135,7 +135,14 @@ func cleanViewState(raw []byte, schema []map[string]any) (map[string]any, error)
 			if prop == "" || !has(prop) {
 				continue
 			}
-			entry, err := checkViewFilter(f, "filter", has)
+			// A person's own group condition on a property that is not (or no
+			// longer) a status is left out rather than refusing the whole
+			// save: it narrows nothing, and a sort or a pick on the view must
+			// still be kept (code review).
+			if op, _ := f["op"].(string); statusGroupOps[op] && checkGroupCondition(schema, "filter", prop, op, filterValues(f)) != nil {
+				continue
+			}
+			entry, err := checkViewFilter(f, "filter", has, schema)
 			if err != nil {
 				return nil, err
 			}
@@ -257,6 +264,13 @@ func mergeViewState(view map[string]any, personal map[string]json.RawMessage) (f
 			for _, q := range offered {
 				prop, _ := q.(string)
 				if v := picks[prop]; prop != "" && v != "" {
+					// A whole status group picked on the chip is kept as
+					// "group:<id>" (spec 016), the browser's spelling
+					// (statusPick.ts): it filters by group, not by an option.
+					if g, ok := strings.CutPrefix(v, "group:"); ok && statusGroupIndex(g) >= 0 {
+						merged = append(merged, map[string]any{"property": prop, "op": "group_is", "value": "", "values": []any{g}})
+						continue
+					}
 					merged = append(merged, map[string]any{"property": prop, "op": "is", "value": v})
 				}
 			}

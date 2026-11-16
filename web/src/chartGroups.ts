@@ -17,10 +17,16 @@ export function groupFilter(
   type: GroupingType,
   period: string | undefined,
   keys: string[],
+  byStatusGroup = false,
 ): Filter[] | null {
   if (keys.length === 0 || keys.includes('*')) return null;
   if (keys.length === 1 && keys[0] === NO_VALUE) {
     return [{ property, op: 'is_empty', value: '' }];
+  }
+  // A status counted by its groups (spec 016): the keys are group ids, so
+  // the rows are the ones in those groups, not an option called "complete".
+  if (byStatusGroup && type === 'status') {
+    return [{ property, op: 'group_is', value: '', values: keys.filter((k) => k !== NO_VALUE) }];
   }
   if (type === 'checkbox') {
     // A box nobody touched counts as unticked, on screen and in the server's

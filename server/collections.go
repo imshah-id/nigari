@@ -99,7 +99,11 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 		var orderErr errViewColOrder
 		var quickErr errViewQuickFilters
 		var subErr errViewSubGroup
+		var groupErr errGroupFilter
 		switch {
+		case errors.As(err, &groupErr):
+			httpErrorCode(w, 400, "invalid_group_filter", err.Error())
+			return
 		case errors.As(err, &quickErr):
 			httpErrorCode(w, 400, "invalid_view_quick_filters", err.Error())
 			return
@@ -145,7 +149,10 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 		// update_schema and create_database.
 		storedSchema, _, _ := s.loadCollection(id)
 		if err := s.prepareStatusSchema(id, snapshotStatus(storedSchema), sent); err != nil {
-			if isStatusErr(err) {
+			var groupErr errGroupFilter
+			if errors.As(err, &groupErr) {
+				httpErrorCode(w, 400, "invalid_group_filter", err.Error())
+			} else if isStatusErr(err) {
 				httpStatusErr(w, err)
 			} else {
 				httpError(w, 500, err.Error())
@@ -317,6 +324,10 @@ func (s *Server) typeFilters(collectionID string, filters []rowFilter) []rowFilt
 	}
 	out := make([]rowFilter, len(filters))
 	for i, f := range filters {
+		// A status's group condition becomes is / is_not with the options in
+		// those groups now (spec 016, R3): every rows query, chart and view
+		// match comes through here, so none of them needs to know groups.
+		f = resolveStatusGroups(schema, f)
 		f.Kind = kinds[f.Prop]
 		out[i] = f
 	}

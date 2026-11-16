@@ -1358,5 +1358,12 @@
     "one": "{n} eigenschap meer",
     "other": "{n} eigenschappen meer"
   },
-  "Each group needs at least one option. Add another to this group first.": "Elke groep heeft minstens één optie nodig. Voeg eerst een andere toe aan deze groep."
+  "Each group needs at least one option. Add another to this group first.": "Elke groep heeft minstens één optie nodig. Voeg eerst een andere toe aan deze groep.",
+  "Group is": "Groep is",
+  "Group is not": "Groep is niet",
+  "Group by": "Groeperen op",
+  "Option": "Optie",
+  "Status group": "Statusgroep",
+  "{name} (group)": "{name} (groep)",
+  "A group condition works only on a status property.": "Een groepsvoorwaarde werkt alleen bij een statuseigenschap."
 }

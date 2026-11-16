@@ -53,6 +53,8 @@ import { copyDatabaseView, copyableViews, encodeEmbedLocal, moveView as moveEmbe
 // chart view is shown, so nobody who never opens one pays for it (SC-006).
 const ChartPane = lazy(() => import('./ChartPane'));
 import { PageIcon } from '../pageIcon';
+import { groupFilterMatch, isGroupOp } from '../statusFilter';
+import StatusGroupFilter from './StatusGroupFilter';
 import { toast } from '../toast';
 import { Table2, Columns3, LayoutGrid, CalendarDays, List, Plus, Filter as FilterIcon, ArrowUpDown, Calendar, ClipboardList, Check, Send, Share2, Globe, ChartPie, GanttChartSquare, ChevronDown, LayoutTemplate, Copy } from 'lucide-react';
 
@@ -204,7 +206,7 @@ function applyView(rows: Row[], view: ViewDef, schema: PropDef[]): Row[] {
   let out = rows;
   for (const f of view.filters ?? []) {
     const isDate = dateProps.has(f.property);
-    out = out.filter((r) => matchesFilter(r, f, isDate));
+    out = out.filter((r) => groupFilterMatch(f, schema, r.props[f.property]) ?? matchesFilter(r, f, isDate));
   }
   // The board's drop marker (dropIndex) sorts with the same comparator, so it
   // shows the place this sort will give a dropped card.
@@ -1765,6 +1767,8 @@ function FilterSortControls({
         { value: 'lt', label: t('before') },
         { value: 'between', label: t('between') },
       );
+    } else if (ty === 'status') {
+      base.push({ value: 'group_is', label: t('Group is') }, { value: 'group_is_not', label: t('Group is not') });
     } else if (ty === 'text' || ty === 'person' || ty === undefined) {
       base.push({ value: 'contains', label: t('contains') });
     }
@@ -1858,8 +1862,14 @@ function FilterSortControls({
                       // "after", a tick list under "contains".
                       patch({
                         op: nextOp,
-                        value: hasValueInput(nextOp) ? f.value : '',
-                        values: takesSeveral(f.property) && (nextOp === 'is' || nextOp === 'is_not') ? f.values : undefined,
+                        // Option ids and group ids are different vocabularies:
+                        // crossing between them starts the value over.
+                        value: hasValueInput(nextOp) && isGroupOp(nextOp) === isGroupOp(op) ? f.value : '',
+                        values:
+                          isGroupOp(nextOp) === isGroupOp(op) &&
+                          (isGroupOp(nextOp) || (takesSeveral(f.property) && (nextOp === 'is' || nextOp === 'is_not')))
+                            ? f.values
+                            : undefined,
                         value2: nextOp === 'between' ? f.value2 : undefined,
                       });
                     }}
@@ -1880,7 +1890,9 @@ function FilterSortControls({
                 </div>
                 {hasValueInput(op) && (
                   <div className="fs-filter-value">
-                    {several && options.length > 0 ? (
+                    {isGroupOp(op) ? (
+                      <StatusGroupFilter picked={picked} onChange={(gs) => patch({ values: gs, value: '' })} />
+                    ) : several && options.length > 0 ? (
                       <div className="fs-checks">
                         {options.map((o) => (
                           <label key={o.value} className={'fs-check' + (picked.includes(o.value) ? ' on' : '')}>

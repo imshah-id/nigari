@@ -452,17 +452,21 @@ type viewSpec struct {
 	ChartSort         *string         `json:"chart_sort"`
 	HiddenGroups      *[]string       `json:"hidden_groups"`
 	ChartStyle        *map[string]any `json:"chart_style"`
+	// A status counted by its groups (spec 016, R8), stored as statusGroups.
+	StatusGroups *bool `json:"status_groups"`
 }
 
 var validFilterOps = map[string]bool{
 	"is": true, "is_not": true, "contains": true,
 	"gt": true, "lt": true, "between": true, "is_empty": true, "is_not_empty": true,
+	// A status's groups (spec 016): values are group ids, resolved per query.
+	"group_is": true, "group_is_not": true,
 }
 
 // checkViewFilter validates one filter condition against the schema and
 // returns the stored shape. label names the condition in errors ("filter 2",
 // "group 1, filter 3").
-func checkViewFilter(f map[string]any, label string, has func(string) bool) (map[string]any, error) {
+func checkViewFilter(f map[string]any, label string, has func(string) bool, schema []map[string]any) (map[string]any, error) {
 	prop, _ := f["property"].(string)
 	if prop == "" {
 		return nil, fmt.Errorf("%s needs a property", label)
@@ -475,7 +479,11 @@ func checkViewFilter(f map[string]any, label string, has func(string) bool) (map
 		op = "is"
 	}
 	if !validFilterOps[op] {
-		return nil, fmt.Errorf("%s: unknown op %q. Use is, is_not, contains, gt, lt, between, is_empty or is_not_empty", label, op)
+		return nil, fmt.Errorf("%s: unknown op %q. Use is, is_not, contains, gt, lt, between, is_empty, is_not_empty, or group_is / group_is_not on a status", label, op)
+	}
+	// The same rule REST's views save and a rollup's condition follow.
+	if err := checkGroupCondition(schema, label, prop, op, filterValues(f)); err != nil {
+		return nil, err
 	}
 	entry := map[string]any{"property": prop, "op": op}
 	for _, k := range []string{"value", "values", "value2"} {
@@ -591,7 +599,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 		dates := dateProps(schema)
 		out := make([]any, 0, len(*spec.Filters))
 		for i, f := range *spec.Filters {
-			entry, err := checkViewFilter(f, fmt.Sprintf("filter %d", i+1), has)
+			entry, err := checkViewFilter(f, fmt.Sprintf("filter %d", i+1), has, schema)
 			if err != nil {
 				return err
 			}
@@ -697,10 +705,10 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 func applyChartSpec(view map[string]any, spec viewSpec) error {
 	chartArgs := spec.ChartKind != nil || spec.Period != nil || spec.Aggregate != nil ||
 		spec.AggregateProperty != nil || spec.ShowEmpty != nil || spec.ShowZero != nil ||
-		spec.ChartSort != nil || spec.HiddenGroups != nil || spec.ChartStyle != nil
+		spec.ChartSort != nil || spec.HiddenGroups != nil || spec.ChartStyle != nil || spec.StatusGroups != nil
 	if t, _ := view["type"].(string); t != "chart" {
 		if chartArgs {
-			return fmt.Errorf("chart_kind, period, aggregate, aggregate_property, chart_sort, hidden_groups, show_empty, show_zero and chart_style are settings of a chart view; this view is a %s", t)
+			return fmt.Errorf("chart_kind, period, aggregate, aggregate_property, chart_sort, hidden_groups, show_empty, show_zero, chart_style and status_groups are settings of a chart view; this view is a %s", t)
 		}
 		return nil
 	}
@@ -722,7 +730,7 @@ func applyChartSpec(view map[string]any, spec viewSpec) error {
 	if a, _ := view["agg"].(string); a == "" || a == "count" {
 		delete(view, "aggProp")
 	}
-	for key, val := range map[string]*bool{"showEmpty": spec.ShowEmpty, "showZero": spec.ShowZero} {
+	for key, val := range map[string]*bool{"showEmpty": spec.ShowEmpty, "showZero": spec.ShowZero, "statusGroups": spec.StatusGroups} {
 		if val != nil {
 			view[key] = *val
 		}

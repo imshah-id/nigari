@@ -33,6 +33,7 @@ import {
   type DrawnGroup,
 } from '../chartLayout';
 import { groupColourTokens, onThemeChange, readInk, valueLabels, type ChartInk } from '../chartTheme';
+import { STATUS_GROUPS, chartByGroup, statusGroupLabel } from '../statusGroups';
 import { groupable, numberProps, ROW_GROUP } from '../chartDefaults';
 import './ChartView.css';
 
@@ -84,6 +85,7 @@ export default function ChartFigure(props: ChartFigureProps) {
   const eachRow = kind !== 'number' && view.groupBy === ROW_GROUP;
   const aggProp = agg === 'count' ? undefined : schema.find((p) => p.id === view.aggProp);
   const period = groupProp?.type === 'date' ? view.groupPeriod ?? 'month' : undefined;
+  const byGroup = chartByGroup(view, groupProp);
   const style = view.chartStyle ?? {};
 
   const [ownTable, setOwnTable] = useState(false);
@@ -112,8 +114,9 @@ export default function ChartFigure(props: ChartFigureProps) {
         { key: 'false', label: 'false' },
       ];
     }
+    if (byGroup) return STATUS_GROUPS.map((g) => ({ key: g, label: statusGroupLabel(g) }));
     return groupProp.options?.map((o) => ({ key: o.id, label: o.name }));
-  }, [view.showZero, groupProp]);
+  }, [view.showZero, groupProp, byGroup]);
 
   const layout = useMemo(
     () =>
@@ -136,7 +139,7 @@ export default function ChartFigure(props: ChartFigureProps) {
     [result, kind, agg, view.chartSort, view.hiddenGroups, view.showEmpty, zeroOptions, groupProp, eachRow],
   );
 
-  const label = (g: { key: string; label: string; missing?: boolean }) => groupLabel(g, groupProp, period);
+  const label = (g: { key: string; label: string; missing?: boolean }) => groupLabel(g, groupProp, period, byGroup);
   const value = (v: number | null) => (v === null ? '—' /* i18n-ok: a dash for "no number", not a word */ : formatNumber(v, { maximumFractionDigits: 2 }));
   const drawn = layout?.state === 'ok' ? layout.drawn : [];
   const caption = eachRow ? t('{prop} of each row', { prop: aggProp?.name ?? '' }) : captionFor(agg, aggProp, groupProp, kind);
@@ -513,11 +516,15 @@ export default function ChartFigure(props: ChartFigureProps) {
 
 /** A group's name in the reader's language. The server labels options,
  *  people and pages; the words it cannot know are the app's. */
-export function groupLabel(g: { key: string; label: string; missing?: boolean }, prop: PropDef | undefined, period?: string): string {
+export function groupLabel(g: { key: string; label: string; missing?: boolean }, prop: PropDef | undefined, period?: string, byGroup?: boolean): string {
   if (g.key === OTHER) return t('Other');
   if (g.key === NO_VALUE) return t('No value');
   if (prop?.type === 'checkbox') return g.key === 'true' ? t('Checked') : t('Unchecked');
   if (prop?.type === 'date') return periodLabel(g.key, period ?? 'month');
+  if (byGroup) {
+    const known = STATUS_GROUPS.find((x) => x === g.key);
+    if (known) return statusGroupLabel(known);
+  }
   if (g.missing) return t('{name} (deleted)', { name: g.label || g.key });
   return g.label || t('Untitled');
 }

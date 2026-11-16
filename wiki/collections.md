@@ -406,14 +406,17 @@ Some types ask for more, right under the property:
 | Number, Rollup, Formula | **Display**: Number, Progress bar or Ring, plus **Max (= 100%)** for the last two |
 | Relation | **Links to**: which collection |
 | Backrelation | **Rows from** (the collection that points here) and **That point here via** (which of its relation properties) |
-| Rollup | **Via relation**, **Of property**, **Calculate** (Sum, Count, Average, Min, Max, Percent) and **Only rows where** (an optional condition with is / is not / contains / is empty / is not empty) |
+| Rollup | **Via relation**, **Of property**, **Calculate** (Sum, Count, Average, Min, Max, Percent) and **Only rows where** (an optional condition with is / is not / contains / is empty / is not empty, and Group is / Group is not on a status) |
 | Formula | **Expression**, with the available `{id}` tokens listed underneath |
 
 A rollup's condition can name **several** options at once. With *is* or *is not*
 on a select or multi-select, the value box turns into a row of option chips and
 you tick as many as apply, which is how "open" gets expressed at all, as
 *status is not Done and not Discarded*. Tick exactly one and it is stored as a
-single value, the same as before.
+single value, the same as before. On a status of the related database the
+condition can also be **Group is** or **Group is not**, with groups ticked
+instead of options: *count the tasks whose Status group is Complete*. It keeps
+meaning that when options are added or moved.
 
 Select and multi-select properties show their options as coloured chips.
 Clicking a chip opens the colour picker; that is where a board column's colour

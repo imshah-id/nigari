@@ -511,6 +511,7 @@ export const api = {
       aggregate?: string;
       aggregateProp?: string;
       filters?: { property: string; op?: string; value: string; values?: string[]; value2?: string }[];
+      statusGroups?: boolean;
       today?: string;
     },
   ) =>

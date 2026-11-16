@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -44,6 +45,9 @@ type parityAct struct {
 	// filtered to "Status is To do", for acts that make a row in them.
 	database bool
 }
+
+// groupFilterParam is one OR group holding a group condition, URL-encoded.
+var groupFilterParam = url.QueryEscape(`[{"property":"status","op":"group_is_not","values":["complete"]}]`)
 
 var parityActs = []parityAct{
 	{"read", "GET", "/api/pages/%s", "", "get_page", `{"page_id":"%s"}`, false},
@@ -96,6 +100,11 @@ var parityActs = []parityAct{
 	// groups as the interface does.
 	{"save a status", "PUT", "/api/collections/%s", `{"schema":[{"id":"status","name":"Status","type":"status","options":[{"id":"todo","name":"To do","group":"todo"},{"id":"doing","name":"In progress","group":"in_progress"},{"id":"done","name":"Done","group":"complete"}]},{"id":"owner","name":"Owner","type":"person"}]}`,
 		"update_schema", `{"page_id":"%s","properties":[{"id":"status","type":"status"}]}`, true},
+	// A read filtered by a status's group (spec 016 PR 2): resolved by one
+	// function (typeFilters) on both doors, behind the database's read gate.
+	// The parity database's Status is a select, so the condition narrows
+	// nothing; what is compared is who may read.
+	{"group-filtered read", "GET", "/api/collections/%s/rows?filter_group=" + groupFilterParam, "", "query_rows", `{"page_id":"%s","filter":[{"property":"status","op":"group_is_not","values":["complete"]}]}`, true},
 	// A chart view: a view setting, the database's write gate on both doors.
 	{"chart view", "PUT", "/api/collections/%s", `{"views":[{"id":"v-parity","name":"To do","type":"table","filters":[{"property":"status","op":"is","value":"todo"}]},{"id":"v-chart","name":"Chart","type":"chart","chartKind":"donut","groupBy":"status"}]}`,
 		"set_view", `{"page_id":"%s","type":"chart","name":"Chart","chart_kind":"donut","group_by":"status"}`, true},

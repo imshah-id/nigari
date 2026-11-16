@@ -5,6 +5,8 @@ import type { PropDef } from '../types';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
 import { Menu, MenuValueItem, MenuValues } from '../ui/Menu';
+import { STATUS_GROUPS, statusGroupLabel } from '../statusGroups';
+import { groupPick, pickedGroup } from '../statusPick';
 import { loadMembers, loadRelationOptions, type Member, type RelOption } from './PropertyValue';
 
 // The chips above a view that offers quick filters (spec 013, US3, research
@@ -62,7 +64,12 @@ function Chip({ prop, picked, onPick }: { prop: PropDef; picked: string; onPick:
   const values = useValues(prop);
   // A picked value that is not (yet) among the loaded ones still reads as
   // something: its raw value, rather than an empty chip.
-  const pickedLabel = picked ? (values.find((v) => v.value === picked)?.label ?? picked) : '';
+  const pickedGroupId = pickedGroup(picked);
+  const pickedLabel = pickedGroupId
+    ? t('{name} (group)', { name: statusGroupLabel(pickedGroupId) })
+    : picked
+      ? (values.find((v) => v.value === picked)?.label ?? picked)
+      : '';
   return (
     <span className="quick-filter" data-picked={picked ? '' : undefined}>
       <Menu
@@ -76,13 +83,38 @@ function Chip({ prop, picked, onPick }: { prop: PropDef; picked: string; onPick:
           </Button>
         }
       >
-        <MenuValues reason="the values of one property: picking one narrows the view to it">
-          {values.map((v) => (
-            <MenuValueItem key={v.value} checked={v.value === picked} onClick={() => onPick(v.value === picked ? '' : v.value)}>
-              {v.label}
-            </MenuValueItem>
-          ))}
-        </MenuValues>
+        {/* A status lists its three groups first (picking one filters by the
+            whole group), then its options under their group's heading. */}
+        {prop.type === 'status' && (
+          <MenuValues label={t('Groups')} reason="the groups of a status: picking one narrows the view to every option in it">
+            {STATUS_GROUPS.map((g) => (
+              <MenuValueItem key={g} checked={groupPick(g) === picked} onClick={() => onPick(groupPick(g) === picked ? '' : groupPick(g))}>
+                {statusGroupLabel(g)}
+              </MenuValueItem>
+            ))}
+          </MenuValues>
+        )}
+        {prop.type === 'status' ? (
+          STATUS_GROUPS.map((g) => (
+            <MenuValues key={g} label={statusGroupLabel(g)} reason="the options of one status group: picking one narrows the view to it">
+              {(prop.options ?? [])
+                .filter((o) => o.group === g)
+                .map((o) => (
+                  <MenuValueItem key={o.id} checked={o.id === picked} onClick={() => onPick(o.id === picked ? '' : o.id)}>
+                    {o.name}
+                  </MenuValueItem>
+                ))}
+            </MenuValues>
+          ))
+        ) : (
+          <MenuValues reason="the values of one property: picking one narrows the view to it">
+            {values.map((v) => (
+              <MenuValueItem key={v.value} checked={v.value === picked} onClick={() => onPick(v.value === picked ? '' : v.value)}>
+                {v.label}
+              </MenuValueItem>
+            ))}
+          </MenuValues>
+        )}
       </Menu>
       {picked && (
         <IconButton

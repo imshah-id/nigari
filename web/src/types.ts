@@ -244,7 +244,7 @@ export interface PropDef {
   // rollup: count/sum only the related rows meeting this condition — the
   // difference between "how many tasks" and "how many are done".
   rollupWhereProp?: string;
-  rollupWhereOp?: 'is' | 'is_not' | 'is_empty' | 'is_not_empty' | 'contains';
+  rollupWhereOp?: 'is' | 'is_not' | 'is_empty' | 'is_not_empty' | 'contains' | 'group_is' | 'group_is_not';
   rollupWhereValue?: string;
   // Several values, for is / is_not. "Open" means neither done NOR discarded,
   // and one comparison cannot say that. Empty falls back to rollupWhereValue,
@@ -279,7 +279,11 @@ export type FilterOp =
   | 'lt'
   | 'between'
   | 'is_empty'
-  | 'is_not_empty';
+  | 'is_not_empty'
+  // On a status property: the group ids in `values` (spec 016). The server
+  // rewrites them to is / is_not over the options now in those groups.
+  | 'group_is'
+  | 'group_is_not';
 
 export interface Filter {
   property: string;
@@ -353,6 +357,9 @@ export interface ViewDef {
   aggProp?: string;
   showEmpty?: boolean;
   showZero?: boolean;
+  // A chart grouped by a status: one bar per group instead of per option
+  // (spec 016 R8). Ignored on any other grouping.
+  statusGroups?: boolean;
   chartSort?: 'auto' | 'label_asc' | 'label_desc' | 'value_asc' | 'value_desc';
   hiddenGroups?: string[];
   chartStyle?: ChartStyle;

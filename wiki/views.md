@@ -377,6 +377,7 @@ The panel has these parts, in this order:
 | --- | --- | --- |
 | **Chart** | the kind | **Vertical bars**, **Horizontal bars**, **Line**, **Donut**, **Number** (one big value), as icon buttons |
 | **Data** | **What to show** | what each bar, point or slice stands for: **Each row** (when the database has a number, formula or rollup property), or a select, multi-select, person, checkbox, date or relation property |
+| | **Group by** | for a status: **Option** (one bar per option) or **Status group** (To-do, In progress, Complete, in that order) |
 | | **Period** | for a date: **Day**, **Week**, **Month** (the default) or **Year** |
 | | **Value** | **Count of rows**, or the **Sum**, **Average**, **Minimum** or **Maximum** of a number, formula or rollup property, chosen under **Of** |
 | | **Sort** | **Automatic**, **Name, A to Z**, **Name, Z to A**, **Value, high to low**, **Value, low to high** |
@@ -629,6 +630,9 @@ relation properties, at most eight, on any view but a form or a chart.
   you only, and the chip shows it (*Owner: Ada*). The `✕` beside it clears it.
   Your pick is kept on your account, like your own filter, and the bar *Only you
   see these changes* says so.
+- **A status chip** lists the three groups first (To-do, In progress, Complete),
+  then the options under their group's heading. Picking a group narrows the
+  view to every option in it.
 - **A pick adds to the view's filters**: a row has to match both.
 - **Save for everyone** turns your picks into filters of the view, for everyone,
   and clears the chips. **Reset** clears them.
@@ -654,7 +658,14 @@ and the labels change to suit it:
 | date | is · is not · **after** · **before** · **between** · is empty · is not empty |
 | text, person | is · is not · **contains** · is empty · is not empty |
 | select, multi-select, relation | **is any of** · **is none of** · is empty · is not empty |
+| status | **is any of** · **is none of** · **Group is** · **Group is not** · is empty · is not empty |
 | everything else | is · is not · is empty · is not empty |
+
+**Group is** and **Group is not** take one or more of To-do, In progress and
+Complete. They follow the status's options as they change, so *Group is not
+Complete* stays right when an option is added to Complete or moved. They are
+refused on a property that is not a status. See
+[Properties](properties.md#status).
 
 What they mean:
 

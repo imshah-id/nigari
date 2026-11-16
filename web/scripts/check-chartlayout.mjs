@@ -98,6 +98,9 @@ try {
   // ---- the rows behind a group ----
   check('an option', groupFilter('st', 'select', undefined, ['a']), [{ property: 'st', op: 'is', value: 'a' }]);
   check('No value', groupFilter('st', 'select', undefined, ['']), [{ property: 'st', op: 'is_empty', value: '' }]);
+  // A status counted by group (spec 016): a bar's rows are the group's.
+  check('a status group', groupFilter('st', 'status', undefined, ['complete'], true), [{ property: 'st', op: 'group_is', value: '', values: ['complete'] }]);
+  check('a status by option', groupFilter('st', 'status', undefined, ['done'], false), [{ property: 'st', op: 'is', value: 'done' }]);
   check('a ticked box', groupFilter('done', 'checkbox', undefined, ['true']), [{ property: 'done', op: 'is', value: 'true' }]);
   check('an unticked box', groupFilter('done', 'checkbox', undefined, ['false']), [{ property: 'done', op: 'is', value: 'false' }]);
   check('a person', groupFilter('who', 'person', undefined, ['u1']), [{ property: 'who', op: 'is', value: 'u1' }]);

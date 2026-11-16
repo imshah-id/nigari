@@ -60,6 +60,13 @@
       "personal": { "filters": [], "quickPicks": { "owner": "ada" } },
       "filters": [{ "property": "owner", "op": "is", "value": "ada" }],
       "sort": null
+    },
+    {
+      "name": "a whole status group picked on the chip filters by group (spec 016); an option pick stays is",
+      "view": { "id": "v", "quickFilters": ["stage", "owner"] },
+      "personal": { "quickPicks": { "stage": "group:complete", "owner": "ada" } },
+      "filters": [{ "property": "stage", "op": "group_is", "value": "", "values": ["complete"] }, { "property": "owner", "op": "is", "value": "ada" }],
+      "sort": null
     }
   ]
 }

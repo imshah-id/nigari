@@ -5,6 +5,7 @@
 // the browser draws the rows with this merge, and the server fills in a new
 // row from its own, so a difference would make a row in "only mine" not mine.
 import type { Filter, Sort } from './types';
+import { pickedGroup } from './statusPick';
 
 /** What the server keeps per person, database and scope. A key that is
  *  present means something even when empty: `filters: []` is a person who
@@ -39,7 +40,10 @@ export function mergeViewState(
     const added: Filter[] = [];
     for (const prop of view.quickFilters ?? []) {
       const value = picks[prop];
-      if (value) added.push({ property: prop, op: 'is', value });
+      if (!value) continue;
+      // A whole group picked on a status chip (spec 016): a group condition.
+      const g = pickedGroup(value);
+      added.push(g ? { property: prop, op: 'group_is', value: '', values: [g] } : { property: prop, op: 'is', value });
     }
     if (added.length) filters = [...filters, ...added];
   }

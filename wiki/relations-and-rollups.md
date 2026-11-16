@@ -299,6 +299,11 @@ together with **is not** gives the right number.
   condition matches nothing and reports a confident `0`.
 - **There is no greater-than or less-than.** The five operators above are all of
   them. A numeric threshold is not expressible as a rollup condition.
+- **A status can be matched by group.** On a status of the related database the
+  condition may be **Group is** or **Group is not**, with one or more of To-do,
+  In progress and Complete ticked. *Group is* Complete counts the finished tasks
+  whatever the options are called, and it follows options added or moved later.
+  Prefer it to listing options by hand.
 - **A missing value is empty and is "not" anything.** A task with no status at
   all counts as *is not Done*, and as *is empty*.
 
@@ -419,12 +424,12 @@ The backrelation and the two rollups on Projects:
     "backrelationCollection": "<tasks-db-id>", "backrelationProp": "project" },
   { "name": "Open", "type": "rollup", "rollupRelation": "tasks",
     "rollupTarget": "status", "rollupAgg": "count",
-    "rollupWhereProp": "status", "rollupWhereOp": "is_not",
-    "rollupWhereValues": ["done", "dropped"] },
+    "rollupWhereProp": "status", "rollupWhereOp": "group_is_not",
+    "rollupWhereValues": ["complete"] },
   { "name": "Progress", "type": "rollup", "rollupRelation": "tasks",
     "rollupTarget": "status", "rollupAgg": "percent",
-    "rollupWhereProp": "status", "rollupWhereOp": "is",
-    "rollupWhereValue": "done", "numberDisplay": "bar" }
+    "rollupWhereProp": "status", "rollupWhereOp": "group_is",
+    "rollupWhereValues": ["complete"], "numberDisplay": "bar" }
 ]
 ```
 
