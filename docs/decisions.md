@@ -7,6 +7,36 @@ entries are not edited away.
 
 ---
 
+## 2026-11-16 — Spec 017: comment edits and reactions, where the plan left room
+
+Choices made while building spec 017, beyond research R1–R7:
+
+- **A read gate as well as the three the plan named.** `commentForRead`
+  (`canRead` and `credentialMayEnter` on the comment's own page) serves
+  `history` and the versions route, and the write gate builds on it, so a
+  caller who may not read the page gets "comment not found" before any
+  question of writing. Turned down: checking read rights in each handler.
+- **`comments` actions are writes unless they are `list` or `history`**,
+  an unknown action word included. Turned down: listing the writing actions
+  (the old way), where a new action left off the list would be open to a
+  read-only token.
+- **The list stays two queries.** Measured on 200 comments
+  (`BenchmarkPageComments`, this container): no reactions 0.46 ms before,
+  0.58 ms after; three reactions on each 1.8 ms. Folding the reactions into
+  the comment query as a JSON column per comment measured the same with
+  reactions and 0.69 ms without, so it was dropped. SC-003's "within 10%"
+  is not met with reactions; the absolute cost stays under 2 ms. Whether to
+  keep that target is for the owner.
+- **An edit over MCP writes one log entry**, `comment.edit`, like the REST
+  route, and not also the generic `comments` entry every MCP write gets.
+- **Viewers see no Resolved, Edit or Add reaction**, and see reaction chips
+  they cannot press. The panel now takes `canWrite`. Before, a Viewer was
+  shown Resolved and the action failed silently.
+- **REST takes reaction keys only; MCP takes the key or the emoji.** As R2
+  planned; the emoji matches with or without its variation selector.
+
+---
+
 ## 2026-11-15 — Spec 016 PR 1: how a status is built where the plan left room
 
 Choices made while building the status property, beyond research R1–R11:
