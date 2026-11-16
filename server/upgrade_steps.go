@@ -25,6 +25,7 @@ func upgradeSteps() []*goose.Migration {
 	return []*goose.Migration{
 		goose.NewGoMigration(1, &goose.GoFunc{RunTx: baseSchema}, nil),
 		goose.NewGoMigration(2, &goose.GoFunc{RunTx: viewPrefsAndLock}, nil),
+		goose.NewGoMigration(3, &goose.GoFunc{RunTx: commentEditsAndReactions}, nil),
 	}
 }
 
@@ -292,6 +293,47 @@ func viewPrefsAndLock(ctx context.Context, tx *sql.Tx) error {
 	}
 	if _, err := tx.Exec(`ALTER TABLE collections ADD COLUMN views_locked_at TEXT NOT NULL DEFAULT ''`); err != nil {
 		return fmt.Errorf("add collections.views_locked_at: %w", err)
+	}
+	return nil
+}
+
+// commentEditsAndReactions is step 3 (spec 017): a comment's author may edit
+// it, every earlier text is kept for its readers, and people react with one of
+// six reactions.
+//
+// The versions are a table of their own, not the activity log (an admin prunes
+// that, and FR-003 promises every version to every reader) and not a JSON
+// column on comments (rewritten on every edit, growing inside the list query).
+// The reactions' primary key is the rule that a person reacts with a given
+// reaction once (FR-005); a JSON column could not hold that rule and two people
+// reacting at once would lose one. Both cascade from comments, so deleting a
+// comment, or its page, takes its versions and reactions with it. user_id has
+// no foreign key to users, like comments.author_id: a deleted person's
+// reaction stays under the name stored with it.
+func commentEditsAndReactions(ctx context.Context, tx *sql.Tx) error {
+	if _, err := tx.Exec(`ALTER TABLE comments ADD COLUMN edited_at TEXT`); err != nil {
+		return fmt.Errorf("add comments.edited_at: %w", err)
+	}
+	if _, err := tx.Exec(`CREATE TABLE comment_versions (
+		id TEXT PRIMARY KEY,
+		comment_id TEXT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+		body TEXT NOT NULL,
+		replaced_at TEXT NOT NULL
+	)`); err != nil {
+		return fmt.Errorf("create comment_versions: %w", err)
+	}
+	if _, err := tx.Exec(`CREATE INDEX comment_versions_comment ON comment_versions(comment_id, replaced_at)`); err != nil {
+		return fmt.Errorf("create comment_versions_comment: %w", err)
+	}
+	if _, err := tx.Exec(`CREATE TABLE comment_reactions (
+		comment_id TEXT NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+		user_id TEXT NOT NULL,
+		user_name TEXT NOT NULL,
+		reaction TEXT NOT NULL,
+		created_at TEXT NOT NULL,
+		PRIMARY KEY (comment_id, user_id, reaction)
+	)`); err != nil {
+		return fmt.Errorf("create comment_reactions: %w", err)
 	}
 	return nil
 }

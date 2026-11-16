@@ -383,6 +383,12 @@ func New(dataDir string, dist fs.FS) (*Server, error) {
 	m.HandleFunc("POST /api/pages/{id}/comments", s.auth(s.handleCreateComment))
 	m.HandleFunc("POST /api/comments/{id}/resolve", s.auth(s.handleResolveComment))
 	m.HandleFunc("DELETE /api/comments/{id}", s.auth(s.handleDeleteComment))
+	// Spec 017: the author edits; everyone who may read the page reads the
+	// earlier texts; anyone who may write on it reacts (comments.go).
+	m.HandleFunc("PATCH /api/comments/{id}", s.auth(s.handleEditComment))
+	m.HandleFunc("GET /api/comments/{id}/versions", s.auth(s.handleCommentVersions))
+	m.HandleFunc("PUT /api/comments/{id}/reactions/{reaction}", s.auth(s.handleSetReaction))
+	m.HandleFunc("DELETE /api/comments/{id}/reactions/{reaction}", s.auth(s.handleSetReaction))
 
 	m.HandleFunc("GET /api/pages/{id}/notes", s.auth(s.handleListNotes))
 	m.HandleFunc("POST /api/pages/{id}/notes", s.auth(s.handleAddNote))
