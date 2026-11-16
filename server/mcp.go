@@ -393,7 +393,7 @@ var mcpTools = []map[string]any{
 	},
 	{
 		"name":        "comments",
-		"description": "Comments on a page. action: list (the default; each comment carries edited_at and its reactions) | add | edit (change the text of a comment YOU wrote; nobody else's, not even as an admin; the earlier text is kept) | history (a comment's earlier texts, newest first) | react | unreact (with reaction: one of thumbs_up 👍, heart ❤️, tada 🎉, smile 😄, eyes 👀, check ✅; the key or the emoji) | resolve | reopen. Deleting has its own tool, deliberately — it should be a choice, not an enum value you land on by mistake.",
+		"description": "Comments on a page. action: list (the default; each comment carries editedAt and its reactions) | add | edit (change the text of a comment YOU wrote; nobody else's, not even as an admin; the earlier text is kept) | history (a comment's earlier texts, newest first) | react | unreact (with reaction: one of thumbs_up 👍, heart ❤️, tada 🎉, smile 😄, eyes 👀, check ✅; the key or the emoji) | resolve | reopen. Deleting has its own tool, deliberately — it should be a choice, not an enum value you land on by mistake.",
 		"inputSchema": map[string]any{"type": "object",
 			"properties": map[string]any{
 				"page_id":    map[string]any{"type": "string"},
@@ -1459,7 +1459,11 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 		// comments edit writes its own as well ("comment.edit", the same entry
 		// as the REST route, from editComment); a second, generic one would
 		// count one edit twice.
-		ownAudit := name == "set_view" || name == "delete_view" || (name == "comments" && args.Action == "edit")
+		//
+		// Reactions write none at all, as over REST (spec 017, R7): they are
+		// acknowledgements, not changes.
+		ownAudit := name == "set_view" || name == "delete_view" ||
+			(name == "comments" && (args.Action == "edit" || args.Action == "react" || args.Action == "unreact"))
 		if args.EmbedID != "" {
 			ownAudit = false
 		}

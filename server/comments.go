@@ -90,6 +90,11 @@ func (s *Server) commentForDelete(u *user, id string) (commentRef, error) {
 		return c, errCommentNotFound
 	}
 	if c.AuthorID != u.ID && !s.isWorkspaceAdmin(u.ID, c.Workspace) {
+		// Somebody who may not even read the page is told the comment does
+		// not exist, as every other gate here does; only a reader learns why.
+		if !s.canRead(u.ID, c.PageID) {
+			return c, errCommentNotFound
+		}
 		return c, coded("forbidden", "Only its author or a workspace admin can delete a comment.")
 	}
 	return c, nil

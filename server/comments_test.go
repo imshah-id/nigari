@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -162,6 +164,13 @@ func TestTheAuthorEditsACommentOnBothDoors(t *testing.T) {
 	}
 	if got := w.count(t, `SELECT COUNT(*) FROM audit_log WHERE action = 'comments'`); got != 0 {
 		t.Errorf("the MCP edit also wrote a generic entry: %d", got)
+	}
+	// Reactions are not logged on either door (R7): an MCP react used to get
+	// the generic entry every MCP write gets.
+	w.mcp(t, w.writer, "write", map[string]string{"action": "react", "comment_id": id, "reaction": "eyes"})
+	w.mcp(t, w.writer, "write", map[string]string{"action": "unreact", "comment_id": id, "reaction": "eyes"})
+	if got := w.count(t, `SELECT COUNT(*) FROM audit_log WHERE action = 'comments'`); got != 0 {
+		t.Errorf("an MCP reaction wrote %d activity entries, want none", got)
 	}
 
 	// The list carries editedAt.
@@ -331,6 +340,21 @@ func TestDeletingACommentIsForItsAuthorOrAnAdminOnBothDoors(t *testing.T) {
 		if !del(t, door, w.admin, id) {
 			t.Errorf("%s: the workspace admin could not delete the comment", door)
 		}
+		// Somebody who may not read the page is told it does not exist, the
+		// same answer as for a made-up id, so ids cannot be probed.
+		outsider, cookie := signedIn(t, w.s, door+"-outsider@example.test")
+		w.cookies[outsider] = cookie
+		if door == "REST" {
+			if code, _ := w.rest(outsider, "DELETE", "/api/comments/"+id, nil); code != 404 {
+				t.Errorf("REST: an outsider's delete answered %d, want 404", code)
+			}
+		} else {
+			b, _ := json.Marshal(map[string]string{"comment_id": id})
+			_, err := callTool(t, w.s, &user{ID: outsider, Name: "Agent", TokenScope: "write", TokenKind: tokenKindAPI}, "delete_comment", string(b))
+			if err == nil || !strings.Contains(err.Error(), "not found") {
+				t.Errorf("MCP: an outsider's delete answered %v, want not found", err)
+			}
+		}
 		id = w.comment(t, "Delete me too")
 		if !del(t, door, w.author, id) {
 			t.Errorf("%s: the author could not delete their comment", door)
@@ -369,4 +393,24 @@ func TestACommentsVersionsAndReactionsGoWithIt(t *testing.T) {
 		t.Fatal(err)
 	}
 	gone(id, "deleting the page")
+}
+
+// An upload linked only from an earlier text of a comment is kept by the
+// clean-up that runs when a page is deleted: "(edited)" shows that text to
+// every reader (FR-003), and a dead link there was the result.
+func TestAFileLinkedFromAnEarlierCommentTextIsKept(t *testing.T) {
+	w := newCommentWorld(t)
+	name := "kept-by-a-version.png"
+	path := filepath.Join(w.s.dataDir, "files", name)
+	if err := os.WriteFile(path, []byte("png"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	id := w.comment(t, "See /files/"+name)
+	if code, out := w.rest(w.author, "PATCH", "/api/comments/"+id, map[string]string{"body": "Never mind the picture"}); code != 200 {
+		t.Fatalf("edit: %d %s", code, out)
+	}
+	w.s.removeUnreferencedFiles(map[string]bool{name: true})
+	if _, err := os.Stat(path); err != nil {
+		t.Errorf("the file an earlier comment text links to was removed: %v", err)
+	}
 }
