@@ -337,9 +337,6 @@ func TestDeletingACommentIsForItsAuthorOrAnAdminOnBothDoors(t *testing.T) {
 		if del(t, door, w.viewer, id) {
 			t.Errorf("%s: a read-only member deleted the comment", door)
 		}
-		if !del(t, door, w.admin, id) {
-			t.Errorf("%s: the workspace admin could not delete the comment", door)
-		}
 		// Somebody who may not read the page is told it does not exist, the
 		// same answer as for a made-up id, so ids cannot be probed.
 		outsider, cookie := signedIn(t, w.s, door+"-outsider@example.test")
@@ -354,6 +351,9 @@ func TestDeletingACommentIsForItsAuthorOrAnAdminOnBothDoors(t *testing.T) {
 			if err == nil || !strings.Contains(err.Error(), "not found") {
 				t.Errorf("MCP: an outsider's delete answered %v, want not found", err)
 			}
+		}
+		if !del(t, door, w.admin, id) {
+			t.Errorf("%s: the workspace admin could not delete the comment", door)
 		}
 		id = w.comment(t, "Delete me too")
 		if !del(t, door, w.author, id) {
