@@ -5,8 +5,8 @@
 import { t } from './i18n';
 import type { PropOption, StatusGroup } from './types';
 
-/** The groups in workflow order: the order options are kept in (R2). */
-export const STATUS_GROUPS: StatusGroup[] = ['todo', 'in_progress', 'complete'];
+import { STATUS_GROUPS } from './statusPick';
+export { STATUS_GROUPS };
 
 export function statusGroupLabel(g: StatusGroup): string {
   switch (g) {
@@ -90,6 +90,12 @@ export function fillEmptyGroups(options: PropOption[], newId: NewOptionId): Prop
     }
   }
   return out;
+}
+
+/** Is a chart drawn by group? Only a status grouping can be (R8); the flag
+ *  left over from a grouping that has changed means nothing. */
+export function chartByGroup(view: { statusGroups?: boolean }, groupProp: { type: string } | undefined): boolean {
+  return !!view.statusGroups && groupProp?.type === 'status';
 }
 
 /** Options in group order, their order inside a group unchanged (R2). An

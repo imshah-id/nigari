@@ -6,6 +6,8 @@ import { toast } from '../toast';
 import { Button } from '../ui/Button';
 import { Menu, MenuValueItem, MenuValues } from '../ui/Menu';
 import Portal from './Portal';
+import StatusGroupFilter from './StatusGroupFilter';
+import { isGroupOp } from '../statusFilter';
 import { OPTION_HEXES, optionPalette } from '../selectOptions';
 import { renameSelectOption, moveSelectOption, reorderSelectOption } from '../renameSelectOption';
 import { confirm } from '../dialog';
@@ -423,10 +425,13 @@ export function PropertyFields({
             className="prop-select"
             value={p.rollupWhereProp ?? ''}
             onChange={(e) =>
-              onPatch({
-                rollupWhereProp: e.target.value,
-                rollupWhereOp: p.rollupWhereOp ?? 'is',
-              })
+              // A group condition only means something on a status: another
+              // property starts over with "is" and no value.
+              onPatch(
+                isGroupOp(p.rollupWhereOp) && targetSchema.find((x) => x.id === e.target.value)?.type !== 'status'
+                  ? { rollupWhereProp: e.target.value, rollupWhereOp: 'is', rollupWhereValue: '', rollupWhereValues: undefined }
+                  : { rollupWhereProp: e.target.value, rollupWhereOp: p.rollupWhereOp ?? 'is' },
+              )
             }
             disabled={!rel}
           >
@@ -447,12 +452,22 @@ export function PropertyFields({
                 onChange={(e) =>
                   onPatch({
                     rollupWhereOp: e.target.value as PropDef['rollupWhereOp'],
+                    // Option ids and group ids are different vocabularies.
+                    ...(isGroupOp(e.target.value) !== isGroupOp(p.rollupWhereOp)
+                      ? { rollupWhereValue: '', rollupWhereValues: undefined }
+                      : {}),
                   })
                 }
               >
                 <option value="is">{t('is')}</option>
                 <option value="is_not">{t('is not')}</option>
                 <option value="contains">{t('contains')}</option>
+                {targetSchema.find((x) => x.id === p.rollupWhereProp)?.type === 'status' && (
+                  <>
+                    <option value="group_is">{t('Group is')}</option>
+                    <option value="group_is_not">{t('Group is not')}</option>
+                  </>
+                )}
                 <option value="is_empty">{t('is empty')}</option>
                 <option value="is_not_empty">{t('is not empty')}</option>
               </select>
@@ -590,6 +605,19 @@ function WhereValue({
   onChangeValues: (vs: string[]) => void;
 }) {
   const def = schema.find((p) => p.id === propId);
+  // A group condition names groups, not options (spec 016): several may be
+  // ticked, and they are always stored as a list.
+  if (isGroupOp(op)) {
+    return (
+      <StatusGroupFilter
+        picked={values?.length ? values : value ? [value] : []}
+        onChange={(gs) => {
+          onChange('');
+          onChangeValues(gs);
+        }}
+      />
+    );
+  }
   // is / is_not may name SEVERAL options — "open" is neither done nor
   // discarded. Ticking more than one writes the list; ticking exactly one keeps
   // writing the single value, so a condition made here still reads the same to

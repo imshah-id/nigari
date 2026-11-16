@@ -9,6 +9,7 @@ import { Switch } from '../ui/Switch';
 import type { ChartStyle, PropDef, ViewDef } from '../types';
 import { chartSettingsFor, eachRowValue, groupable, numberProps, ROW_GROUP } from '../chartDefaults';
 import { isHidden, type AggResult, type ChartKind } from '../chartLayout';
+import { chartByGroup } from '../statusGroups';
 import { groupLabel } from './ChartFigure';
 import { takeOpenSettings } from '../chartInsert';
 import './ChartSettings.css';
@@ -134,13 +135,24 @@ export default function ChartSettings({
             disabled={!whats.length}
             onValueChange={(v) => {
               if (v === ROW_GROUP) {
-                onChange({ groupBy: ROW_GROUP, groupPeriod: undefined, hiddenGroups: [], ...eachRowValue(schema, view) });
+                onChange({ groupBy: ROW_GROUP, statusGroups: undefined, groupPeriod: undefined, hiddenGroups: [], ...eachRowValue(schema, view) });
                 return;
               }
               const p = schema.find((x) => x.id === v);
-              onChange({ groupBy: v, groupPeriod: p?.type === 'date' ? view.groupPeriod ?? 'month' : undefined, hiddenGroups: [] });
+              onChange({ groupBy: v, statusGroups: undefined, groupPeriod: p?.type === 'date' ? view.groupPeriod ?? 'month' : undefined, hiddenGroups: [] });
             }}
           />
+          {groupProp?.type === 'status' && (
+            <Select
+              label={t('Group by')}
+              options={[
+                { value: 'option', label: t('Option') },
+                { value: 'group', label: t('Status group') },
+              ]}
+              value={chartByGroup(view, groupProp) ? 'group' : 'option'}
+              onValueChange={(v) => onChange({ statusGroups: v === 'group' ? true : undefined, hiddenGroups: [] })}
+            />
+          )}
           {groupProp?.type === 'date' && (
             <Select
               label={t('Period')}
@@ -222,7 +234,7 @@ export default function ChartSettings({
               return (
                 <Switch
                   key={g.key}
-                  label={groupLabel(g, groupProp, period)}
+                  label={groupLabel(g, groupProp, period, chartByGroup(view, groupProp))}
                   checked={shown}
                   onCheckedChange={(on) => setHidden(on ? hidden.filter((k) => k !== g.key) : [...hidden.filter((k) => k !== g.key), g.key])}
                 />

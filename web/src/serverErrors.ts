@@ -45,6 +45,8 @@ export function serverMessage(code: string, fallback: string, data?: ErrorData):
     // ---- a status property's options (spec 016) ----
     case 'invalid_status_options':
       return t('These status options cannot be saved: every option needs a group, every group at least one option, and each name can be used once.');
+    case 'invalid_group_filter':
+      return t('A group condition works only on a status property.');
     // A multi-select becoming a status while rows hold two of its values: the
     // rows are the reason, so the sentence names them (with their count).
     case 'status_rows_hold_several': {

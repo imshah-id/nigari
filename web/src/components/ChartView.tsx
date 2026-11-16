@@ -5,6 +5,7 @@ import { Button } from '../ui/Button';
 import ListView from './ListView';
 import ChartFigure, { groupLabel, type ChartFigureProps } from './ChartFigure';
 import type { Filter, PropDef, PropOption, ViewDef } from '../types';
+import { chartByGroup } from '../statusGroups';
 import type { AggResult, DrawnGroup } from '../chartLayout';
 import { groupFilter } from '../chartGroups';
 import { ROW_GROUP } from '../chartDefaults';
@@ -56,6 +57,7 @@ export default function ChartView(props: ChartViewProps) {
   const agg = view.agg ?? 'count';
   const groupProp = kind === 'number' ? undefined : schema.find((p) => p.id === view.groupBy);
   const period = groupProp?.type === 'date' ? view.groupPeriod ?? 'month' : undefined;
+  const byGroup = chartByGroup(view, groupProp);
 
   const [result, setResult] = useState<AggResult | null>(null);
   const resultRef = useRef<AggResult | null>(null);
@@ -74,9 +76,10 @@ export default function ChartView(props: ChartViewProps) {
       aggregate: agg,
       aggregateProp: agg === 'count' ? undefined : view.aggProp,
       filters: filters.map((f) => ({ property: f.property, op: f.op, value: f.value, values: f.values, value2: f.value2 })),
+      statusGroups: byGroup || undefined,
       today,
     }),
-    [kind, view.groupBy, period, agg, view.aggProp, filters, today],
+    [kind, view.groupBy, period, byGroup, agg, view.aggProp, filters, today],
   );
   const requestKey = JSON.stringify(request);
 
@@ -129,7 +132,7 @@ export default function ChartView(props: ChartViewProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, requestKey]);
 
-  const name = selected ? groupLabel(selected, groupProp, period) : '';
+  const name = selected ? groupLabel(selected, groupProp, period, byGroup) : '';
   return (
     <ChartFigure
       view={view}
