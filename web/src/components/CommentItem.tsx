@@ -9,6 +9,7 @@ import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
 import { Popover } from '../ui/Popover';
 import { COMMENT_REACTIONS, reactionGlyph, reactionName } from '../commentReactions';
+import { initials, nameColor } from '../avatar';
 
 // One comment in the panel (spec 017): its text, which its author can edit in
 // place, the "(edited)" mark that opens its earlier versions, and its
@@ -19,19 +20,6 @@ import { COMMENT_REACTIONS, reactionGlyph, reactionName } from '../commentReacti
 // the actions people use most on their own comments, and a menu would add a
 // click to each (R6). Reactions are a palette in a popover, not a menu: six
 // glyphs read as a choice of one, not as a list of commands.
-
-export function nameColor(name: string): string {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
-  const hues = [210, 145, 275, 25, 340, 190, 95, 55];
-  return `hsl(${hues[h % hues.length]} 55% 45%)`;
-}
-
-export function initials(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean);
-  if (!parts.length) return '?';
-  return (parts[0][0] + (parts[1]?.[0] ?? '')).toUpperCase();
-}
 
 // Grow with what is written. A textarea has no content height of its own, so
 // the height is reset to auto first: otherwise scrollHeight keeps reporting

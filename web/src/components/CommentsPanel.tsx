@@ -6,10 +6,8 @@ import { MessageSquareText, X } from 'lucide-react';
 import { t, plural } from '../i18n';
 import { Button } from '../ui/Button';
 import { IconButton } from '../ui/IconButton';
-import CommentItem, { grow, initials, nameColor } from './CommentItem';
-
-// Re-exported: the person property draws the same avatar.
-export { initials, nameColor };
+import CommentItem, { grow } from './CommentItem';
+import { COMMENTS_CHANGED } from '../commentsPanelState';
 
 // Comments as a panel beside the document.
 //
@@ -34,21 +32,6 @@ export { initials, nameColor };
 // the header fetches it itself and this panel only says when something changed
 // (COMMENTS_CHANGED). Threading it through as a prop would have tied a number
 // everybody needs to a component most people have shut.
-
-/** Fired after anything about this page's comments changed, so the count in the
- *  topbar stays right without the panel owning it. */
-export const COMMENTS_CHANGED = 'nigari:comments-changed';
-
-const PANEL_KEY = 'nigari-comments-open';
-
-export function commentsPanelOpen(): boolean {
-  return localStorage.getItem(PANEL_KEY) === '1';
-}
-
-export function setCommentsPanelOpen(open: boolean): void {
-  if (open) localStorage.setItem(PANEL_KEY, '1');
-  else localStorage.removeItem(PANEL_KEY);
-}
 
 export default function CommentsPanel({
   pageId,
