@@ -8130,7 +8130,6 @@ a,
 
 /* "(edited)" after the time: a button, because it opens the earlier texts. */
 .ui-button.cp-edited {
-  font-family: var(--font-family-sans);
   font-size: var(--font-size-2xs);
   color: var(--color-text-muted);
   padding-inline: var(--space-50);
