@@ -90,21 +90,21 @@ description: "Tasks for a Status property type"
 
 **Independent Test**: filter "group is not Complete", add an option to Complete, the view stays right.
 
-- [ ] T024 [US2] [backend] `resolveStatusGroups` in `server/status.go`; `typeFilters` rewrites group conditions to `is`/`is_not` with option ids (R3); a group condition on a non-status narrows nothing
-- [ ] T025 [US2] [backend] Saving a group condition on a non-status property refused: `normalizeViews`, `applyViewSpec` (`set_view`), rollup conditions in `checkStatusProps`' caller
-- [ ] T026 [US2] [ui] `matchesFilter` (`CollectionView.tsx`) resolves group conditions from the schema it holds; new `components/StatusGroupFilter.tsx` for the filter row's **Group is / Group is not**
-- [ ] T027 [US2] [backend] Rollup condition by group: resolved once per rollup in `computeDerived` (reaches `collectionRowsQuery`, `fillDerivedForPage`, `aggregateDerived`)
-- [ ] T028 [US2] [ui] The rollup settings in `PropertyFields.tsx` offer a group condition
-- [ ] T029 [US2] [backend] `pinsFromFilters`: a single-group `group_is` pins that group's first option (database and embed views through its two callers)
-- [ ] T030 [US2] [ui] Quick filter chip of a status lists the groups, then the options
-- [ ] T031 [US2] [test] Go: group filter rows equal per-option rows and follow an option added or moved (SC-001); rollup by group; pin; refusals; a case in `server/testdata/embedviews`; benchmark `group_is_not ["complete"]` within budget (SC-003); `query_rows`, `set_view` descriptions and a parity pair for a group-filtered read
+- [x] T024 [US2] [backend] `resolveStatusGroups` in `server/status.go`; `typeFilters` rewrites group conditions to `is`/`is_not` with option ids (R3); a group condition on a non-status narrows nothing
+- [x] T025 [US2] [backend] Saving a group condition on a non-status property refused: `normalizeViews`, `applyViewSpec` (`set_view`), rollup conditions in `checkStatusProps`' caller
+- [x] T026 [US2] [ui] `matchesFilter` (`CollectionView.tsx`) resolves group conditions from the schema it holds; new `components/StatusGroupFilter.tsx` for the filter row's **Group is / Group is not**
+- [x] T027 [US2] [backend] Rollup condition by group: resolved once per rollup in `computeDerived` (reaches `collectionRowsQuery`, `fillDerivedForPage`, `aggregateDerived`)
+- [x] T028 [US2] [ui] The rollup settings in `PropertyFields.tsx` offer a group condition
+- [x] T029 [US2] [backend] `pinsFromFilters`: a single-group `group_is` pins that group's first option (database and embed views through its two callers)
+- [x] T030 [US2] [ui] Quick filter chip of a status lists the groups, then the options
+- [x] T031 [US2] [test] Go: group filter rows equal per-option rows and follow an option added or moved (SC-001); rollup by group; pin; refusals; a case in `server/testdata/embedviews`; benchmark `group_is_not ["complete"]` within budget (SC-003); `query_rows`, `set_view` descriptions and a parity pair for a group-filtered read
 
 ---
 
 ## Phase 7: Charts by group (FR-012, PR 2)
 
-- [ ] T032 [backend] `statusGroups` chart setting: `aggregate.go` maps option to group in the same pass, with a case in `aggregate_test.go`
-- [ ] T033 [ui] `ChartSettings.tsx` offers **Group by: Option / Group**
+- [x] T032 [backend] `statusGroups` chart setting: `aggregate.go` maps option to group in the same pass, with a case in `aggregate_test.go`
+- [x] T033 [ui] `ChartSettings.tsx` offers **Group by: Option / Group**
 
 ---
 
