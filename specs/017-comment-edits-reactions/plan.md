@@ -58,8 +58,9 @@ written before the step, per `server/testdata/upgrade/README.md`.
 **Target Platform**: browser at desktop and phone widths; the desktop shell;
 MCP clients
 
-**Performance Goals**: opening the panel on 200 comments stays within 10%
-of today (SC-003). One extra indexed query per list.
+**Performance Goals**: opening the panel on 200 comments has no noticeable
+delay (SC-003; was "within 10% of today" until 2026-11-17, see
+`docs/decisions.md`). One extra indexed query per list.
 
 **Constraints**: design system (`ui/` and tokens; raw-button budget only
 goes down); English source; agent parity.

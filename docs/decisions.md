@@ -7,6 +7,28 @@ entries are not edited away.
 
 ---
 
+## 2026-11-17 — Spec 017's speed target (SC-003) becomes "no noticeable delay"
+
+The owner chose **A**: SC-003 no longer asks for the comment list to stay
+within 10% of its time before reactions, but for no delay a person can
+notice. Measured on 200 comments (`BenchmarkPageComments`): 0.46 ms before;
+after, 0.58 ms with no reactions and 1.8 ms with three on each. The cost is
+reading one row per reaction; the network round trip around it takes far
+longer.
+
+Turned down:
+- **B, a stored per-comment summary of the reactions** (who, with what),
+  kept up to date on every react. A plain count would not do: the chips
+  need the names and whether you reacted. It would save about 1 ms at the
+  price of the same facts stored twice, which can drift apart.
+- **C, keeping 10% as written**, a target the code does not meet.
+- **Loading reactions after the comments, with a skeleton**: a second round
+  trip makes the total longer, and a skeleton shown for a few ms reads as
+  flicker. Worth it only for threads of thousands, where loading the list in
+  batches would be its own issue.
+
+---
+
 ## 2026-11-16 — Spec 017: comment edits and reactions, where the plan left room
 
 Choices made while building spec 017, beyond research R1–R7:
