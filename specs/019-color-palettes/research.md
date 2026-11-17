@@ -13,9 +13,12 @@ Decisions for spec 019, with the options turned down. Read with
 
 with one table of fractions for every palette:
 
-| Step | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 850 | 900 | 925 | 950 |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| f | +0.965 | +0.905 | +0.71 | +0.55 | +0.40 | 0 | −0.15 | −0.30 | −0.49 | −0.59 | −0.70 | −0.75 | −0.78 |
+| Step | 0 | 50 | 100 | 200 | 300 | 400 | 450 | 500 | 600 | 700 | 800 | 850 | 900 | 925 | 950 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| f | +1 | +0.965 | +0.91 | +0.71 | +0.55 | +0.40 | +0.20 | 0 | −0.15 | −0.30 | −0.49 | −0.59 | −0.70 | −0.75 | −0.78 |
+
+(As built: step 0, step 450 and 100 at +0.91 instead of +0.905 were added
+while building; why, in `docs/decisions.md`, 2026-11-17.)
 
 Hue stays H₀. Chroma stays C₀ and is lowered, step by step, only until the
 colour fits sRGB (the build's existing `oklchToSrgb`), so a light step of

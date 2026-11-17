@@ -83,6 +83,7 @@
         "200": 0.71,
         "300": 0.55,
         "400": 0.4,
+        "450": 0.2,
         "500": 0,
         "600": -0.15,
         "700": -0.3,
@@ -141,6 +142,175 @@
             0.6008,
             0.0045,
             286.26
+          ]
+        }
+      }
+    },
+    "blue": {
+      "$description": "Data hue 'blue': charts and option colours. Its base is today's blue chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6007,
+            0.1691,
+            254.74
+          ]
+        }
+      }
+    },
+    "orange": {
+      "$description": "Data hue 'orange': charts and option colours. Its base is today's orange chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5992,
+            0.1548,
+            50.02
+          ]
+        }
+      }
+    },
+    "green": {
+      "$description": "Data hue 'green': charts and option colours. Its base is today's green chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5998,
+            0.1496,
+            150.16
+          ]
+        }
+      }
+    },
+    "purple": {
+      "$description": "Data hue 'purple': charts and option colours. Its base is today's purple chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5994,
+            0.1701,
+            304.9
+          ]
+        }
+      }
+    },
+    "teal": {
+      "$description": "Data hue 'teal': charts and option colours. Its base is today's teal chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5991,
+            0.0997,
+            195.69
+          ]
+        }
+      }
+    },
+    "pink": {
+      "$description": "Data hue 'pink': charts and option colours. Its base is today's pink chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.1709,
+            350.21
+          ]
+        }
+      }
+    },
+    "yellow": {
+      "$description": "Data hue 'yellow': charts and option colours. Its base is today's yellow chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5995,
+            0.12,
+            84.66
+          ]
+        }
+      }
+    },
+    "red": {
+      "$description": "Data hue 'red': charts and option colours. Its base is today's red chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6004,
+            0.1809,
+            25.1
+          ]
+        }
+      }
+    },
+    "indigo": {
+      "$description": "Data hue 'indigo': charts and option colours. Its base is today's indigo chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5999,
+            0.1601,
+            274.86
+          ]
+        }
+      }
+    },
+    "lime": {
+      "$description": "Data hue 'lime': charts and option colours. Its base is today's lime chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5988,
+            0.1493,
+            124.82
+          ]
+        }
+      }
+    },
+    "brown": {
+      "$description": "Data hue 'brown': charts and option colours. Its base is today's brown chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5993,
+            0.0702,
+            55.23
+          ]
+        }
+      }
+    },
+    "cyan": {
+      "$description": "Data hue 'cyan': charts and option colours. Its base is today's cyan chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5994,
+            0.1049,
+            219.86
+          ]
+        }
+      }
+    },
+    "gray": {
+      "$description": "Data grey: No value, Other and the colourless chart palette. Its base is today's lightest grey (#808080).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5999,
+            0,
+            89.88
           ]
         }
       }

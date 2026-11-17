@@ -228,6 +228,28 @@ broken('a swap that fails contrast', 'primitives', (j) => {
   j.palette.raspberry['500'].$value.components = [0.8, 0.12, 14.27];
 }, /contrast: color\.primary on color\.surface\.\w+ \(light\) is [\d.]+:1, below 4\.5:1/);
 
+// Components name roles, never a palette step (R4): check-tokens.mjs counts
+// --palette-* with a budget of 0, and token-ok does not excuse it. A role in
+// the same place passes, so the case shows the step is what fails.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
+  try {
+    const budgets = join(dir, 'budgets.json');
+    writeFileSync(budgets, JSON.stringify({ literals: { color: 0, fontSize: 0, radius: 0, shadow: 0, zIndex: 0 }, rawButtons: 0, handDialogs: 0, paletteSteps: 0 }));
+    const tokens = (css) => {
+      writeFileSync(join(dir, 'x.css'), css);
+      const r = spawnSync(process.execPath, [join(web, 'scripts/check-tokens.mjs'), '--src', dir, '--budgets', budgets], { encoding: 'utf8' });
+      return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
+    };
+    const step = tokens('.x { color: var(--palette-raspberry-500); } /* token-ok: no */\n.y { color: var(--palette-stone-50); } /* token-ok: trying */');
+    if (step.code === 0 || !/paletteSteps: 2, over its budget of 0/.test(step.out)) failures.push(`a palette step in a component: not refused\n${step.out}`);
+    const role = tokens('.x { color: var(--color-primary); }');
+    if (role.code !== 0) failures.push(`a role in a component: refused\n${role.out}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
 // A hand edit to the generated file.
 {
   const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
@@ -251,4 +273,4 @@ if (failures.length) {
   console.error(`build-tokens: ${failures.length} problem(s)\n` + failures.map((f) => '  ' + f).join('\n'));
   process.exit(1);
 }
-console.log('  build-tokens: refuses broken aliases, cycles, contrast below AA, bad types, foreign extensions, clashing names, hand-written palette steps and hand edits; palettes come from their bases, roles from their steps, a swap moves only its role; committed tokens up to date');
+console.log('  build-tokens: refuses broken aliases, cycles, contrast below AA, bad types, foreign extensions, clashing names, hand-written palette steps, palette steps in components and hand edits; palettes come from their bases, roles from their steps, a swap moves only its role; committed tokens up to date');

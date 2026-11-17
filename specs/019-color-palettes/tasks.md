@@ -49,15 +49,15 @@ description: "Tasks for named colour palettes and the role tokens that reference
 
 ## Phase 4: Data colours (owner, "same for data")
 
-- [ ] T008 [ui] Data palettes (the twelve series hues and gray, from today's OKLCH values) and data roles `data-1` … `data-12`, `data-<hue>-strong|medium|soft`, `data-background-1–4`; today's `color.chart.*` names kept as aliases; `chartTheme.ts` `OPTION_TOKEN` and `check-chartcolours.mjs` read the role names; the 3:1 rule passes
+- [x] T008 [ui] Data palettes (the twelve series hues and gray, from today's OKLCH values) and data roles `data-1` … `data-12`, `data-<hue>-strong|medium|soft`, `data-background-1–4`; today's `color.chart.*` names kept as aliases; `chartTheme.ts` `OPTION_TOKEN` and `check-chartcolours.mjs` read the role names; the 3:1 rule passes
 - [ ] T009 [test] `check-chartcolours.mjs` and the chart browser tests (`chart-colours.mjs`, `chart-view.mjs`) pass on the data roles
 
 ---
 
 ## Phase 5: User Story 3 — components name roles (P2)
 
-- [ ] T010 [US3] [ui] `check-tokens.mjs`: a `--palette-` name outside `tokens.css` fails (budget 0); a test case for it
-- [ ] T011 [ui] `.specify/memory/surfaces.md` Design system entry gains the colour tiers (plan, New concepts); the token files' descriptions say how to swap a palette and how steps are generated (FR-008)
+- [x] T010 [US3] [ui] `check-tokens.mjs`: a `--palette-` name outside `tokens.css` fails (budget 0); a test case for it
+- [x] T011 [ui] `.specify/memory/surfaces.md` Design system entry gains the colour tiers (plan, New concepts); the token files' descriptions say how to swap a palette and how steps are generated (FR-008)
 
 ---
 

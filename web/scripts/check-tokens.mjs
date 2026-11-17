@@ -22,6 +22,10 @@
 //   zIndex    z-index / zIndex with a number
 //   rawButtons   <button in .tsx outside web/src/ui/
 //   handDialogs  role="dialog" outside web/src/ui/
+//   paletteSteps --palette-* anywhere (spec 019, R4): a component names a role
+//                (--color-primary), never a palette step, or swapping a
+//                palette would have to find it. Budget 0, and `token-ok`
+//                does not excuse it.
 // Not counted: web/src/tokens.css (generated from the tokens), and any line
 // carrying `token-ok: <reason>` for a value that must stay literal.
 
@@ -52,6 +56,7 @@ const RULES = {
   zIndex: /\bz-index\s*:\s*-?\d|\bzIndex\s*:\s*['"`]?-?\d/g,
   rawButtons: /<button\b/g,
   handDialogs: /role\s*[=:]\s*\{?\s*['"]dialog['"]/g,
+  paletteSteps: /--palette-[\w-]+/g,
 };
 
 function files(dir) {
@@ -72,7 +77,7 @@ function blankComments(text, isCss) {
   return text.replace(re, (m) => m.replace(/[^\n]/g, ' '));
 }
 
-const counts = Object.fromEntries([...KINDS, 'rawButtons', 'handDialogs'].map((k) => [k, 0]));
+const counts = Object.fromEntries([...KINDS, 'rawButtons', 'handDialogs', 'paletteSteps'].map((k) => [k, 0]));
 const hits = Object.fromEntries(Object.keys(counts).map((k) => [k, []]));
 
 for (const file of files(src)) {
@@ -88,7 +93,7 @@ for (const file of files(src)) {
     if (kind === 'handDialogs' && inUi) continue;
     for (const m of text.matchAll(re)) {
       const line = lineOf(m.index);
-      if (lines[line - 1].includes('token-ok:')) continue;
+      if (kind !== 'paletteSteps' && lines[line - 1].includes('token-ok:')) continue;
       counts[kind]++;
       hits[kind].push(`${rel}:${line}`);
     }
@@ -99,6 +104,7 @@ const now = {
   literals: Object.fromEntries(KINDS.map((k) => [k, counts[k]])),
   rawButtons: counts.rawButtons,
   handDialogs: counts.handDialogs,
+  paletteSteps: counts.paletteSteps,
 };
 
 if (measure) {
@@ -151,6 +157,7 @@ const check = (label, kind, have, budget) => {
 for (const k of KINDS) check(`literals.${k}`, k, now.literals[k], budgets.literals?.[k]);
 check('rawButtons', 'rawButtons', now.rawButtons, budgets.rawButtons);
 check('handDialogs', 'handDialogs', now.handDialogs, budgets.handDialogs);
+check('paletteSteps', 'paletteSteps', now.paletteSteps, budgets.paletteSteps);
 
 // Under budget fails too: a ratchet that is not lowered when the count drops
 // lets the next change spend the difference without anyone seeing it.
@@ -159,5 +166,5 @@ if (errors.length || lower.length) {
   process.exit(1);
 }
 console.log(
-  `  tokens: literals ${KINDS.map((k) => `${k} ${now.literals[k]}`).join(', ')}; ${now.rawButtons} raw buttons, ${now.handDialogs} hand-built dialogs, all within budget`,
+  `  tokens: literals ${KINDS.map((k) => `${k} ${now.literals[k]}`).join(', ')}; ${now.rawButtons} raw buttons, ${now.handDialogs} hand-built dialogs, ${now.paletteSteps} palette steps, all within budget`,
 );

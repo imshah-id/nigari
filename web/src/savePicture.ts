@@ -14,10 +14,10 @@ export type PictureBackground = 'surface' | '1' | '2' | '3' | '4';
 /** The CSS custom property each background reads. */
 export const BACKGROUND_TOKEN: Record<PictureBackground, string> = {
   surface: '--color-surface-default',
-  '1': '--color-chart-background-1',
-  '2': '--color-chart-background-2',
-  '3': '--color-chart-background-3',
-  '4': '--color-chart-background-4',
+  '1': '--color-data-background-1',
+  '2': '--color-data-background-2',
+  '3': '--color-data-background-3',
+  '4': '--color-data-background-4',
 };
 
 /** What the chart hands over to be drawn: the plot at 2× (absent for a
