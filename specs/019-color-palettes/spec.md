@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17
 
-**Status**: Draft
+**Status**: Clarified
 
 **Issues**: #379 (the button work that needs it; spec 020 follows)
 
@@ -78,10 +78,15 @@ the generated `web/src/tokens.css` (2026-11-17):
   option colour families' strong/medium/soft and the chart backgrounds)
   reference its steps. Their rule stays: every drawn colour reaches 3:1 on
   the document and on cards, in both themes.
-- Q3: [NEEDS CLARIFICATION: A generated step will not hit today's dark
-  accent and danger exactly. A: use the nearest step and show the
-  before/after (recommended: the palette stays one base); B: allow a
-  per-step override where it must match.]
+- Palette names (owner, "All good"): `raspberry` (primary), `burnt-orange`
+  (destructive), `stone` (the warm grey, light mode's neutrals), `slate`
+  (the cool grey, dark mode's neutrals); data palettes are named by their
+  hue (`blue`, `teal`, `amber`, …).
+- Dark mode takes the nearest generated step (owner, "All good"): a step
+  will not hit today's dark raspberry and burnt orange exactly; the
+  difference is shown before and after, and each palette stays one base.
+  Turned down: a hand-set override per step (a palette would no longer be
+  one base).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -109,7 +114,7 @@ contrast check.
 
 ### User Story 2 - Nothing looks different (Priority: P1)
 
-After the change, nigari looks as it did, in light and dark (within Q3).
+After the change, nigari looks as it did, in light and dark (within the nearest-step rule).
 
 **Independent Test**: retake the wiki screenshots; compare.
 
@@ -138,10 +143,9 @@ outside the token files.
 
 ### Functional Requirements
 
-- **FR-001**: The primitives MUST hold named palettes (today's colours:
-  `raspberry`, `burnt-orange`, a warm grey and a cool grey; names confirmed
-  with the owner before they are written), each defined by one OKLCH base
-  at step 500.
+- **FR-001**: The primitives MUST hold named palettes: `raspberry`,
+  `burnt-orange`, `stone`, `slate`, and one per data hue, each defined by
+  one OKLCH base at step 500.
 - **FR-002**: Steps 50, 100, 200 … 900, 950 MUST be generated from the base
   by a relative change in lightness: lighter steps move a set fraction of
   the way from the base's lightness to white, darker steps a set fraction
@@ -161,7 +165,7 @@ outside the token files.
   the result.
 - **FR-006**: The generated `tokens.css` MUST keep every name the
   stylesheets read today (`--color-accent-default`, `--bg`, …), so the
-  app changes look only where Q3 allows.
+  app changes look only where the nearest-step rule allows.
 - **FR-007**: A check MUST refuse a palette step or a colour literal used
   in components (budgets go down only, as `check-tokens.mjs` does today).
 - **FR-007a**: Data colours MUST follow FR-001 to FR-005 too: a named
@@ -180,7 +184,7 @@ outside the token files.
   build passes or names what fails.
 - **SC-002**: Light mode's accent and danger are exactly today's (each is
   its palette's 500); the other differences, data colours included, are
-  the ones Q3 accepts,
+  the ones the nearest-step rule accepts,
   shown before and after.
 - **SC-003**: No component or stylesheet names a palette or a colour value;
   each colour it uses is a role token.
