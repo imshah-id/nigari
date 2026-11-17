@@ -1,6 +1,6 @@
 # Feature Specification: The hand-built buttons move into the design system's parts
 
-**Feature Branch**: `claude/spec-019-buttons`
+**Feature Branch**: `claude/spec-019-palettes` (spec only; the build gets its own branch)
 
 **Created**: 2026-11-17
 
