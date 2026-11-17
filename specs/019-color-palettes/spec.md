@@ -1,4 +1,4 @@
-# Feature Specification: Colour palettes by role, each generated from one OKLCH base
+# Feature Specification: Named colour palettes, and role tokens that reference them
 
 **Feature Branch**: `claude/spec-019-palettes` (spec only; the build gets its own branch)
 
@@ -16,7 +16,10 @@
 > color names but create palettes and reference the semantic colors to such
 > a palette. So in this case raspberry would be referenced by primary and
 > burnt orange thus the destructive one. But I should be able to swap these
-> out easily later."
+> out easily later." / "No, palettes are named by a name. But you need to
+> create a separate set of tokens that reference the palette colors and
+> flatten them (style dictionary). So "primary, primary active, primary
+> pressed" etc would reference one of the palette colors."
 
 ## Context
 
@@ -57,15 +60,16 @@ the generated `web/src/tokens.css` (2026-11-17):
 
 - Primary is the raspberry of today's accent; destructive is the burnt
   orange of today's danger (owner).
-- Palettes are named by role, never by colour; semantic tokens reference a
-  palette's steps; swapping a palette's base swaps the role everywhere
-  (owner).
-- Q1: [NEEDS CLARIFICATION: One neutral palette for both themes? A: one
-  neutral, warm (today's light hue), so dark mode turns very slightly warm
-  (chroma under 0.01, barely visible) (recommended); B: one neutral, cool
-  (light mode turns very slightly cool); C: keep both hues, as two neutral
-  palettes (`neutral` and a second one for dark), which keeps the look
-  exactly but gives the neutral role two bases.]
+- Two layers (owner, correcting the first draft, which named palettes by
+  role): **palettes have names** (`raspberry`, …), each a scale generated
+  from one OKLCH base; **role tokens** (`primary`, `primary-hover`,
+  `primary-pressed`, `destructive`, …) each reference one palette step per
+  theme, and the build **flattens** them into plain CSS variables
+  (`--color-primary-hover`), as Style Dictionary does. Swapping a role is
+  changing which palette its tokens reference, or that palette's base.
+- The neutrals need no compromise in this model: a warm grey palette for
+  light and a cool grey palette for dark, the neutral role tokens
+  referencing each per theme (the first draft's Q1 falls away).
 - Q2: [NEEDS CLARIFICATION: Chart and option colours (series 1–12, the
   colour families a person picks by name) are data colours, not interface
   roles. A: leave them out of this spec, as they are (recommended); B:
@@ -79,9 +83,10 @@ the generated `web/src/tokens.css` (2026-11-17):
 
 ### User Story 1 - Swap a role's colour in one place (Priority: P1)
 
-The owner decides primary should be another colour. They change the
-primary palette's one base value; every primary step, in both themes,
-follows, and the build says if any text no longer reaches its contrast.
+The owner decides primary should be another colour. They point the primary
+role at another palette (or change raspberry's base); every primary colour,
+in both themes, follows, and the build says if any text no longer reaches
+its contrast.
 
 **Independent Test**: change the primary base in the token file, build,
 and see every use of the accent change; a base too light fails the
@@ -89,9 +94,9 @@ contrast check.
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary palette's base, **When** it is changed and the
-   tokens are built, **Then** every step 50–950 of primary changes and
-   nothing else.
+1. **Given** the primary role tokens, **When** they are pointed at another
+   palette (or raspberry's base changes) and the tokens are built, **Then**
+   every primary colour in both themes follows and nothing else changes.
 2. **Given** a base whose steps no longer give a text colour its contrast,
    **When** the tokens are built, **Then** the build fails naming the token
    and the ratio.
@@ -100,8 +105,7 @@ contrast check.
 
 ### User Story 2 - Nothing looks different (Priority: P1)
 
-After the change, nigari looks as it did, in light and dark (within Q1 and
-Q3).
+After the change, nigari looks as it did, in light and dark (within Q3).
 
 **Independent Test**: retake the wiki screenshots; compare.
 
@@ -122,32 +126,38 @@ outside the token files.
 - A step outside the sRGB gamut (bright, saturated steps): its chroma is
   reduced until it fits, hue and lightness kept.
 - Transparent colours (hover, borders): a palette step with an alpha, still
-  named by role.
-- The brand gradient (`rainbow`): decorative, not a role; renamed so no
-  token carries a colour name, its values unchanged.
+  named by role (`hover`, `border`).
+- The brand gradient (`rainbow`): decorative, not a role; it stays a
+  named set of its own, referenced by the gradient tokens.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The primitives MUST hold palettes named by role: `primary`,
-  `destructive`, `neutral` (Q1), each defined by one OKLCH base at step 500.
+- **FR-001**: The primitives MUST hold named palettes (today's colours:
+  `raspberry`, `burnt-orange`, a warm grey and a cool grey; names confirmed
+  with the owner before they are written), each defined by one OKLCH base
+  at step 500.
 - **FR-002**: Steps 50, 100, 200 … 900, 950 MUST be generated from the base
   by a relative change in lightness: lighter steps move a set fraction of
   the way from the base's lightness to white, darker steps a set fraction
   of the way to black; hue stays; chroma follows and is reduced only to
   stay in gamut. One table of fractions serves every palette.
-- **FR-003**: Every semantic colour MUST reference a palette step (with an
-  alpha where it is translucent), in both themes; no hex in the semantic
-  tier.
-- **FR-004**: No token name MUST carry a colour name (`pink`, `orange`,
-  `ink`, `paper`, `night`, `mist`, `rainbow`), outside the chart and
-  option colours (Q2).
-- **FR-005**: Changing a palette's base MUST be the only edit needed to
-  swap that role's colour; the contrast check MUST run on the result.
+- **FR-003**: A role tier MUST name what the interface uses, by role and
+  state: `primary`, `primary-hover`, `primary-pressed`, `primary-subtle`,
+  `on-primary` (text on it), the same for `destructive`, and the neutral
+  roles (surfaces, text, muted text, borders, hover). Each references one
+  palette step per theme (with an alpha where it is translucent); no hex
+  in this tier.
+- **FR-004**: The build MUST flatten the role tokens into plain CSS
+  variables (`--color-primary-pressed`); components use only these, never
+  a palette step.
+- **FR-005**: Swapping a role's colour MUST be one edit: the palette its
+  tokens reference, or that palette's base; the contrast check MUST run on
+  the result.
 - **FR-006**: The generated `tokens.css` MUST keep every name the
   stylesheets read today (`--color-accent-default`, `--bg`, …), so the
-  app changes look only where Q1 and Q3 allow.
+  app changes look only where Q3 allows.
 - **FR-007**: A check MUST refuse a palette step or a colour literal used
   in components (budgets go down only, as `check-tokens.mjs` does today).
 - **FR-008**: The token README (or the token files' descriptions) MUST say
@@ -160,10 +170,10 @@ outside the token files.
 - **SC-001**: Swapping primary to another hue is a one-line change, and the
   build passes or names what fails.
 - **SC-002**: Light mode's accent and danger are exactly today's (each is
-  its palette's 500); the other differences are the ones Q1 and Q3 accept,
+  its palette's 500); the other differences are the ones Q3 accepts,
   shown before and after.
-- **SC-003**: No token name in the primitive or semantic tiers is a colour
-  name (outside Q2).
+- **SC-003**: No component or stylesheet names a palette or a colour value;
+  each colour it uses is a role token.
 
 ## Assumptions
 
