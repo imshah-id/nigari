@@ -82,6 +82,11 @@ var parityActs = []parityAct{
 	// Quick filters and a board's lanes (spec 013): view settings, checked by
 	// one rule each (checkViewQuickFilters, checkViewSubGroup) on both doors,
 	// behind the database's write gate.
+	// A view's layout (spec 018): the type on an update, one rule
+	// (checkViewType, switchViewLayout) on both doors, behind the database's
+	// write gate.
+	{"change a layout", "PUT", "/api/collections/%s", `{"views":[{"id":"v-parity","name":"To do","type":"board","groupBy":"status","filters":[{"property":"status","op":"is","value":"todo"}]}]}`,
+		"set_view", `{"page_id":"%s","view_id":"v-parity","type":"board"}`, true},
 	{"set quick filters", "PUT", "/api/collections/%s", `{"views":[{"id":"v-parity","name":"To do","type":"table","quickFilters":["status"],"filters":[{"property":"status","op":"is","value":"todo"}]}]}`,
 		"set_view", `{"page_id":"%s","view_id":"v-parity","quick_filters":["status"]}`, true},
 	{"set a sub-group", "PUT", "/api/collections/%s", `{"views":[{"id":"v-parity","name":"To do","type":"table","filters":[{"property":"status","op":"is","value":"todo"}]},{"id":"v-board","name":"Board","type":"board","groupBy":"status","subGroupBy":"owner"}]}`,

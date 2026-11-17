@@ -455,7 +455,9 @@ func (s *Server) mcpCreateEmbedView(u *user, pageID, embedID, copyOf string, spe
 // mcpUpdateView: what is not mentioned stays.
 func (s *Server) mcpUpdateEmbedView(u *user, pageID, embedID, viewID string, spec viewSpec) (string, error) {
 	if spec.Type != "" {
-		return "", fmt.Errorf("a view's type cannot be changed — delete it and create the new one")
+		if err := checkViewType(spec.Type, true); err != nil {
+			return "", err
+		}
 	}
 	e, err := s.loadEmbed(u, pageID, embedID)
 	if err != nil {
@@ -466,10 +468,14 @@ func (s *Server) mcpUpdateEmbedView(u *user, pageID, embedID, viewID string, spe
 			if id, _ := v["id"].(string); id != viewID {
 				continue
 			}
+			said, err := switchViewType(v, spec, e.schema)
+			if err != nil {
+				return "", nil, "", err
+			}
 			if err := applyViewSpec(v, spec, e.schema); err != nil {
 				return "", nil, "", err
 			}
-			return open, views, fmt.Sprintf("Updated view %s in embed %s.", viewID, embedID), nil
+			return open, views, fmt.Sprintf("Updated view %s in embed %s%s.", viewID, embedID, said), nil
 		}
 		return "", nil, "", fmt.Errorf("view %q is not a view of embed %s — get_collection with embed_id lists them", viewID, embedID)
 	})

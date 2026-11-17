@@ -1,0 +1,1278 @@
+{
+ "$comment": "Spec 018: a view switched to another layout (R2). Read by server/viewlayout_test.go (switchViewLayout) and web/scripts/check-viewlayout.mjs (switchLayout), so the interface and set_view give the same defaults. schema names one of schemas.",
+ "schemas": {
+  "full": [
+   {
+    "id": "status",
+    "name": "Status",
+    "type": "select"
+   },
+   {
+    "id": "owner",
+    "name": "Owner",
+    "type": "person"
+   },
+   {
+    "id": "due",
+    "name": "Due",
+    "type": "date"
+   },
+   {
+    "id": "end",
+    "name": "End",
+    "type": "date"
+   },
+   {
+    "id": "est",
+    "name": "Estimate",
+    "type": "number"
+   },
+   {
+    "id": "tags",
+    "name": "Tags",
+    "type": "multiselect"
+   },
+   {
+    "id": "notes",
+    "name": "Notes",
+    "type": "text"
+   }
+  ],
+  "tagsOnly": [
+   {
+    "id": "tags",
+    "name": "Tags",
+    "type": "multiselect"
+   },
+   {
+    "id": "notes",
+    "name": "Notes",
+    "type": "text"
+   }
+  ],
+  "plain": [
+   {
+    "id": "notes",
+    "name": "Notes",
+    "type": "text"
+   }
+  ],
+  "numberOnly": [
+   {
+    "id": "notes",
+    "name": "Notes",
+    "type": "text"
+   },
+   {
+    "id": "est",
+    "name": "Estimate",
+    "type": "number"
+   }
+  ],
+  "statusLater": [
+   {
+    "id": "due",
+    "name": "Due",
+    "type": "date"
+   },
+   {
+    "id": "phase",
+    "name": "Phase",
+    "type": "status"
+   }
+  ]
+ },
+ "cases": [
+  {
+   "name": "table to board takes the first select and keeps everything else",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek"
+   },
+   "type": "board",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "board back to table keeps the grouping and the lanes, unused",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status",
+    "subGroupBy": "owner"
+   },
+   "type": "table",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status",
+    "subGroupBy": "owner"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a grouping a board can use is kept",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "tags"
+   },
+   "type": "board",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "tags"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a grouping a board cannot use is replaced",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "notes"
+   },
+   "type": "board",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a status counts as the first option property",
+   "schema": "statusLater",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "board",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "board",
+    "groupBy": "phase"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "no select or status: the first multi-select",
+   "schema": "tagsOnly",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "board",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "board",
+    "groupBy": "tags"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "nothing a board groups by: no grouping",
+   "schema": "plain",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table",
+    "groupBy": "notes"
+   },
+   "type": "board",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "board"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "table to calendar takes the first date",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek"
+   },
+   "type": "calendar",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "calendar",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "due"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "table to timeline takes the first date and the next as its end",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek"
+   },
+   "type": "timeline",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "timeline",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "due",
+    "endDateProp": "end"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "calendar to timeline keeps the date",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "calendar",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "end"
+   },
+   "type": "timeline",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "timeline",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "end",
+    "endDateProp": "due"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "an end that is not a date is replaced",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "calendar",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "due",
+    "endDateProp": "notes"
+   },
+   "type": "timeline",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "timeline",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "due",
+    "endDateProp": "end"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a date that is no longer a date is replaced",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "notes"
+   },
+   "type": "calendar",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "calendar",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "dateProp": "due"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "calendar with no date property needs one",
+   "schema": "plain",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "calendar",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "calendar"
+   },
+   "needsDate": true
+  },
+  {
+   "name": "timeline with no date property needs one",
+   "schema": "numberOnly",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "board",
+    "groupBy": "x"
+   },
+   "type": "timeline",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "timeline",
+    "groupBy": "x"
+   },
+   "needsDate": true
+  },
+  {
+   "name": "board to chart keeps the grouping",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "chart",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status",
+    "chartKind": "bar"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "table to chart counts by the first select",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "chart",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status",
+    "chartKind": "bar"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a chart's own settings come back",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "table",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "chartKind": "donut",
+    "groupBy": "due",
+    "groupPeriod": "week"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "chart",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "chartKind": "donut",
+    "groupBy": "due",
+    "groupPeriod": "week"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a date grouping gets a period",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "calendar",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "due",
+    "dateProp": "due"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "chart",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "chartKind": "bar",
+    "groupBy": "due",
+    "groupPeriod": "month",
+    "dateProp": "due"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "nothing to group by but a number: each row",
+   "schema": "numberOnly",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "chart",
+    "chartKind": "bar",
+    "groupBy": "__row",
+    "agg": "sum",
+    "aggProp": "est"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "each row that counts is made a sum",
+   "schema": "numberOnly",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table",
+    "chartKind": "line",
+    "groupBy": "__row",
+    "agg": "count"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "chart",
+    "chartKind": "line",
+    "groupBy": "__row",
+    "agg": "sum",
+    "aggProp": "est"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "nothing to group and no number: a number chart",
+   "schema": "plain",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "chart",
+    "chartKind": "number"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a number chart stays a number chart",
+   "schema": "full",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table",
+    "chartKind": "number"
+   },
+   "type": "chart",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "chart",
+    "chartKind": "number"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "chart to board takes a board grouping",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "chart",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "chartKind": "bar",
+    "groupBy": "due",
+    "groupPeriod": "month"
+   },
+   "type": "board",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "chartKind": "bar",
+    "groupBy": "status",
+    "groupPeriod": "month"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "form to table keeps the form's texts",
+   "schema": "full",
+   "view": {
+    "id": "f",
+    "name": "Form",
+    "type": "form",
+    "formTitle": "Ask",
+    "formDescription": "Tell us"
+   },
+   "type": "table",
+   "want": {
+    "id": "f",
+    "name": "Form",
+    "type": "table",
+    "formTitle": "Ask",
+    "formDescription": "Tell us"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "the same type changes nothing",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "notes"
+   },
+   "type": "board",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "notes"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "list and gallery need nothing",
+   "schema": "full",
+   "view": {
+    "id": "v1",
+    "name": "Work",
+    "type": "board",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status"
+   },
+   "type": "gallery",
+   "want": {
+    "id": "v1",
+    "name": "Work",
+    "type": "gallery",
+    "filters": [
+     {
+      "property": "status",
+      "op": "is",
+      "value": "open"
+     }
+    ],
+    "sort": {
+     "property": "due",
+     "dir": "asc"
+    },
+    "hidden": [
+     "notes"
+    ],
+    "colWidths": {
+     "__title": 300
+    },
+    "colOrder": [
+     "due",
+     "status"
+    ],
+    "openIn": "side_peek",
+    "groupBy": "status"
+   },
+   "needsDate": false
+  }
+ ]
+}

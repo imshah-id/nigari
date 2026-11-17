@@ -231,8 +231,12 @@ func TestSetViewCreatesAndUpdates(t *testing.T) {
 	if v["name"] != "Open" {
 		t.Errorf("the update wiped the name: %#v", v["name"])
 	}
-	if _, err := callTool(t, s, u, "set_view", `{"page_id":"`+db+`","view_id":"open","type":"table"}`); err == nil {
-		t.Error("changing a view's type should be refused")
+	// A type on an update changes the layout (spec 018); it used to be refused.
+	if _, err := callTool(t, s, u, "set_view", `{"page_id":"`+db+`","view_id":"open","type":"list"}`); err != nil {
+		t.Errorf("changing a view's type: %v", err)
+	}
+	if v := viewByID(t, s, db, "open"); v["type"] != "list" || v["name"] != "Open" {
+		t.Errorf("after the layout change: %#v", v)
 	}
 }
 

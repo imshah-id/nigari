@@ -262,7 +262,7 @@ func TestViewColOrderRule(t *testing.T) {
 		if err := json.Unmarshal([]byte(c.view), &view); err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}
-		err := checkViewColOrder(view, schema)
+		err := checkViewColOrder(view, schema, true)
 		if c.wantErr {
 			var orderErr errViewColOrder
 			if err == nil || !errors.As(err, &orderErr) {
@@ -284,6 +284,12 @@ func TestViewColOrderRule(t *testing.T) {
 		if b, _ := json.Marshal(got); string(b) != c.want {
 			t.Errorf("%s: stored %s, want %s", c.name, b, c.want)
 		}
+	}
+	// Kept from a table's time on a view that became a board (spec 018,
+	// FR-003): not set by this change, so left as it is, unused.
+	view := map[string]any{"type": "board", "colOrder": []any{"status"}}
+	if err := checkViewColOrder(view, schema, false); err != nil || view["colOrder"] == nil {
+		t.Errorf("a kept order on a board: %v, %v", err, view)
 	}
 }
 

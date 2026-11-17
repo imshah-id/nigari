@@ -94,11 +94,18 @@ func TestEveryViewDoorIsRefusedWhileLocked(t *testing.T) {
 	if rec.Code != 409 {
 		t.Errorf("REST PUT of a column width: %d, want 409", rec.Code)
 	}
+	// A layout change is a view change (spec 018, FR-007).
+	rec = requestAs(t, f.s, f.cookie, "PUT", "/api/collections/"+f.col,
+		`{"views":[{"id":"t","name":"Table","type":"list"},{"id":"b","name":"Board","type":"board","groupBy":"status"}]}`)
+	if rec.Code != 409 {
+		t.Errorf("REST PUT of a layout change: %d, want 409", rec.Code)
+	}
 
 	for _, c := range []struct{ tool, args string }{
 		{"set_view", `{"page_id":"` + f.col + `","name":"New","type":"table"}`},
 		{"set_view", `{"page_id":"` + f.col + `","view_id":"t","name":"Renamed"}`},
 		{"set_view", `{"page_id":"` + f.col + `","view_id":"t","filters":[{"property":"status","op":"is","value":"open"}]}`},
+		{"set_view", `{"page_id":"` + f.col + `","view_id":"t","type":"list"}`},
 		{"delete_view", `{"page_id":"` + f.col + `","view_id":"b"}`},
 	} {
 		_, err := callTool(t, f.s, f.agent, c.tool, c.args)

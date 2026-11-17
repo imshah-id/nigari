@@ -100,7 +100,11 @@ func (s *Server) handlePutCollection(w http.ResponseWriter, r *http.Request) {
 		var quickErr errViewQuickFilters
 		var subErr errViewSubGroup
 		var groupErr errGroupFilter
+		var typeErr errViewType
 		switch {
+		case errors.As(err, &typeErr):
+			httpErrorCode(w, 400, "invalid_view_type", err.Error())
+			return
 		case errors.As(err, &groupErr):
 			httpErrorCode(w, 400, "invalid_group_filter", err.Error())
 			return
