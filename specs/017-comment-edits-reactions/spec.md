@@ -209,8 +209,12 @@ react and unreact; list shows edited times and reactions.
 - **SC-002**: Every earlier version of an edited comment can be read back
   exactly, by anyone who can read the page.
 - **SC-003**: Opening the comments panel on a page with 200 comments and
-  their reactions takes no longer than it does today plus 10% (measured
-  before and after).
+  their reactions has no delay a person can notice: the server's list stays
+  well under the 100 ms that reads as instant (measured before and after).
+  *Changed 2026-11-17 (owner, "A"): it was "no longer than today plus 10%",
+  which the build missed (0.46 ms before; 0.58 ms with no reactions and
+  1.8 ms with three on each comment) by a margin nobody can see. See
+  `docs/decisions.md`.*
 - **SC-004**: Every action in stories 1–2 has an MCP equivalent with the
   same refusals, shown by a REST/MCP pair in the parity test.
 
