@@ -80,6 +80,18 @@
     "name": "Phase",
     "type": "status"
    }
+  ],
+  "tagsFirst": [
+   {
+    "id": "tags",
+    "name": "Tags",
+    "type": "multiselect"
+   },
+   {
+    "id": "status",
+    "name": "Status",
+    "type": "select"
+   }
   ]
  },
  "cases": [
@@ -346,6 +358,23 @@
     "name": "V",
     "type": "board",
     "groupBy": "phase"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a select wins over a multi-select listed before it",
+   "schema": "tagsFirst",
+   "view": {
+    "id": "v",
+    "name": "V",
+    "type": "table"
+   },
+   "type": "board",
+   "want": {
+    "id": "v",
+    "name": "V",
+    "type": "board",
+    "groupBy": "status"
    },
    "needsDate": false
   },
