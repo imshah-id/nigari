@@ -645,7 +645,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 	}
 	if spec.OpenIn != nil {
 		view["openIn"] = *spec.OpenIn
-		if err := checkViewOpenIn(view); err != nil {
+		if err := checkViewOpenIn(view, true); err != nil {
 			return err
 		}
 	}
@@ -665,7 +665,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 	}
 	// Run on every create and update, not only when column_order is passed:
 	// it is the same call normalizeViews makes for every view REST stores.
-	if err := checkViewColOrder(view, schema); err != nil {
+	if err := checkViewColOrder(view, schema, spec.ColumnOrder != nil); err != nil {
 		return err
 	}
 	if spec.QuickFilters != nil {
@@ -690,7 +690,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 	if err := checkViewQuickFilters(view, schema, spec.QuickFilters != nil); err != nil {
 		return fmt.Errorf("quick_filters: %w", err)
 	}
-	if err := checkViewSubGroup(view, schema, spec.SubGroupBy != nil || spec.GroupBy != nil); err != nil {
+	if err := checkViewSubGroup(view, schema, spec.SubGroupBy != nil, spec.GroupBy != nil); err != nil {
 		return fmt.Errorf("sub_group_by: %w", err)
 	}
 	if err := applyChartSpec(view, spec); err != nil {
@@ -785,7 +785,7 @@ func (s *Server) mcpCreateView(u *user, pageID string, spec viewSpec) (string, e
 	}
 	name := spec.Name
 	if strings.TrimSpace(name) == "" {
-		name = strings.ToUpper(spec.Type[:1]) + spec.Type[1:]
+		name = defaultViewName(spec.Type)
 		spec.Name = name
 	}
 	view := map[string]any{"id": slugID(name, taken), "type": spec.Type}
@@ -807,7 +807,9 @@ func (s *Server) mcpCreateView(u *user, pageID string, spec viewSpec) (string, e
 // instruction to a human rather than something an agent could finish.
 func (s *Server) mcpUpdateView(u *user, pageID, viewID string, spec viewSpec) (string, error) {
 	if spec.Type != "" {
-		return "", fmt.Errorf("a view's type cannot be changed — delete it and create the new one")
+		if err := checkViewType(spec.Type, false); err != nil {
+			return "", err
+		}
 	}
 	schema, views, err := s.loadCollection(pageID)
 	if err != nil {
@@ -822,6 +824,10 @@ func (s *Server) mcpUpdateView(u *user, pageID, viewID string, spec viewSpec) (s
 		if id, _ := v["id"].(string); id != viewID {
 			continue
 		}
+		said, err := switchViewType(v, spec, schema)
+		if err != nil {
+			return "", err
+		}
 		if err := applyViewSpec(v, spec, schema); err != nil {
 			return "", err
 		}
@@ -829,7 +835,7 @@ func (s *Server) mcpUpdateView(u *user, pageID, viewID string, spec viewSpec) (s
 			return "", err
 		}
 		name, _ := v["name"].(string)
-		return fmt.Sprintf("Updated view %q (id %s)", name, viewID), nil
+		return fmt.Sprintf("Updated view %q (id %s)%s", name, viewID, said), nil
 	}
 	return "", fmt.Errorf("view %q not found — call get_collection for the ids", viewID)
 }

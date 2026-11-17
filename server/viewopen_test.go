@@ -36,7 +36,7 @@ func TestViewOpenInRule(t *testing.T) {
 		if err := json.Unmarshal([]byte(c.view), &view); err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}
-		err := checkViewOpenIn(view)
+		err := checkViewOpenIn(view, true)
 		switch {
 		case c.wantErr == "" && err != nil:
 			t.Errorf("%s: refused: %v", c.name, err)
@@ -229,7 +229,7 @@ func TestCenterPeekRefusedWhileUnshipped(t *testing.T) {
 	centerPeekShipped = false
 	defer func() { centerPeekShipped = was }()
 	view := map[string]any{"type": "table", "openIn": "center_peek"}
-	if err := checkViewOpenIn(view); err == nil || !strings.Contains(err.Error(), "not available yet") {
+	if err := checkViewOpenIn(view, true); err == nil || !strings.Contains(err.Error(), "not available yet") {
 		t.Errorf("unshipped centre peek: %v, want a refusal", err)
 	}
 }
@@ -262,7 +262,7 @@ func TestViewColOrderRule(t *testing.T) {
 		if err := json.Unmarshal([]byte(c.view), &view); err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}
-		err := checkViewColOrder(view, schema)
+		err := checkViewColOrder(view, schema, true)
 		if c.wantErr {
 			var orderErr errViewColOrder
 			if err == nil || !errors.As(err, &orderErr) {
@@ -284,6 +284,12 @@ func TestViewColOrderRule(t *testing.T) {
 		if b, _ := json.Marshal(got); string(b) != c.want {
 			t.Errorf("%s: stored %s, want %s", c.name, b, c.want)
 		}
+	}
+	// Kept from a table's time on a view that became a board (spec 018,
+	// FR-003): not set by this change, so left as it is, unused.
+	view := map[string]any{"type": "board", "colOrder": []any{"status"}}
+	if err := checkViewColOrder(view, schema, false); err != nil || view["colOrder"] == nil {
+		t.Errorf("a kept order on a board: %v, %v", err, view)
 	}
 }
 

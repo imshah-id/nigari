@@ -35,8 +35,11 @@ import (
 // hiding the "Blocked" group of a chart was recorded before and would not
 // have been). What is left out is layout: colWidths, colOrder, hidden,
 // openIn, chartStyle, the form's texts.
+//
+// type is a view's layout (spec 018, FR-007): a table that became a board is
+// the change somebody looks for, even when nothing else about it changed.
 var viewAuditKeys = []string{
-	"filters", "sort", "groupBy", "subGroupBy", "quickFilters",
+	"type", "filters", "sort", "groupBy", "subGroupBy", "quickFilters",
 	"dateProp", "endDateProp", "groupPeriod", "agg", "aggProp",
 	"chartKind", "chartSort", "hiddenGroups", "showEmpty", "showZero", "subItemProp",
 }

@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useRef, useState, type ComponentPropsWithoutRef,
 import { Plus } from 'lucide-react';
 import { t } from '../i18n';
 import type { ViewDef } from '../types';
-import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint } from '../ui/Menu';
+import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint, MenuRadioGroup, MenuRadioItem } from '../ui/Menu';
 
 // The database's menus (spec 010, part 2), moved out of CollectionView.tsx when
 // they became ui/Menu: the view actions (a tab's right-click and the toolbar's
@@ -57,6 +57,49 @@ export function ViewActionItems({
 /** The ＋ after the tabs: a new view of one of eight types. The types are
  *  values of one function, "add a view", and keep the icon their tab shows
  *  (research R1), so the menu and the strip agree. */
+/** The view types as menu values, each with its tab's icon: the add-view
+ *  menu's list and a view's Layout (spec 018), one list so the two cannot
+ *  offer different types or icons. current is ticked. */
+export function ViewTypeItems({
+  types,
+  icon,
+  label,
+  current,
+  onPick,
+  reason,
+}: {
+  types: ViewDef['type'][];
+  icon: (type: ViewDef['type']) => ReactNode;
+  label: (type: ViewDef['type']) => string;
+  current?: ViewDef['type'];
+  onPick: (type: ViewDef['type']) => void;
+  reason: string;
+}) {
+  // With a current type (a view's Layout) it is one choice among eight:
+  // radio items, so a screen reader hears which one is checked (the tick
+  // alone was an aria-hidden icon, spec 018 ux audit).
+  if (current !== undefined) {
+    return (
+      <MenuRadioGroup value={current} onValueChange={(v) => onPick(v as ViewDef['type'])}>
+        {types.map((vt) => (
+          <MenuRadioItem key={vt} value={vt} icon={icon(vt)}>
+            {label(vt)}
+          </MenuRadioItem>
+        ))}
+      </MenuRadioGroup>
+    );
+  }
+  return (
+    <MenuValues reason={reason}>
+      {types.map((vt) => (
+        <MenuValueItem key={vt} icon={icon(vt)} checked={vt === current} onClick={() => onPick(vt)}>
+          {label(vt)}
+        </MenuValueItem>
+      ))}
+    </MenuValues>
+  );
+}
+
 export function AddViewMenu({
   types,
   icon,
@@ -79,13 +122,13 @@ export function AddViewMenu({
       narrow="sheet"
       trigger={<AddViewButton />}
     >
-      <MenuValues reason="View types are values of one function, add a view; each keeps the icon its tab shows">
-        {types.map((vt) => (
-          <MenuValueItem key={vt} icon={icon(vt)} onClick={() => onAdd(vt)}>
-            {label(vt)}
-          </MenuValueItem>
-        ))}
-      </MenuValues>
+      <ViewTypeItems
+        types={types}
+        icon={icon}
+        label={label}
+        onPick={onAdd}
+        reason="View types are values of one function, add a view; each keeps the icon its tab shows"
+      />
       {copy && copy.views.length > 0 && (
         <>
           <MenuSeparator />

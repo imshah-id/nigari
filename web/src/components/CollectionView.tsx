@@ -360,6 +360,10 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
   // the old one back.
   const viewsRef = useRef(views);
   viewsRef.current = views;
+  // The config as it is now, for the layout change's saves after a dialog
+  // (layoutChange.ts): the closure's config is the one from before it.
+  const configRef = useRef(config);
+  configRef.current = config;
   const savedView = views?.find((v) => v.id === viewId) ?? views?.[0];
   // The view as everyone sees it…
   const sharedView = savedView;
@@ -895,6 +899,31 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
     rows.length > 0 && viewRows.length === 0
       ? t('No rows match the current filter.')
       : t('No rows yet. Click ＋ New above.');
+  // The types a view of this database can be: all eight, but no form in a
+  // document's embed, which collects rows and stays on the database (spec
+  // 014). The add-view menu and a view's Layout offer the same list.
+  const viewTypes: ViewDef['type'][] = embed
+    ? ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'chart']
+    : ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'form', 'chart'];
+  // A view's Layout (spec 018): the steps around the switch are in
+  // layoutChange.ts; this only hands them the saves.
+  // Loaded on the first pick, out of the main chunk: most people never change
+  // a layout, and the main chunk has a size cap (check-bundle.mjs).
+  const pickLayout = (type: ViewDef['type']) =>
+    void import('../layoutChange').then(({ changeLayout }) => changeLayout(
+      {
+        collectionId,
+        current: () => ({ views: viewsRef.current!, schema: configRef.current?.schema ?? schema }),
+        embedded: !!embed,
+        label: viewTypeLabel,
+        canEditSchema: embed ? embed.canEditDatabase !== false : canEdit,
+        saveViews: (next) => saveViews(next),
+        saveSchemaAndViews: (nextSchema, next) => void saveConfig({ ...configRef.current!, schema: nextSchema, views: next }),
+        saveSchema: (nextSchema) => saveConfig({ ...configRef.current!, schema: nextSchema }),
+      },
+      view.id,
+      type,
+    ));
   const viewTypeLabel = (vt: ViewDef['type']): string =>
     ({
       table: t('Table'),
@@ -968,7 +997,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
           <AddViewMenu
             // A form collects rows and stays on the database: an embed cannot
             // show one (spec 014).
-            types={embed ? ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'chart'] : ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'form', 'chart']}
+            types={viewTypes}
             icon={tabIcon}
             label={viewTypeLabel}
             onAdd={addView}
@@ -1045,6 +1074,8 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
             onUnlock={() => setLock(false)}
             embedded={!!embed}
             canEditDatabase={embed ? embed.canEditDatabase !== false : true}
+            layouts={{ types: viewTypes, icon: tabIcon, label: viewTypeLabel }}
+            onLayout={pickLayout}
           />
         )}
         {view.type !== 'form' && (

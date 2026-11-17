@@ -1380,5 +1380,16 @@
   "You": "Du",
   "{names} reacted with {reaction}": "{names} hat mit {reaction} reagiert",
   "⌘↵ to save": "⌘↵ zum Speichern",
-  "edited a comment on": "hat einen Kommentar bearbeitet auf"
+  "edited a comment on": "hat einen Kommentar bearbeitet auf",
+  "Add and switch": "Hinzufügen und wechseln",
+  "Change layout": "Darstellung ändern",
+  "Counted by {name}. Change it in the chart settings.": "Gezählt nach {name}. Ändern in den Diagrammeinstellungen.",
+  "Dates from {name}. Change them in Settings.": "Daten aus {name}. Ändern unter Einstellungen.",
+  "Grouped by {name}. Change it with Group.": "Gruppiert nach {name}. Ändern mit Gruppieren.",
+  "Shown as a chart. Change it in the chart settings.": "Als Diagramm dargestellt. Ändern in den Diagrammeinstellungen.",
+  "That is not a layout a view can have here.": "Diese Darstellung kann eine Ansicht hier nicht haben.",
+  "This is the only form view, and the database has a public form link. The link stops working until there is a form view again. Change the layout anyway?": "Dies ist die einzige Formularansicht, und die Datenbank hat einen öffentlichen Formularlink. Der Link funktioniert nicht mehr, bis es wieder eine Formularansicht gibt. Darstellung trotzdem ändern?",
+  "This layout shows rows by date, and the database has no date property. Add one named {name}?": "Diese Darstellung zeigt Zeilen nach Datum, und die Datenbank hat keine Datumseigenschaft. Eine namens {name} hinzufügen?",
+  "This layout shows rows by date, and the database has no date property. Someone who can edit the database can add one.": "Diese Darstellung zeigt Zeilen nach Datum, und die Datenbank hat keine Datumseigenschaft. Wer die Datenbank bearbeiten darf, kann eine hinzufügen.",
+  "Added the date property {name}. Change the dates in Settings.": "Datumseigenschaft {name} hinzugefügt. Die Daten ändern unter Einstellungen."
 }

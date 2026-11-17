@@ -441,7 +441,7 @@ var mcpTools = []map[string]any{
 	},
 	{
 		"name":        "set_view",
-		"description": "Create a view on a database, or change one. Without view_id it creates (type is then required); with view_id it MERGES into the existing view — what you do not pass stays as it is. A board needs group_by (a select, a multiselect or a relation property; a row with several tags appears under each of them); a calendar and a timeline need date_prop; a chart needs group_by unless chart_kind is number (group_by \"__row\" draws one bar per row, with aggregate sum and aggregate_property). To put a chart into a document, embed_database with its view_id. A view's type cannot be changed: delete it and create the new one. table: column_order sets this view's column order without changing other views or the schema; get_collection returns it on the view as colOrder. Call get_collection for the ids. Refused while the database's views are locked (get_collection's views_locked); only a person can unlock. With embed_id, acts on the views of a database embedded in a document (page_id is then the document): they belong to the document and change nothing on the database. copy_of starts a view from one of the database's views. An embed cannot show a form.",
+		"description": "Create a view on a database, or change one. Without view_id it creates (type is then required); with view_id it MERGES into the existing view — what you do not pass stays as it is. A board needs group_by (a select, a multiselect or a relation property; a row with several tags appears under each of them); a calendar and a timeline need date_prop; a chart needs group_by unless chart_kind is number (group_by \"__row\" draws one bar per row, with aggregate sum and aggregate_property). To put a chart into a document, embed_database with its view_id. type with view_id changes the view's layout: every other setting stays (a table's widths and order, a board's lanes, a chart's settings, kept unused and back when the type returns), and what the new type needs is filled in when the view has none that works (a board: the first select or status; a calendar or timeline: the first date property; a chart: a count by the first property it can group by) — the answer names what was chosen, and a group_by or date_prop in the same call wins. A calendar or timeline on a database with no date property is refused: add one with update_schema first. table: column_order sets this view's column order without changing other views or the schema; get_collection returns it on the view as colOrder. Call get_collection for the ids. Refused while the database's views are locked (get_collection's views_locked); only a person can unlock. With embed_id, acts on the views of a database embedded in a document (page_id is then the document): they belong to the document and change nothing on the database. copy_of starts a view from one of the database's views. An embed cannot show a form.",
 		"inputSchema": map[string]any{"type": "object",
 			"properties": map[string]any{
 				"page_id":            map[string]any{"type": "string"},
@@ -449,7 +449,7 @@ var mcpTools = []map[string]any{
 				"embed_id":           map[string]any{"type": "string", "description": embedIDHint},
 				"copy_of":            map[string]any{"type": "string", "description": "Creating with embed_id only: the id of one of the database's views to start from; the other arguments then change the copy. The copy is named \"Copy of <name>\" unless you pass name. The database's view is not changed."},
 				"name":               map[string]any{"type": "string"},
-				"type":               map[string]any{"type": "string", "description": "Creating only: table | board | gallery | calendar | timeline | list | form | chart"},
+				"type":               map[string]any{"type": "string", "description": "table | board | gallery | calendar | timeline | list | form | chart. Required when creating; with view_id it changes the layout."},
 				"group_by":           map[string]any{"type": "string", "description": "board: the property to group columns by. chart: the property to group by (select, multiselect, person, checkbox, date or relation), or \"__row\" for one bar per row valued by aggregate_property (aggregate sum, not count). Pass \"\" to clear."},
 				"chart_kind":         map[string]any{"type": "string", "enum": chartKinds, "description": "chart: bar (default), hbar (horizontal bars), line, donut, or number (one big value, no group_by needed)."},
 				"period":             map[string]any{"type": "string", "enum": chartPeriods, "description": "chart grouped by a date: day, week, month (default) or year."},
@@ -1270,10 +1270,8 @@ func (s *Server) mcpCall(u *user, name string, rawArgs json.RawMessage, publicBa
 				}
 				return s.mcpCreateView(u, args.PageID, spec)
 			}
-			spec.Type = "" // an update may not change the type; say so plainly
-			if args.Type != "" {
-				return "", fmt.Errorf("a view's type cannot be changed — delete it and create the new one")
-			}
+			// A type on an update changes the view's layout (spec 018): the
+			// update paths fill its defaults and keep everything else.
 			if args.EmbedID != "" {
 				return s.mcpUpdateEmbedView(u, args.PageID, args.EmbedID, args.ViewID, spec)
 			}

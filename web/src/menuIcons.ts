@@ -26,6 +26,7 @@ import {
   Bot,
   CalendarDays,
   CalendarRange,
+  LayoutDashboard,
   ChartBar,
   ChartColumn,
   ChartLine,
@@ -184,6 +185,8 @@ export const MENU_ICONS = {
   propertyVisibility: Eye,
   openRowsIn: PanelRight,
   timelineDates: CalendarRange,
+  // A view's layout, its type (spec 018).
+  viewLayout: LayoutDashboard,
   subItems: Network,
   editProperties: Rows3,
   // The views lock (spec 013), under Database settings. Not Lock and

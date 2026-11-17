@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, type ReactNode } from 'react';
 import { SlidersHorizontal } from 'lucide-react';
 import { t } from '../i18n';
 import { CENTER_PEEK_SHIPPED } from '../peek';
@@ -6,7 +6,7 @@ import { MAX_QUICK_FILTERS, quickFilterProps, subGroupProps } from '../quickFilt
 import { isSingleOptionType, type PropDef, type ViewDef } from '../types';
 import { IconButton } from '../ui/IconButton';
 import { Menu, MenuCheckboxItem, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSubmenu } from '../ui/Menu';
-import { ViewActionItems } from './CollectionMenus';
+import { ViewActionItems, ViewTypeItems } from './CollectionMenus';
 import ViewOpenMenu from './ViewOpenMenu';
 
 // A view's one Settings button (spec 012, US4, research R8, #270).
@@ -30,9 +30,10 @@ import ViewOpenMenu from './ViewOpenMenu';
 // Database settings stay: the schema is not covered by the lock, and Unlock
 // views is how the lock comes off.
 //
-// Each item that holds a value shows it on the right (MenuSubmenu value). There
-// is no Layout item: a view's type cannot be changed today (research R9). Not
-// drawn in a database embedded in a document (research R10, spec 014).
+// Each item that holds a value shows it on the right (MenuSubmenu value).
+// Layout comes first (spec 018): the view's type, changed in place, with the
+// settings of the type it leaves kept for when it comes back. In a document's
+// embed it acts on the embed's own view and offers no Form (spec 014).
 
 export function openInLabel(view: ViewDef): string {
   if (view.openIn === 'side_peek') return t('Side peek');
@@ -58,6 +59,8 @@ export default function ViewSettingsMenu({
   onUnlock,
   embedded = false,
   canEditDatabase = true,
+  layouts,
+  onLayout,
 }: {
   view: ViewDef;
   views: ViewDef[];
@@ -84,6 +87,9 @@ export default function ViewSettingsMenu({
   /** Whether the person may write the database. Without it Edit properties
    *  is not offered: the server would refuse it (research R9). */
   canEditDatabase?: boolean;
+  /** The layouts this view can take, with their icon and name (spec 018). */
+  layouts: { types: ViewDef['type'][]; icon: (type: ViewDef['type']) => ReactNode; label: (type: ViewDef['type']) => string };
+  onLayout: (type: ViewDef['type']) => void;
 }) {
   // Where focus goes when the menu closes, and so where a dialog it opened
   // (Rename view, Edit properties) gives it back. Without it, focus fell to
@@ -141,6 +147,16 @@ export default function ViewSettingsMenu({
       {!locked && (
         <>
           <MenuLabel>{t('View settings')}</MenuLabel>
+          <MenuSubmenu fn="viewLayout" label={t('Layout')} value={layouts.label(view.type)}>
+            <ViewTypeItems
+              types={layouts.types}
+              icon={layouts.icon}
+              label={layouts.label}
+              current={view.type}
+              onPick={onLayout}
+              reason="View types are values of one function, the view's layout; each keeps the icon its tab shows"
+            />
+          </MenuSubmenu>
           <MenuItem fn="rename" opensDialog onClick={() => onRename(view)}>
             {t('Rename view')}
           </MenuItem>
@@ -181,6 +197,12 @@ export default function ViewSettingsMenu({
           {view.type !== 'form' && (
             <MenuSubmenu fn="openRowsIn" label={t('Open rows in')} value={openInLabel(view)}>
               <ViewOpenMenu view={view} onChange={(openIn) => onChange({ openIn })} bare />
+            </MenuSubmenu>
+          )}
+          {/* A calendar's date is its start: one item, named for what it is. */}
+          {view.type === 'calendar' && (
+            <MenuSubmenu fn="timelineDates" label={t('Date')} value={nameOf(timelineStart, dateProps) ?? t('No start date')}>
+              {propRadio(timelineStart, dateProps, (id) => onChange({ dateProp: id }), t('No start date'))}
             </MenuSubmenu>
           )}
           {view.type === 'timeline' && (

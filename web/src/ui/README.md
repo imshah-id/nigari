@@ -206,7 +206,7 @@ decoration (`aria-hidden`); the label is what a screen reader reads.
 - `MenuValues` (`reason`, required) with `MenuValueItem`s: a list of values (the
   workspaces under "Move to", a database's templates). Values carry no function
   icon; `icon?` on a value is content, such as a page's own icon.
-- `MenuRadioGroup` / `MenuRadioItem`: one choice among a few, inside a menu.
+- `MenuRadioGroup` / `MenuRadioItem`: one choice among a few, inside a menu. An item may carry an `icon` (content, such as a view type's icon in Layout).
 - `MenuLabel`, `MenuSeparator`.
 
 **Behaviour** (Base UI): Enter, Space or ↓ on the trigger opens it on the first item;

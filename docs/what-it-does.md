@@ -69,7 +69,9 @@ database's views alone. A row added in a
 filtered view starts with the values that view filters on, so it stays in sight. A view
 can open its rows in a peek, beside the view or over it, instead of as a full page.
 A table's columns move by dragging their headings, in that view only, and an
-agent can set the same order. A database's views can be locked so nobody changes
+agent can set the same order. A view's layout can be changed in place, a table
+into a board and back, keeping its filters, sort and the settings of the layout
+it left, for people and agents alike. A database's views can be locked so nobody changes
 them by accident, people and agents alike, while its rows stay editable; only a
 person can unlock them. Every change to a view (created, renamed, re-filtered,
 removed, locked) is in the activity log, saying whether a person or an agent

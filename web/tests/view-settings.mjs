@@ -76,7 +76,8 @@ await withFixture(async ({ page, context, api, base, workspace, path }) => {
   await eventually(() => settings.evaluate((b) => b === document.activeElement));
   await settings.press('Enter');
   await menu.waitFor();
-  await eventually(async () => (await page.evaluate(() => document.activeElement?.textContent?.trim())) === 'Rename view');
+  // Layout is the first item now (spec 018), so focus opens on it.
+  await eventually(async () => (await page.evaluate(() => document.activeElement?.textContent?.trim() ?? '')).startsWith('Layout'));
   await page.keyboard.press('Tab');
   // ui/Menu's rule (spec 010): Tab never moves focus behind an open menu.
   const where = await page.evaluate(() => [!!document.activeElement?.closest('[role="menu"]'), !!document.querySelector('[role="menu"]')]);

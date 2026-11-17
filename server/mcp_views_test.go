@@ -195,9 +195,10 @@ func TestViewConfigurationIsValidated(t *testing.T) {
 	}
 }
 
-// The type is what the renderer switches on; changing it under an existing view
-// leaves its other fields describing something else entirely.
-func TestUpdateViewRefusesATypeChange(t *testing.T) {
+// A view's type can be changed (spec 018), and an unknown view id is still
+// refused. The type used to be refused outright: "delete it and create the
+// new one" lost the view's filters, sort and hidden columns.
+func TestUpdateViewChangesTheType(t *testing.T) {
 	s := testServer(t)
 	uid, _ := signedIn(t, s, "type@example.test")
 	ws := s.firstWorkspaceOf(t, uid)
@@ -206,8 +207,12 @@ func TestUpdateViewRefusesATypeChange(t *testing.T) {
 	if _, err := s.mcpCreateView(viewTestAgent, tasks, viewSpec{Name: "T", Type: "table"}); err != nil {
 		t.Fatalf("create: %v", err)
 	}
-	if _, err := s.mcpUpdateView(viewTestAgent, tasks, "t", viewSpec{Type: "board"}); err == nil {
-		t.Error("changing the type should be refused")
+	out, err := s.mcpUpdateView(viewTestAgent, tasks, "t", viewSpec{Type: "board"})
+	if err != nil {
+		t.Fatalf("changing the type: %v", err)
+	}
+	if !strings.Contains(out, `grouped by "Status"`) {
+		t.Errorf("the answer does not name the default grouping: %s", out)
 	}
 	if _, err := s.mcpUpdateView(viewTestAgent, tasks, "does-not-exist", viewSpec{Name: "X"}); err == nil {
 		t.Error("an unknown view id should be refused")

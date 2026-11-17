@@ -512,10 +512,12 @@ right, with `›` where a further list opens:
 | Item | What it does |
 | --- | --- |
 | *View settings* | |
+| **Layout** `Table` | The view's type: the eight layouts, the current one ticked. Picking another changes this view in place; see [Changing a view's layout](#changing-a-views-layout). A view in a document offers seven: no **Form**. |
 | **Rename view** | Asks for the new name. |
 | **Property visibility** `3 of 8` | Which properties this view shows: one tick per property, and **Show all** / **Hide all**. On a form it decides which fields the form asks. See [Which properties a view shows](#which-properties-a-view-shows). |
 | **Open rows in** `Side peek` | How a click on a row opens it: **Full page**, **Side peek** or **Center peek** ([Collections](collections.md#how-rows-open)). Not on a form. |
 | **Start date**, **End date** | Timeline only: which date properties the bars use. |
+| **Date** | Calendar only: which date property places the rows on days. |
 | **Sub-items** | Table only, and only when a relation points back at this collection; **No sub-items** turns the tree off. |
 | **Move left**, **Move right** | Move this view's tab along the strip; greyed out at the ends. |
 | **Remove view** | In red, last: removes this view (not its rows). Not offered when it is the only view. |
@@ -523,8 +525,7 @@ right, with `›` where a further list opens:
 | **Edit properties** | The schema editor: add a property, change a type, edit select options. It edits the database, not the view, so it changes every view at once. This is what the empty-state messages point at. |
 | **Lock views** / **Unlock views** | Locks every view of this database against changes, or lifts the lock. See [Locking a database's views](#locking-a-databases-views). |
 
-Escape closes the menu and puts focus back on **Settings**. There is no item to
-change a view's type (a board into a table); create a new view instead.
+Escape closes the menu and puts focus back on **Settings**.
 
 Someone who can only read the database gets no **Settings**. A database shown
 inside a document has Settings too, for anyone who can edit the document; see
@@ -784,6 +785,50 @@ out; the count is simply the count of what you may read. See
 the collection is empty, and *No rows match the current filter.* when it is not.
 The two are worth telling apart before you go looking for lost data.
 
+## Changing a view's layout
+
+**Settings** → **Layout** turns a view into another type: a table into a board,
+a board into a calendar, and back. It is the same view, with the same tab and
+place, so nothing has to be set up again. Its name stays too, unless it is still
+the name the layout gave it: a tab called **Table** turned into a board is
+called **Board**, while a tab you named **Open tasks** keeps that name.
+
+**What stays.** The filters, the sort, the hidden properties, the quick filters,
+how rows open, and each person's own filter and sort. The settings that belong
+to the layout the view leaves stay too, unused: a table's column widths and
+order, a board's lanes, a chart's settings, a form's texts. They are back when
+the view returns to that layout, so a table turned into a board and back is
+exactly the table it was.
+
+**What is filled in.** A layout that needs something the view does not have gets
+what a new view of that type gets, and a message says what and where to change
+it:
+
+| Layout | Gets, when it has none that works | Changed with |
+| --- | --- | --- |
+| Board | the first select or status property as its columns | the **Group** button |
+| Calendar | the first date property | **Settings** → **Date** |
+| Timeline | the first date property as its start, the next as its end | **Settings** → **Start date**, **End date** |
+| Chart | a bar chart counting by the first property it can group by (the board's grouping, when it was a board) | the chart's settings |
+
+A board's grouping and a chart's are the same setting, so a board turned into a
+chart keeps it.
+
+**No date property.** Picking **Calendar** or **Timeline** on a database without
+a date property asks whether to add one, named **Date** (or **Date 2** and so on
+when that name is taken). **Add and switch** adds the property to the database and
+switches the view in the same save; cancelling changes nothing. Someone who may
+change the view but not the database's properties (in a document, say) is told
+that a person who can edit the database can add one, and nothing changes.
+
+**The only form.** A public form link shows the database's first form view.
+Turning the only form view into another layout while such a link exists asks
+first: the link stops working until there is a form view again.
+
+Changing a layout is a view change like any other: not offered while the views
+are locked, refused to someone who can only read, and written to the activity
+log. In a document it changes the document's own view, never the database's.
+
 ## Creating, renaming, reordering and removing views
 
 1. **Add a view** with the `+` at the end of the tabs (tooltip *Add view*). The
@@ -914,8 +959,12 @@ Four rules govern it:
   board with no `group_by`, a calendar or timeline with no `date_prop`: all
   rejected with a message naming the offending value. A view that quietly ignored
   a mistake would leave the agent reading unfiltered rows as the truth.
-- **A view's type cannot be changed.** Delete it and create the new one. The type
-  is what everything else in the view is describing.
+- **The type changes the layout.** `type` with a `view_id` turns the view into
+  that layout, keeping everything else and filling in what the new type needs,
+  as **Settings** → **Layout** does; the answer names what was chosen
+  (`now a board, grouped by "Status"`). A `group_by` or `date_prop` in the same
+  call wins over the default. A calendar or timeline on a database with no date
+  property is refused: add one with `update_schema` first.
 
 `sort` is spelled `"propertyId:asc"` or `"propertyId:desc"`, the same spelling
 `query_rows` uses, so there is one form to learn rather than two.

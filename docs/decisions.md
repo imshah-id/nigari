@@ -7,6 +7,26 @@ entries are not edited away.
 
 ---
 
+## 2026-11-17 — Spec 018: a view still named after its layout takes the new name
+
+The UX audit of spec 018 found tabs reading "Table" over a calendar, and a
+second "Board" beside the board, because FR-002 kept the name. The owner
+chose **A**: a view whose name is still its layout's default takes the new
+layout's name; a name somebody chose stays. "Default" is either spelling a
+new view gets: the capitalised type set_view gives ("Board") or the
+interface's name in the person's language ("Bord" in Dutch). One rule in
+switchViewLayout and switchLayout, held by the shared cases.
+
+Turned down: **B**, always keeping the name as FR-002 said (no work, the
+misleading tabs stay); renaming always (a chosen name such as "Open tasks"
+would be lost).
+
+Also from that audit, left to their own issues: every toast looking like an
+error, with dark-mode text at 2.57:1 (#744), and the confirm dialog taking
+no focus (#745).
+
+---
+
 ## 2026-11-17 — Spec 017's speed target (SC-003) becomes "no noticeable delay"
 
 The owner chose **A**: SC-003 no longer asks for the comment list to stay

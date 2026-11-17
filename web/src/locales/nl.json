@@ -1380,5 +1380,16 @@
   "You": "Jij",
   "{names} reacted with {reaction}": "{names} reageerde met {reaction}",
   "⌘↵ to save": "⌘↵ om op te slaan",
-  "edited a comment on": "bewerkte een opmerking op"
+  "edited a comment on": "bewerkte een opmerking op",
+  "Add and switch": "Toevoegen en wisselen",
+  "Change layout": "Indeling wijzigen",
+  "Counted by {name}. Change it in the chart settings.": "Geteld per {name}. Wijzig dit in de grafiekinstellingen.",
+  "Dates from {name}. Change them in Settings.": "Datums uit {name}. Wijzig dit in Instellingen.",
+  "Grouped by {name}. Change it with Group.": "Gegroepeerd op {name}. Wijzig dit met Groeperen.",
+  "Shown as a chart. Change it in the chart settings.": "Getoond als grafiek. Wijzig dit in de grafiekinstellingen.",
+  "That is not a layout a view can have here.": "Die indeling kan een weergave hier niet hebben.",
+  "This is the only form view, and the database has a public form link. The link stops working until there is a form view again. Change the layout anyway?": "Dit is de enige formulierweergave, en de database heeft een openbare formulierlink. De link werkt niet meer tot er weer een formulierweergave is. Indeling toch wijzigen?",
+  "This layout shows rows by date, and the database has no date property. Add one named {name}?": "Deze indeling toont rijen per datum, en de database heeft geen datumeigenschap. Er een toevoegen met de naam {name}?",
+  "This layout shows rows by date, and the database has no date property. Someone who can edit the database can add one.": "Deze indeling toont rijen per datum, en de database heeft geen datumeigenschap. Iemand die de database mag bewerken, kan er een toevoegen.",
+  "Added the date property {name}. Change the dates in Settings.": "Datumeigenschap {name} toegevoegd. Wijzig de datums in Instellingen."
 }
