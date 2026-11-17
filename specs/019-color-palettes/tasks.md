@@ -64,7 +64,7 @@ description: "Tasks for named colour palettes and the role tokens that reference
 ## Phase 6: Polish
 
 - [x] T012 [wiki] Screenshots made stale by `tokens.css` retaken and compared; `web/src/ui/README.md` (or the catalogue) shows the palettes and roles, light and dark
-- [ ] T013 [test] Reviews before the PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone, on the before/after; `codegraph sync` then `codegraph callers` on every symbol renamed (`OPTION_TOKEN`, the build's new functions)
+- [x] T013 [test] Reviews before the PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone, on the before/after; `codegraph sync` then `codegraph callers` on every symbol renamed (`OPTION_TOKEN`, the build's new functions)
 
 ---
 
