@@ -50,8 +50,10 @@ the generated `web/src/tokens.css` (2026-11-17):
   So accent and danger are each one hue at two lightnesses: one palette
   each can carry both themes. The neutrals are two hues.
 - **Chart colours** (`color.chart.*`, spec 004) are already generated in
-  OKLCH at the lightness that passes 3:1, as twelve series and families
-  named by colour (`blue`, `yellow`, …) because a person picks them by
+  OKLCH at the lightness that passes 3:1, but stored as hex: twelve series
+  (`chart.1` … `chart.12`), nine families of three for option colours
+  (`chart.gray`, `chart.blue`, … `chart.red`, `.1`–`.3`) and four
+  backgrounds; families are named by colour because a person picks them by
   name (a select option's colour).
 
 ## Clarifications
@@ -70,10 +72,12 @@ the generated `web/src/tokens.css` (2026-11-17):
 - The neutrals need no compromise in this model: a warm grey palette for
   light and a cool grey palette for dark, the neutral role tokens
   referencing each per theme (the first draft's Q1 falls away).
-- Q2: [NEEDS CLARIFICATION: Chart and option colours (series 1–12, the
-  colour families a person picks by name) are data colours, not interface
-  roles. A: leave them out of this spec, as they are (recommended); B:
-  bring them into palettes too.]
+- Data colours follow the same model (owner, "Same for data"): each hue
+  the charts and the option colours use is a named palette from one OKLCH
+  base, and data role tokens (`data-1` … `data-12` for chart series, the
+  option colour families' strong/medium/soft and the chart backgrounds)
+  reference its steps. Their rule stays: every drawn colour reaches 3:1 on
+  the document and on cards, in both themes.
 - Q3: [NEEDS CLARIFICATION: A generated step will not hit today's dark
   accent and danger exactly. A: use the nearest step and show the
   before/after (recommended: the palette stays one base); B: allow a
@@ -160,6 +164,11 @@ outside the token files.
   app changes look only where Q3 allows.
 - **FR-007**: A check MUST refuse a palette step or a colour literal used
   in components (budgets go down only, as `check-tokens.mjs` does today).
+- **FR-007a**: Data colours MUST follow FR-001 to FR-005 too: a named
+  palette per hue, data role tokens referencing its steps per theme, the
+  3:1 rule for drawn colours checked on the result. The colour names a
+  person sees on a select option ("Blue") are labels of those data roles
+  and do not change.
 - **FR-008**: The token README (or the token files' descriptions) MUST say
   how to swap a palette and how the steps are generated.
 
@@ -170,7 +179,8 @@ outside the token files.
 - **SC-001**: Swapping primary to another hue is a one-line change, and the
   build passes or names what fails.
 - **SC-002**: Light mode's accent and danger are exactly today's (each is
-  its palette's 500); the other differences are the ones Q3 accepts,
+  its palette's 500); the other differences, data colours included, are
+  the ones Q3 accepts,
   shown before and after.
 - **SC-003**: No component or stylesheet names a palette or a colour value;
   each colour it uses is a role token.
