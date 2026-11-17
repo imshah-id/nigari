@@ -1113,8 +1113,14 @@ Types: `table`, `board`, `gallery`, `calendar`, `timeline`, `list`, `form`,
 `chart`.
 
 Without `view_id` it creates and `type` is required. With one it **merges**:
-what you do not pass stays as it is. A view's **type cannot be changed**: delete
-it and create the new one.
+what you do not pass stays as it is. A **type** with a `view_id` changes the view's
+layout: every other setting stays (the settings of the type it leaves too, unused,
+for when it returns), and what the new type needs is filled in when the view has
+none that works: a board the first select or status, a calendar or timeline the
+first date property, a chart a count by the first property it can group by. A
+`group_by` or `date_prop` in the same call wins over these. The answer names what
+was chosen. A calendar or timeline on a database with no date property is
+refused; add one with `update_schema` first.
 
 A board needs `group_by`, a calendar and a timeline need `date_prop`, and both
 are checked up front: a board without a grouping renders empty and sends you
@@ -1219,10 +1225,11 @@ it was. Passing `copy_of` with `view_id` or without
 
 An unnamed view is named after its type, capitalised.
 
-Returns `Created <type> view "Name" (id …)` or `Updated view "Name" (id …)`.
+Returns `Created <type> view "Name" (id …)` or `Updated view "Name" (id …)`, with
+` — now a board, grouped by "Status"` after it when the type changed.
 Errors: `unknown view type "x" — use table, board, gallery, calendar, timeline,
-list or form`; `a view's type cannot be changed — delete it and create the new
-one`; `a board needs group_by (the property to make columns from)`;
+list or form`; `this database has no date property, and a calendar shows rows by
+date: add one with update_schema first, then set_view with type "calendar"`; `a board needs group_by (the property to make columns from)`;
 `a calendar needs date_prop (a date property id)`; `board group_by: "x" is a
 text property. A board groups by a select, a multiselect or a relation`;
 `board group_by: "x" is no longer a property of this database. Pass group_by with
