@@ -788,8 +788,10 @@ The two are worth telling apart before you go looking for lost data.
 ## Changing a view's layout
 
 **Settings** → **Layout** turns a view into another type: a table into a board,
-a board into a calendar, and back. It is the same view, with the same tab, name
-and place, so nothing has to be set up again.
+a board into a calendar, and back. It is the same view, with the same tab and
+place, so nothing has to be set up again. Its name stays too, unless it is still
+the name the layout gave it: a tab called **Table** turned into a board is
+called **Board**, while a tab you named **Open tasks** keeps that name.
 
 **What stays.** The filters, the sort, the hidden properties, the quick filters,
 how rows open, and each person's own filter and sort. The settings that belong

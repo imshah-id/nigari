@@ -1119,8 +1119,10 @@ for when it returns), and what the new type needs is filled in when the view has
 none that works: a board the first select or status, a calendar or timeline the
 first date property, a chart a count by the first property it can group by. A
 `group_by` or `date_prop` in the same call wins over these. The answer names what
-was chosen. A calendar or timeline on a database with no date property is
-refused; add one with `update_schema` first.
+was chosen. A view still named after its type (`Table`, as an unnamed view is
+named) takes the new type's name; any other name stays. A calendar or timeline
+on a database with no date property is refused; add one with `update_schema`
+first.
 
 A board needs `group_by`, a calendar and a timeline need `date_prop`, and both
 are checked up front: a board without a grouping renders empty and sends you

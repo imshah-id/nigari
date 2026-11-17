@@ -206,6 +206,10 @@ calendar; refusals on a locked view and on an embed's form.
 - **FR-002**: Changing the layout MUST keep the view's id, name, place,
   filters, sort, hidden properties, quick filters and how rows open, and
   each person's own filter and sort for it.
+  A view whose name is still its layout's default ("Table", as a new view
+  is named) takes the new layout's name; a name somebody chose stays.
+  *Added 2026-11-17 (owner, "A", after the UX audit: a tab reading "Table"
+  over a calendar misled).*
 - **FR-003**: Settings that belong to one type MUST be kept when the view
   leaves that type and used again when it returns (column widths and order,
   sub-items, sub-group, form texts, chart settings, dates, group-by).
