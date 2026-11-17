@@ -20,9 +20,11 @@ import { newDateProperty, switchLayout } from './viewLayout';
 
 export interface LayoutChangeContext {
   collectionId: string;
-  /** The views as stored (not a person's own filter or sort laid over them). */
-  views: ViewDef[];
-  schema: PropDef[];
+  /** The views as stored (not a person's own filter or sort laid over them)
+   *  and the schema, as they are NOW: read again after every wait (the form
+   *  link, a dialog), because the config reloads while a dialog is open and
+   *  a property an agent added meanwhile must not be saved away. */
+  current: () => { views: ViewDef[]; schema: PropDef[] };
   /** In a document's embed (spec 014): its views live in the document. */
   embedded: boolean;
   /** Whether the person may change the database's properties. */
@@ -36,10 +38,11 @@ export interface LayoutChangeContext {
 }
 
 export async function changeLayout(ctx: LayoutChangeContext, viewId: string, type: ViewDef['type']): Promise<void> {
-  const stored = ctx.views.find((v) => v.id === viewId);
+  const first = ctx.current();
+  const stored = first.views.find((v) => v.id === viewId);
   if (!stored || stored.type === type) return;
 
-  if (stored.type === 'form' && !ctx.embedded && ctx.views.filter((v) => v.type === 'form').length === 1) {
+  if (stored.type === 'form' && !ctx.embedded && first.views.filter((v) => v.type === 'form').length === 1) {
     const shared = await api.formShareStatus(ctx.collectionId).then((s) => s.shared, () => false);
     if (
       shared &&
@@ -51,23 +54,37 @@ export async function changeLayout(ctx: LayoutChangeContext, viewId: string, typ
     }
   }
 
-  let { view, needsDate } = switchLayout(stored, type, ctx.schema);
-  let schema = ctx.schema;
+  let needsDate = switchLayout(stored, type, first.schema).needsDate;
+  let added: PropDef | null = null;
   if (needsDate) {
     if (!ctx.canEditSchema) {
       toast(t('This layout shows rows by date, and the database has no date property. Someone who can edit the database can add one.'));
       return;
     }
-    const prop = newDateProperty(ctx.schema, t('Date'));
+    const prop = newDateProperty(first.schema, t('Date'));
     if (!(await confirm(t('This layout shows rows by date, and the database has no date property. Add one named {name}?', { name: prop.name }), { confirmText: t('Add and switch') }))) {
       return;
     }
-    schema = [...ctx.schema, prop];
-    ({ view } = switchLayout(stored, type, schema));
+    added = prop;
   }
 
-  const next = ctx.views.map((v) => (v.id === viewId ? view : v));
-  if (schema === ctx.schema) {
+  // From here on, what is current: the waits above may have taken a while.
+  const now = ctx.current();
+  const latest = now.views.find((v) => v.id === viewId);
+  if (!latest) return;
+  let schema = now.schema;
+  if (added) {
+    // Someone may have added a date property meanwhile; then it is used and
+    // nothing is added.
+    needsDate = switchLayout(latest, type, schema).needsDate;
+    if (needsDate) {
+      const prop = schema.some((p) => p.id === added!.id) ? newDateProperty(schema, added.name) : added;
+      schema = [...schema, prop];
+    }
+  }
+  const { view } = switchLayout(latest, type, schema);
+  const next = now.views.map((v) => (v.id === viewId ? view : v));
+  if (schema === now.schema) {
     ctx.saveViews(next);
   } else if (ctx.embedded) {
     // The property is the database's, the view the document's: the property
@@ -77,7 +94,7 @@ export async function changeLayout(ctx: LayoutChangeContext, viewId: string, typ
   } else {
     ctx.saveSchemaAndViews(schema, next);
   }
-  const said = defaultSaid(stored, view, schema);
+  const said = defaultSaid(latest, view, schema);
   if (said) toast(said);
 }
 

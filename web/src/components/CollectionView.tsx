@@ -360,6 +360,10 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
   // the old one back.
   const viewsRef = useRef(views);
   viewsRef.current = views;
+  // The config as it is now, for the layout change's saves after a dialog
+  // (layoutChange.ts): the closure's config is the one from before it.
+  const configRef = useRef(config);
+  configRef.current = config;
   const savedView = views?.find((v) => v.id === viewId) ?? views?.[0];
   // The view as everyone sees it…
   const sharedView = savedView;
@@ -909,13 +913,12 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
     void import('../layoutChange').then(({ changeLayout }) => changeLayout(
       {
         collectionId,
-        views: views!,
-        schema,
+        current: () => ({ views: viewsRef.current!, schema: configRef.current?.schema ?? schema }),
         embedded: !!embed,
         canEditSchema: embed ? embed.canEditDatabase !== false : canEdit,
         saveViews: (next) => saveViews(next),
-        saveSchemaAndViews: (nextSchema, next) => void saveConfig({ ...config!, schema: nextSchema, views: next }),
-        saveSchema: (nextSchema) => saveConfig({ ...config!, schema: nextSchema }),
+        saveSchemaAndViews: (nextSchema, next) => void saveConfig({ ...configRef.current!, schema: nextSchema, views: next }),
+        saveSchema: (nextSchema) => saveConfig({ ...configRef.current!, schema: nextSchema }),
       },
       view.id,
       type,
