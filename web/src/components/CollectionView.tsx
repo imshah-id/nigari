@@ -48,7 +48,6 @@ import BoardView from './BoardView';
 import { groupValueFor, UNSET, type Row } from '../collectionRow';
 import { defaultChartView } from '../chartDefaults';
 import { copyDatabaseView, copyableViews, encodeEmbedLocal, moveView as moveEmbedView, newEmbedViewId, readEmbedLocal, removeView as removeEmbedView, withOpenView } from '../embedViews';
-import { changeLayout } from '../layoutChange';
 
 // A chart (spec 004) brings Chart.js, about 60 KB gzip: loaded only when a
 // chart view is shown, so nobody who never opens one pays for it (SC-006).
@@ -904,8 +903,10 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
     : ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'form', 'chart'];
   // A view's Layout (spec 018): the steps around the switch are in
   // layoutChange.ts; this only hands them the saves.
+  // Loaded on the first pick, out of the main chunk: most people never change
+  // a layout, and the main chunk has a size cap (check-bundle.mjs).
   const pickLayout = (type: ViewDef['type']) =>
-    void changeLayout(
+    void import('../layoutChange').then(({ changeLayout }) => changeLayout(
       {
         collectionId,
         views: views!,
@@ -918,7 +919,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
       },
       view.id,
       type,
-    );
+    ));
   const viewTypeLabel = (vt: ViewDef['type']): string =>
     ({
       table: t('Table'),
