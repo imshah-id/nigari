@@ -12,8 +12,11 @@
 // (spec 001, FR-001). No dependency: the format is JSON and the build is small,
 // like every other script here (research P5).
 //
-// Three tiers. primitives: raw scales. semantic: roles, each with a light
-// value in $value and a dark one in $extensions["io.github.neatlittlemacapps.nigari.dark"] (FR-002).
+// Three tiers. primitives: raw scales, and the named colour palettes, each one
+// OKLCH base from which this build generates the steps (spec 019).
+// semantic: roles, each with a light value in $value and a dark one in
+// $extensions["io.github.neatlittlemacapps.nigari.dark"] (FR-002); a colour
+// role names a palette step per theme, with an alpha where it is translucent.
 // component: values only one component needs.
 //
 // What it checks, failing with the token's name:
@@ -57,6 +60,7 @@ const fail = (msg) => errors.push(msg);
 // ---- read and flatten -------------------------------------------------------
 
 const tokens = new Map(); // "color.surface.default" → { type, value, dark, ext, tier }
+const files = {}; // tier → its parsed JSON, for what is stated on a group (a palette's steps)
 for (const tier of TIERS) {
   const file = join(dir, `${tier}.tokens.json`);
   let json;
@@ -66,6 +70,7 @@ for (const tier of TIERS) {
     fail(`${tier}.tokens.json: ${e.message}`);
     continue;
   }
+  files[tier] = json;
   walk(json, [], undefined, tier);
 }
 for (const f of readdirSync(dir)) {
@@ -95,6 +100,97 @@ function walk(node, path, inherited, tier) {
   }
 }
 
+// ---- palettes ---------------------------------------------------------------
+
+// A palette is one OKLCH base, written as its step 500; the build makes the
+// other steps (spec 019, R1). One table of fractions, stated once on the
+// palette group, serves every palette, so palettes are interchangeable: a
+// lighter step moves its fraction of the way from the base's lightness to
+// white, a darker one its fraction of the way to black. Hue stays; chroma
+// stays too, lowered only as far as the colour needs to fit sRGB, so a pale
+// step of a saturated palette comes out paler, never another hue.
+//
+// Why generated and not written out: swapping a colour is then one edit (the
+// base), and no step can drift from its palette by hand. A step written in
+// the file beside the base is refused for the same reason.
+const STEPS = 'io.github.neatlittlemacapps.nigari.steps';
+
+function palettes() {
+  const group = files.primitives?.palette;
+  if (!group) return;
+  const table = group.$extensions?.[STEPS];
+  if (!table || typeof table !== 'object' || table['500'] !== 0) {
+    fail(`palette: ${STEPS} must give each step its fraction, with 500 (the base) at 0`);
+    return;
+  }
+  for (const [name, node] of Object.entries(group)) {
+    if (name.startsWith('$')) continue;
+    const base = node?.['500']?.$value;
+    if (!base) {
+      fail(`palette.${name}: no base (step 500)`);
+      continue;
+    }
+    if (base.colorSpace !== 'oklch' || !Array.isArray(base.components) || base.components.length !== 3) {
+      fail(`palette.${name}.500: a base is an OKLCH colour { colorSpace: "oklch", components: [L, C, H] }`);
+      continue;
+    }
+    for (const step of Object.keys(node)) {
+      if (!step.startsWith('$') && step !== '500') fail(`palette.${name}.${step}: steps are generated from the base; write only 500`);
+    }
+    for (const [step, f] of Object.entries(table)) {
+      if (step === '500') continue;
+      const id = `palette.${name}.${step}`;
+      tokens.set(id, {
+        name: id,
+        type: 'color',
+        value: { colorSpace: 'oklch', components: paletteStep(base.components, f) },
+        ext: {},
+        tier: 'primitives',
+      });
+    }
+  }
+  // Write each palette's steps in order, light to dark, the base among them,
+  // so tokens.css reads as a scale.
+  const order = (n) => {
+    const m = n.match(/^palette\.(.+)\.(\d+)$/);
+    return m ? [Object.keys(group).indexOf(m[1]), Number(m[2])] : null;
+  };
+  const all = [...tokens.entries()];
+  const steps = all.filter(([n]) => order(n)).sort(([a], [b]) => {
+    const [pa, sa] = order(a);
+    const [pb, sb] = order(b);
+    return pa - pb || sa - sb;
+  });
+  const first = all.findIndex(([n]) => order(n));
+  const rest = all.filter(([n]) => !order(n));
+  tokens.clear();
+  for (const [n, t] of [...rest.slice(0, first), ...steps, ...rest.slice(first)]) tokens.set(n, t);
+}
+
+// One step: the base's lightness moved by f (+ toward white, − toward black),
+// chroma lowered by bisection until the colour is inside sRGB.
+function paletteStep([L0, C0, H], f) {
+  const L = f >= 0 ? L0 + f * (1 - L0) : L0 + f * L0;
+  let lo = 0;
+  let hi = C0;
+  if (!inGamut([L, hi, H])) {
+    for (let i = 0; i < 30; i++) {
+      const mid = (lo + hi) / 2;
+      if (inGamut([L, mid, H])) lo = mid;
+      else hi = mid;
+    }
+    hi = lo;
+  }
+  const r = (v) => Math.round(v * 10000) / 10000;
+  return [r(L), r(hi), H];
+}
+
+function inGamut(lch) {
+  return oklchToLinear(lch).every((v) => v >= -1e-4 && v <= 1 + 1e-4);
+}
+
+palettes();
+
 // ---- aliases ----------------------------------------------------------------
 
 const ALIAS = /^\{([^{}]+)\}$/;
@@ -120,9 +216,28 @@ function resolve(value, theme, seen) {
   return value;
 }
 
+// A role that is a palette step seen through (hover, borders) names the step
+// and its opacity: io.github.neatlittlemacapps.nigari.alpha, a number for both
+// themes or { light, dark }. DTCG has no way to put an alpha on an alias, and
+// writing the colour out again as hex would cut the role loose from its
+// palette (spec 019, FR-003: no hex in the role tier).
+const ALPHA = 'io.github.neatlittlemacapps.nigari.alpha';
+
+function alphaOf(t, theme) {
+  const a = t.ext[ALPHA];
+  if (a === undefined) return undefined;
+  const v = typeof a === 'number' ? a : a?.[theme];
+  if (typeof v !== 'number' || v < 0 || v > 1) throw new Error(`${ALPHA} must be a number from 0 to 1, or { light, dark } of them`);
+  return v;
+}
+
 function valueOf(t, theme) {
   const raw = theme === 'dark' && themed(t) ? t.dark : t.value;
-  return resolve(raw, theme, [t.name]);
+  const v = resolve(raw, theme, [t.name]);
+  const a = alphaOf(t, theme);
+  if (a === undefined) return v;
+  if (t.type !== 'color') throw new Error(`${ALPHA} is for colours`);
+  return { ...v, alpha: a };
 }
 
 // ---- colour -----------------------------------------------------------------
@@ -140,22 +255,26 @@ function rgba(c, name) {
   throw new Error(`${name}: colour space "${c.colorSpace}" is not supported (srgb, oklch)`);
 }
 
-function oklchToSrgb([L, C, H]) {
+function oklchToSrgb(lch) {
+  return oklchToLinear(lch).map((v) => {
+    const c = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
+    return Math.round(Math.min(1, Math.max(0, c)) * 255);
+  });
+}
+
+// Linear-light sRGB, unclamped: a component outside 0–1 is out of gamut.
+function oklchToLinear([L, C, H]) {
   const h = (H * Math.PI) / 180;
   const a = C * Math.cos(h);
   const b = C * Math.sin(h);
   const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
   const m = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
   const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
-  const lin = [
+  return [
     4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
     -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
     -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
   ];
-  return lin.map((v) => {
-    const c = v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055;
-    return Math.round(Math.min(1, Math.max(0, c)) * 255);
-  });
 }
 
 function cssColor(c, name) {
@@ -190,7 +309,7 @@ function css(t, theme) {
   const raw = theme === 'dark' && themed(t) ? t.dark : t.value;
   // An alias of another themed token stays a var(), so it follows that token
   // in both themes and when someone overrides it at runtime.
-  if (isAlias(raw) && tokens.get(target(raw)) && themed(tokens.get(target(raw)))) {
+  if (isAlias(raw) && tokens.get(target(raw)) && themed(tokens.get(target(raw))) && t.ext[ALPHA] === undefined) {
     return `var(${prop(target(raw))})`;
   }
   if (t.ext['io.github.neatlittlemacapps.nigari.cssValue']) return t.ext['io.github.neatlittlemacapps.nigari.cssValue'];

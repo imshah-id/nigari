@@ -2,53 +2,158 @@
   "$description": "Roles. Each holds its light value in $value and its dark value in $extensions[\"io.github.neatlittlemacapps.nigari.dark\"]: one token, two themes (FR-002). io.github.neatlittlemacapps.nigari.css keeps the name styles.css already reads.",
   "color": {
     "$type": "color",
+    "primary": {
+      "$value": "{palette.raspberry.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.400}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ],
+        "io.github.neatlittlemacapps.nigari.rgb": "--accent-rgb"
+      },
+      "$description": "The one accent: links, the chosen item, the main action. Text-safe on every surface in both themes."
+    },
+    "primary-hover": {
+      "$value": "{palette.raspberry.600}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.300}"
+      },
+      "$description": "Primary under the pointer: one step further from the surface."
+    },
+    "primary-pressed": {
+      "$value": "{palette.raspberry.700}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.200}"
+      },
+      "$description": "Primary while pressed or switched on: two steps further from the surface."
+    },
+    "primary-subtle": {
+      "$value": "{palette.raspberry.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.400}",
+        "io.github.neatlittlemacapps.nigari.alpha": {
+          "light": 0.085,
+          "dark": 0.13
+        }
+      },
+      "$description": "A wash of primary behind a chosen row or chip."
+    },
+    "on-primary": {
+      "$value": "{palette.stone.0}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.primary}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Text and icons on a primary fill."
+    },
+    "destructive": {
+      "$value": "{palette.burnt-orange.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.400}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Deleting and other actions that cannot be undone. Text-safe on every surface in both themes."
+    },
+    "destructive-hover": {
+      "$value": "{palette.burnt-orange.600}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.300}"
+      },
+      "$description": "Destructive under the pointer."
+    },
+    "destructive-pressed": {
+      "$value": "{palette.burnt-orange.700}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.200}"
+      },
+      "$description": "Destructive while pressed."
+    },
+    "destructive-subtle": {
+      "$value": "{palette.burnt-orange.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.400}",
+        "io.github.neatlittlemacapps.nigari.alpha": {
+          "light": 0.085,
+          "dark": 0.13
+        }
+      },
+      "$description": "A wash of destructive behind a warning."
+    },
+    "on-destructive": {
+      "$value": "{palette.stone.0}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.destructive}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Text and icons on a destructive fill."
+    },
     "surface": {
       "default": {
-        "$value": "{color.paper.50}",
+        "$value": "{palette.stone.50}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--bg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.900}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.925}"
         },
         "$description": "The document."
       },
       "sidebar": {
-        "$value": "{color.paper.100}",
+        "$value": "{palette.stone.100}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--sidebar-bg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.950}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}"
         },
         "$description": "The sidebar: one step off the document."
       },
       "raised": {
-        "$value": "{color.paper.0}",
+        "$value": "{palette.stone.0}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--card",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.850}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.900}"
         },
         "$description": "Cards, dialogs, menus."
       },
       "glass": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.97,
-          "hex": "#ffffff"
-        },
+        "$value": "{palette.stone.0}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--glass",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0745,
-              0.0745,
-              0.0941
-            ],
-            "alpha": 0.95,
-            "hex": "#131318"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.900}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.97,
+            "dark": 0.95
           }
         },
         "$description": "Nearly opaque on purpose: at 82% a menu over a code block showed a smudge of it through the blur."
@@ -56,10 +161,10 @@
     },
     "text": {
       "default": {
-        "$value": "{color.ink.900}",
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--fg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.100}",
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.200}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -77,10 +182,10 @@
         }
       },
       "muted": {
-        "$value": "{color.ink.500}",
+        "$value": "{palette.stone.500}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--muted",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.500}",
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.500}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -101,206 +206,95 @@
     },
     "accent": {
       "default": {
-        "$value": "{color.pink.700}",
+        "$value": "{color.primary}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.css": "--accent",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.pink.400}",
-          "io.github.neatlittlemacapps.nigari.contrast": [
-            {
-              "on": "{color.surface.default}",
-              "min": 4.5
-            },
-            {
-              "on": "{color.surface.sidebar}",
-              "min": 4.5
-            },
-            {
-              "on": "{color.surface.raised}",
-              "min": 4.5
-            }
-          ],
-          "io.github.neatlittlemacapps.nigari.rgb": "--accent-rgb"
+          "io.github.neatlittlemacapps.nigari.css": "--accent"
         },
-        "$description": "Text-safe on its surfaces in both themes."
+        "$description": "Today's name, kept for the stylesheets that read it: an alias of color.primary (spec 019)."
       },
       "soft": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.702,
-            0.0706,
-            0.2471
-          ],
-          "alpha": 0.085,
-          "hex": "#b3123f"
-        },
+        "$value": "{color.primary-subtle}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.css": "--accent-soft",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              0.3608,
-              0.502
-            ],
-            "alpha": 0.13,
-            "hex": "#ff5c80"
-          }
+          "io.github.neatlittlemacapps.nigari.css": "--accent-soft"
         },
-        "$description": "A wash of the accent behind selected things."
+        "$description": "Today's name, kept for the stylesheets that read it: an alias of color.primary-subtle (spec 019)."
       }
     },
     "danger": {
-      "$value": "{color.orange.700}",
+      "$value": "{color.destructive}",
       "$extensions": {
-        "io.github.neatlittlemacapps.nigari.css": "--danger",
-        "io.github.neatlittlemacapps.nigari.dark": "{color.orange.400}",
-        "io.github.neatlittlemacapps.nigari.contrast": [
-          {
-            "on": "{color.surface.default}",
-            "min": 4.5
-          },
-          {
-            "on": "{color.surface.sidebar}",
-            "min": 4.5
-          },
-          {
-            "on": "{color.surface.raised}",
-            "min": 4.5
-          }
-        ]
-      }
+        "io.github.neatlittlemacapps.nigari.css": "--danger"
+      },
+      "$description": "Today's name, kept for the stylesheets that read it: an alias of color.destructive (spec 019)."
     },
     "focus": {
-      "$value": "{color.accent.default}",
+      "$value": "{color.primary}",
       "$extensions": {},
       "$description": "The focus ring. The accent today; a token of its own so it can change without the accent."
     },
     "hover": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [
-          0.1098,
-          0.102,
-          0.0824
-        ],
-        "alpha": 0.045,
-        "hex": "#1c1a15"
-      },
+      "$value": "{palette.stone.850}",
       "$extensions": {
         "io.github.neatlittlemacapps.nigari.css": "--hover",
-        "io.github.neatlittlemacapps.nigari.dark": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.045,
-          "hex": "#ffffff"
-        }
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+        "io.github.neatlittlemacapps.nigari.alpha": 0.045
       },
       "$description": "Pointing: a faint wash over whatever is underneath."
     },
     "active": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [
-          0.1098,
-          0.102,
-          0.0824
-        ],
-        "alpha": 0.075,
-        "hex": "#1c1a15"
-      },
+      "$value": "{palette.stone.850}",
       "$extensions": {
         "io.github.neatlittlemacapps.nigari.css": "--active",
-        "io.github.neatlittlemacapps.nigari.dark": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.075,
-          "hex": "#ffffff"
-        }
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+        "io.github.neatlittlemacapps.nigari.alpha": 0.075
       },
       "$description": "Pressed or chosen."
     },
     "border": {
       "default": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1098,
-            0.102,
-            0.0824
-          ],
-          "alpha": 0.11,
-          "hex": "#1c1a15"
-        },
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--border",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              1,
-              1
-            ],
-            "alpha": 0.08,
-            "hex": "#ffffff"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.11,
+            "dark": 0.08
           }
         },
         "$description": "Hairlines, not borders: alpha, so one value reads right on paper, sidebar and card."
       },
       "strong": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1098,
-            0.102,
-            0.0824
-          ],
-          "alpha": 0.2,
-          "hex": "#1c1a15"
-        },
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--border-strong",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              1,
-              1
-            ],
-            "alpha": 0.15,
-            "hex": "#ffffff"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.2,
+            "dark": 0.15
           }
         }
       }
     },
     "pill": {
       "default": {
-        "$value": "{color.ink.900}",
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--pill-dark",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.50}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.50}"
         },
         "$description": "The primary action is ink, as on the site: a filled pill in the text colour."
       },
       "hover": {
-        "$value": "{color.ink.800}",
+        "$value": "{palette.stone.800}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--pill-dark-hover",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.paper.0}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}"
         }
       },
       "text": {
-        "$value": "{color.paper.50}",
+        "$value": "{palette.stone.50}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.950}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}"
         },
         "$description": "Text on the ink pill: the paper in light, near-black in dark."
       }
@@ -1907,11 +1901,11 @@
     "accent": {
       "$value": [
         {
-          "color": "{color.pink.600}",
+          "color": "{palette.raspberry.500}",
           "position": 0
         },
         {
-          "color": "{color.pink.700}",
+          "color": "{palette.raspberry.600}",
           "position": 1
         }
       ],
@@ -1919,11 +1913,11 @@
         "io.github.neatlittlemacapps.nigari.css": "--grad-accent",
         "io.github.neatlittlemacapps.nigari.dark": [
           {
-            "color": "{color.pink.400}",
+            "color": "{palette.raspberry.400}",
             "position": 0
           },
           {
-            "color": "{color.pink.500}",
+            "color": "{palette.raspberry.300}",
             "position": 1
           }
         ],

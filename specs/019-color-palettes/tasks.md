@@ -25,9 +25,9 @@ description: "Tasks for named colour palettes and the role tokens that reference
 
 ## Phase 1: Foundational — measure, then generate
 
-- [ ] T001 [ui] Record every semantic colour's value today, light and dark (`tokens.css` resolved), into a before table in the scratchpad, for the PR's before/after
-- [ ] T002 [ui] `build-tokens.mjs`: a `palette` group whose `500` is an OKLCH base; generate 50 … 950 (with 850 and 925) by the R1 fraction table, hue kept, chroma lowered only into gamut; write each step as `--palette-<name>-<step>`
-- [ ] T003 [test] `check-build-tokens.mjs`: steps from a base (500 is the base, lightness per the table, in gamut), the same table for every palette, a missing base fails
+- [x] T001 [ui] Record every semantic colour's value today, light and dark (`tokens.css` resolved), into a before table in the scratchpad, for the PR's before/after
+- [x] T002 [ui] `build-tokens.mjs`: a `palette` group whose `500` is an OKLCH base; generate 50 … 950 (with 850 and 925) by the R1 fraction table, hue kept, chroma lowered only into gamut; write each step as `--palette-<name>-<step>`
+- [x] T003 [test] `check-build-tokens.mjs`: steps from a base (500 is the base, lightness per the table, in gamut), the same table for every palette, a missing base fails
 
 ---
 
@@ -35,15 +35,15 @@ description: "Tasks for named colour palettes and the role tokens that reference
 
 **Independent Test**: point `primary` at another palette, build, see every primary colour change; a too-light base fails contrast naming the token.
 
-- [ ] T004 [US1] [ui] `primitives.tokens.json`: palettes `raspberry` (base `#b3123f`), `burnt-orange` (`#c2410c`), `stone` (`#6f6e6a`), `slate` (`#808083`), as OKLCH; the colour-named primitives (`paper`, `ink`, `night`, `mist`, `pink`, `orange`) removed
-- [ ] T005 [US1] [ui] `semantic.tokens.json`: the role tier (`primary`, `-hover`, `-pressed`, `-subtle`, `on-primary`; `destructive` and its states; the neutral roles), each a palette step per theme, alpha for the translucent ones; today's names (`color.accent.default`, `color.danger`, `color.surface.*`, `color.text.*`, `color.border.*`, `color.hover`, `color.active`, `color.pill.*`, `--accent-rgb` and the legacy `--bg` … aliases) kept as aliases of their roles
-- [ ] T006 [US1] [test] `check-build-tokens.mjs`: a role referencing a step resolves in both themes; a swap (role → other palette) changes only that role's colours; a swap whose text fails its contrast fails the build naming token and ratio
+- [x] T004 [US1] [ui] `primitives.tokens.json`: palettes `raspberry` (base `#b3123f`), `burnt-orange` (`#c2410c`), `stone` (`#6f6e6a`), `slate` (`#808083`), as OKLCH; the colour-named primitives (`paper`, `ink`, `night`, `mist`, `pink`, `orange`) removed
+- [x] T005 [US1] [ui] `semantic.tokens.json`: the role tier (`primary`, `-hover`, `-pressed`, `-subtle`, `on-primary`; `destructive` and its states; the neutral roles), each a palette step per theme, alpha for the translucent ones; today's names (`color.accent.default`, `color.danger`, `color.surface.*`, `color.text.*`, `color.border.*`, `color.hover`, `color.active`, `color.pill.*`, `--accent-rgb` and the legacy `--bg` … aliases) kept as aliases of their roles
+- [x] T006 [US1] [test] `check-build-tokens.mjs`: a role referencing a step resolves in both themes; a swap (role → other palette) changes only that role's colours; a swap whose text fails its contrast fails the build naming token and ratio
 
 ---
 
 ## Phase 3: User Story 2 — nothing looks different (P1)
 
-- [ ] T007 [ui] Build `tokens.css`; compare every role with T001's table; list each difference (role, theme, before, after, ΔL) for the PR; nothing beyond the nearest-step rule
+- [x] T007 [ui] Build `tokens.css`; compare every role with T001's table; list each difference (role, theme, before, after, ΔL) for the PR; nothing beyond the nearest-step rule
 
 ---
 
