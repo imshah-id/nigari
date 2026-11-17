@@ -2,7 +2,7 @@ import { forwardRef, useEffect, useRef, useState, type ComponentPropsWithoutRef,
 import { Plus } from 'lucide-react';
 import { t } from '../i18n';
 import type { ViewDef } from '../types';
-import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint } from '../ui/Menu';
+import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint, MenuRadioGroup, MenuRadioItem } from '../ui/Menu';
 
 // The database's menus (spec 010, part 2), moved out of CollectionView.tsx when
 // they became ui/Menu: the view actions (a tab's right-click and the toolbar's
@@ -75,6 +75,20 @@ export function ViewTypeItems({
   onPick: (type: ViewDef['type']) => void;
   reason: string;
 }) {
+  // With a current type (a view's Layout) it is one choice among eight:
+  // radio items, so a screen reader hears which one is checked (the tick
+  // alone was an aria-hidden icon, spec 018 ux audit).
+  if (current !== undefined) {
+    return (
+      <MenuRadioGroup value={current} onValueChange={(v) => onPick(v as ViewDef['type'])}>
+        {types.map((vt) => (
+          <MenuRadioItem key={vt} value={vt} icon={icon(vt)}>
+            {label(vt)}
+          </MenuRadioItem>
+        ))}
+      </MenuRadioGroup>
+    );
+  }
   return (
     <MenuValues reason={reason}>
       {types.map((vt) => (

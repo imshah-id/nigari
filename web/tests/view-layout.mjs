@@ -25,7 +25,7 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   const pick = async (layout) => {
     await toolbar.getByRole('button', { name: 'Settings', exact: true }).click();
     await settingsMenu.getByRole('menuitem', { name: /^Layout/ }).hover();
-    await page.getByRole('menuitem', { name: layout, exact: true }).click();
+    await page.getByRole('menuitemradio', { name: layout, exact: true }).click();
   };
   // Each wait names itself, so a timeout says which step it was.
   let step = 0;
@@ -64,8 +64,11 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   assert.match(await settingsMenu.getByRole('menuitem', { name: /^Layout/ }).textContent(), /Layout\s*Table/);
   await settingsMenu.getByRole('menuitem', { name: /^Layout/ }).hover();
   for (const name of ['Table', 'Board', 'Gallery', 'Calendar', 'Timeline', 'List', 'Form', 'Chart']) {
-    await page.getByRole('menuitem', { name, exact: true }).waitFor();
+    await page.getByRole('menuitemradio', { name, exact: true }).waitFor();
   }
+  // The current one is checked for a screen reader, not only ticked.
+  assert.equal(await page.getByRole('menuitemradio', { name: 'Table', exact: true }).getAttribute('aria-checked'), 'true');
+  assert.equal(await page.getByRole('menuitemradio', { name: 'Board', exact: true }).getAttribute('aria-checked'), 'false');
   await page.keyboard.press('Escape');
   await page.keyboard.press('Escape');
 
@@ -88,6 +91,7 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   const dialog = page.locator('.confirm-dialog');
   await dialog.getByText('Add one named Date?').waitFor();
   await dialog.getByRole('button', { name: 'Add and switch', exact: true }).click();
+  await toast('Added the date property Date.').waitFor();
   await until(async () => (await stored('table')).type === 'calendar');
   const config = await api('GET', path);
   const date = config.schema.find((p) => p.type === 'date');
@@ -103,9 +107,9 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   await embed.locator('.view-tab').first().waitFor();
   await embed.locator('.collection-toolbar').getByRole('button', { name: 'Settings', exact: true }).click();
   await settingsMenu.getByRole('menuitem', { name: /^Layout/ }).hover();
-  await page.getByRole('menuitem', { name: 'List', exact: true }).waitFor();
-  assert.equal(await page.getByRole('menuitem', { name: 'Form', exact: true }).count(), 0, 'an embed offers Form');
-  await page.getByRole('menuitem', { name: 'List', exact: true }).click();
+  await page.getByRole('menuitemradio', { name: 'List', exact: true }).waitFor();
+  assert.equal(await page.getByRole('menuitemradio', { name: 'Form', exact: true }).count(), 0, 'an embed offers Form');
+  await page.getByRole('menuitemradio', { name: 'List', exact: true }).click();
   await until(async () => {
     const content = (await api('GET', `/api/pages/${doc.id}`)).content;
     const local = content.find((b) => b.id === 'emb')?.props?.local;

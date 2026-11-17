@@ -362,10 +362,14 @@ export function MenuRadioGroup({
   );
 }
 
-export function MenuRadioItem({ value, children }: { value: string; children: ReactNode }) {
+/** One choice of a MenuRadioGroup. `icon` is content (a view type's own
+ *  icon, spec 018), drawn after the radio mark; the choice still reads as
+ *  checked to a screen reader (menuitemradio, aria-checked). */
+export function MenuRadioItem({ value, children, icon }: { value: string; children: ReactNode; icon?: ReactNode }) {
   return (
     <BaseMenu.RadioItem className={itemClass()} value={value} closeOnClick>
       <BaseMenu.RadioItemIndicator className="ui-menu-radio" keepMounted />
+      {icon !== undefined && <span className="ui-menu-value-icon" aria-hidden>{icon}</span>}
       <span className="ui-menu-label">{children}</span>
     </BaseMenu.RadioItem>
   );

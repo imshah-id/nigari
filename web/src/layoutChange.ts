@@ -94,7 +94,10 @@ export async function changeLayout(ctx: LayoutChangeContext, viewId: string, typ
   } else {
     ctx.saveSchemaAndViews(schema, next);
   }
-  const said = defaultSaid(latest, view, schema);
+  const said =
+    schema !== now.schema && (view.type === 'calendar' || view.type === 'timeline')
+      ? t('Added the date property {name}. Change the dates in Settings.', { name: schema[schema.length - 1].name })
+      : defaultSaid(latest, view, schema);
   if (said) toast(said);
 }
 
