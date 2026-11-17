@@ -117,6 +117,15 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   });
   assert.equal(JSON.stringify((await api('GET', path)).views), dbViews, "an embed's layout change changed the database's views");
 
+  // ---- A tab still named after its layout takes the new one's name ----
+  await page.goto(`${base}/p/${collectionId}`);
+  await page.locator('.view-tab', { hasText: 'Board' }).first().click();
+  await pick('List');
+  await until(async () => (await stored('board')).type === 'list');
+  assert.equal((await stored('board')).name, 'List', 'a tab named Board kept its name as a list');
+  await page.locator('.view-tab', { hasText: 'List' }).first().waitFor();
+  assert.equal((await stored('table')).name, 'Work', 'a chosen name changed');
+
   // ---- Locked: no Layout ----
   await api('PUT', `/api/collections/${collectionId}/lock`);
   await page.goto(`${base}/p/${collectionId}`);

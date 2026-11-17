@@ -43,6 +43,15 @@ func checkViewType(t string, inEmbed bool) error {
 	return nil
 }
 
+// defaultViewName is the name set_view gives a view created without one: its
+// type, capitalised ("Board").
+func defaultViewName(typ string) string {
+	if typ == "" {
+		return ""
+	}
+	return strings.ToUpper(typ[:1]) + typ[1:]
+}
+
 // switchViewLayout returns the view as the given type: every key kept, and the
 // settings the type needs filled in when the view has none that work.
 // needsDate is true for a calendar or timeline on a database with no date
@@ -50,10 +59,17 @@ func checkViewType(t string, inEmbed bool) error {
 // browser offers to add one, set_view refuses, FR-004a).
 func switchViewLayout(view map[string]any, typ string, schema []map[string]any) (out map[string]any, needsDate bool) {
 	out = cloneView(view)
-	if t, _ := view["type"].(string); t == typ {
+	old, _ := view["type"].(string)
+	if old == typ {
 		return out, false
 	}
 	out["type"] = typ
+	// A view still named after its type, as a new view is, takes the new
+	// type's name: a tab reading "Table" over a calendar misleads (owner, "A",
+	// spec 018 ux audit). A name somebody chose stays.
+	if name, _ := out["name"].(string); name != "" && name == defaultViewName(old) {
+		out["name"] = defaultViewName(typ)
+	}
 	propType := func(id any) string {
 		s, _ := id.(string)
 		if s == "" {

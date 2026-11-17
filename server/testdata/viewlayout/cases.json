@@ -1160,7 +1160,7 @@
    "needsDate": false
   },
   {
-   "name": "form to table keeps the form's texts",
+   "name": "form to table keeps the form's texts, and a default name follows the type",
    "schema": "full",
    "view": {
     "id": "f",
@@ -1172,7 +1172,7 @@
    "type": "table",
    "want": {
     "id": "f",
-    "name": "Form",
+    "name": "Table",
     "type": "table",
     "formTitle": "Ask",
     "formDescription": "Tell us"
@@ -1300,6 +1300,25 @@
     ],
     "openIn": "side_peek",
     "groupBy": "status"
+   },
+   "needsDate": false
+  },
+  {
+   "name": "a board still named Board becomes Calendar; a chosen name stays",
+   "schema": "full",
+   "view": {
+    "id": "b",
+    "name": "Board",
+    "type": "board",
+    "groupBy": "status"
+   },
+   "type": "calendar",
+   "want": {
+    "id": "b",
+    "name": "Calendar",
+    "type": "calendar",
+    "groupBy": "status",
+    "dateProp": "due"
    },
    "needsDate": false
   }

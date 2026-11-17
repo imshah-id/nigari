@@ -27,9 +27,26 @@ export interface LayoutSwitch {
   needsDate: boolean;
 }
 
-export function switchLayout(view: ViewDef, type: ViewDef['type'], schema: PropDef[]): LayoutSwitch {
+/** The name set_view gives a view created without one: its type,
+ *  capitalised. The interface names a new view in the person's language
+ *  (viewTypeLabel), which switchLayout takes as `label`. */
+export function defaultViewName(type: string): string {
+  return type ? type[0].toUpperCase() + type.slice(1) : '';
+}
+
+/** label: the interface's name for a type, in the person's language. A view
+ *  still named after its type (either spelling) takes the new type's name;
+ *  a name somebody chose stays (owner, "A", spec 018 ux audit). */
+export function switchLayout(
+  view: ViewDef,
+  type: ViewDef['type'],
+  schema: PropDef[],
+  label: (type: ViewDef['type']) => string = defaultViewName,
+): LayoutSwitch {
   if (view.type === type) return { view, needsDate: false };
   const out: ViewDef = { ...view, type };
+  if (view.name === defaultViewName(view.type)) out.name = defaultViewName(type);
+  else if (view.name && view.name === label(view.type)) out.name = label(type);
   const typeOf = (id: string | undefined) => (id ? schema.find((p) => p.id === id)?.type : undefined);
   const first = (ok: (t: string) => boolean, skip?: string) => schema.find((p) => p.id !== skip && ok(p.type))?.id;
   const isDate = (t: string) => t === 'date';

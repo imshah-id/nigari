@@ -915,6 +915,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
         collectionId,
         current: () => ({ views: viewsRef.current!, schema: configRef.current?.schema ?? schema }),
         embedded: !!embed,
+        label: viewTypeLabel,
         canEditSchema: embed ? embed.canEditDatabase !== false : canEdit,
         saveViews: (next) => saveViews(next),
         saveSchemaAndViews: (nextSchema, next) => void saveConfig({ ...configRef.current!, schema: nextSchema, views: next }),

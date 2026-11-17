@@ -785,7 +785,7 @@ func (s *Server) mcpCreateView(u *user, pageID string, spec viewSpec) (string, e
 	}
 	name := spec.Name
 	if strings.TrimSpace(name) == "" {
-		name = strings.ToUpper(spec.Type[:1]) + spec.Type[1:]
+		name = defaultViewName(spec.Type)
 		spec.Name = name
 	}
 	view := map[string]any{"id": slugID(name, taken), "type": spec.Type}

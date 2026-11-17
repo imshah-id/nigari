@@ -29,6 +29,9 @@ export interface LayoutChangeContext {
   embedded: boolean;
   /** Whether the person may change the database's properties. */
   canEditSchema: boolean;
+  /** The interface's name for a layout, in the person's language: a view
+   *  still named after its layout takes the new one's name. */
+  label: (type: ViewDef['type']) => string;
   /** Saves the views (the database's, or the embed's in the document). */
   saveViews: (views: ViewDef[]) => void;
   /** Saves a new schema and views together, in one request (database views). */
@@ -54,7 +57,7 @@ export async function changeLayout(ctx: LayoutChangeContext, viewId: string, typ
     }
   }
 
-  let needsDate = switchLayout(stored, type, first.schema).needsDate;
+  let needsDate = switchLayout(stored, type, first.schema, ctx.label).needsDate;
   let added: PropDef | null = null;
   if (needsDate) {
     if (!ctx.canEditSchema) {
@@ -76,13 +79,13 @@ export async function changeLayout(ctx: LayoutChangeContext, viewId: string, typ
   if (added) {
     // Someone may have added a date property meanwhile; then it is used and
     // nothing is added.
-    needsDate = switchLayout(latest, type, schema).needsDate;
+    needsDate = switchLayout(latest, type, schema, ctx.label).needsDate;
     if (needsDate) {
       const prop = schema.some((p) => p.id === added!.id) ? newDateProperty(schema, added.name) : added;
       schema = [...schema, prop];
     }
   }
-  const { view } = switchLayout(latest, type, schema);
+  const { view } = switchLayout(latest, type, schema, ctx.label);
   const next = now.views.map((v) => (v.id === viewId ? view : v));
   if (schema === now.schema) {
     ctx.saveViews(next);
