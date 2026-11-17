@@ -164,6 +164,8 @@ export function serverMessage(code: string, fallback: string, data?: ErrorData):
       return t('A comment is limited to 10000 characters.');
     case 'comment_not_author':
       return t('Only its author can edit a comment.');
+    case 'invalid_view_type':
+      return t('That is not a layout a view can have here.');
     case 'unknown_reaction':
       return t('That reaction is not one of the six a comment takes.');
     case 'reason_too_short':

@@ -48,6 +48,7 @@ import BoardView from './BoardView';
 import { groupValueFor, UNSET, type Row } from '../collectionRow';
 import { defaultChartView } from '../chartDefaults';
 import { copyDatabaseView, copyableViews, encodeEmbedLocal, moveView as moveEmbedView, newEmbedViewId, readEmbedLocal, removeView as removeEmbedView, withOpenView } from '../embedViews';
+import { changeLayout } from '../layoutChange';
 
 // A chart (spec 004) brings Chart.js, about 60 KB gzip: loaded only when a
 // chart view is shown, so nobody who never opens one pays for it (SC-006).
@@ -895,6 +896,29 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
     rows.length > 0 && viewRows.length === 0
       ? t('No rows match the current filter.')
       : t('No rows yet. Click ＋ New above.');
+  // The types a view of this database can be: all eight, but no form in a
+  // document's embed, which collects rows and stays on the database (spec
+  // 014). The add-view menu and a view's Layout offer the same list.
+  const viewTypes: ViewDef['type'][] = embed
+    ? ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'chart']
+    : ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'form', 'chart'];
+  // A view's Layout (spec 018): the steps around the switch are in
+  // layoutChange.ts; this only hands them the saves.
+  const pickLayout = (type: ViewDef['type']) =>
+    void changeLayout(
+      {
+        collectionId,
+        views: views!,
+        schema,
+        embedded: !!embed,
+        canEditSchema: embed ? embed.canEditDatabase !== false : canEdit,
+        saveViews: (next) => saveViews(next),
+        saveSchemaAndViews: (nextSchema, next) => void saveConfig({ ...config!, schema: nextSchema, views: next }),
+        saveSchema: (nextSchema) => saveConfig({ ...config!, schema: nextSchema }),
+      },
+      view.id,
+      type,
+    );
   const viewTypeLabel = (vt: ViewDef['type']): string =>
     ({
       table: t('Table'),
@@ -968,7 +992,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
           <AddViewMenu
             // A form collects rows and stays on the database: an embed cannot
             // show one (spec 014).
-            types={embed ? ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'chart'] : ['table', 'board', 'gallery', 'calendar', 'timeline', 'list', 'form', 'chart']}
+            types={viewTypes}
             icon={tabIcon}
             label={viewTypeLabel}
             onAdd={addView}
@@ -1045,6 +1069,8 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
             onUnlock={() => setLock(false)}
             embedded={!!embed}
             canEditDatabase={embed ? embed.canEditDatabase !== false : true}
+            layouts={{ types: viewTypes, icon: tabIcon, label: viewTypeLabel }}
+            onLayout={pickLayout}
           />
         )}
         {view.type !== 'form' && (

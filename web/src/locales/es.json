@@ -1380,5 +1380,15 @@
   "You": "Tú",
   "{names} reacted with {reaction}": "{names} reaccionó con {reaction}",
   "⌘↵ to save": "⌘↵ para guardar",
-  "edited a comment on": "editó un comentario en"
+  "edited a comment on": "editó un comentario en",
+  "Add and switch": "Añadir y cambiar",
+  "Change layout": "Cambiar diseño",
+  "Counted by {name}. Change it in the chart settings.": "Contado por {name}. Cámbialo en los ajustes del gráfico.",
+  "Dates from {name}. Change them in Settings.": "Fechas de {name}. Cámbialas en Ajustes.",
+  "Grouped by {name}. Change it with Group.": "Agrupado por {name}. Cámbialo con Agrupar.",
+  "Shown as a chart. Change it in the chart settings.": "Se muestra como gráfico. Cámbialo en los ajustes del gráfico.",
+  "That is not a layout a view can have here.": "Una vista no puede tener ese diseño aquí.",
+  "This is the only form view, and the database has a public form link. The link stops working until there is a form view again. Change the layout anyway?": "Esta es la única vista de formulario y la base de datos tiene un enlace público al formulario. El enlace dejará de funcionar hasta que vuelva a haber una vista de formulario. ¿Cambiar el diseño de todos modos?",
+  "This layout shows rows by date, and the database has no date property. Add one named {name}?": "Este diseño muestra las filas por fecha y la base de datos no tiene ninguna propiedad de fecha. ¿Añadir una llamada {name}?",
+  "This layout shows rows by date, and the database has no date property. Someone who can edit the database can add one.": "Este diseño muestra las filas por fecha y la base de datos no tiene ninguna propiedad de fecha. Alguien que pueda editar la base de datos puede añadirla."
 }

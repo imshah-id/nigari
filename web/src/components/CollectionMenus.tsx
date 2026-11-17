@@ -57,6 +57,35 @@ export function ViewActionItems({
 /** The ＋ after the tabs: a new view of one of eight types. The types are
  *  values of one function, "add a view", and keep the icon their tab shows
  *  (research R1), so the menu and the strip agree. */
+/** The view types as menu values, each with its tab's icon: the add-view
+ *  menu's list and a view's Layout (spec 018), one list so the two cannot
+ *  offer different types or icons. current is ticked. */
+export function ViewTypeItems({
+  types,
+  icon,
+  label,
+  current,
+  onPick,
+  reason,
+}: {
+  types: ViewDef['type'][];
+  icon: (type: ViewDef['type']) => ReactNode;
+  label: (type: ViewDef['type']) => string;
+  current?: ViewDef['type'];
+  onPick: (type: ViewDef['type']) => void;
+  reason: string;
+}) {
+  return (
+    <MenuValues reason={reason}>
+      {types.map((vt) => (
+        <MenuValueItem key={vt} icon={icon(vt)} checked={vt === current} onClick={() => onPick(vt)}>
+          {label(vt)}
+        </MenuValueItem>
+      ))}
+    </MenuValues>
+  );
+}
+
 export function AddViewMenu({
   types,
   icon,
@@ -79,13 +108,13 @@ export function AddViewMenu({
       narrow="sheet"
       trigger={<AddViewButton />}
     >
-      <MenuValues reason="View types are values of one function, add a view; each keeps the icon its tab shows">
-        {types.map((vt) => (
-          <MenuValueItem key={vt} icon={icon(vt)} onClick={() => onAdd(vt)}>
-            {label(vt)}
-          </MenuValueItem>
-        ))}
-      </MenuValues>
+      <ViewTypeItems
+        types={types}
+        icon={icon}
+        label={label}
+        onPick={onAdd}
+        reason="View types are values of one function, add a view; each keeps the icon its tab shows"
+      />
       {copy && copy.views.length > 0 && (
         <>
           <MenuSeparator />
