@@ -40,7 +40,7 @@ func (e errViewOpenIn) Error() string { return e.msg }
 
 // checkViewOpenIn validates view["openIn"] in place: an allowed value stays,
 // "full_page" is removed, anything else is refused.
-func checkViewOpenIn(view map[string]any) error {
+func checkViewOpenIn(view map[string]any, strict bool) error {
 	raw, ok := view["openIn"]
 	if !ok || raw == nil {
 		delete(view, "openIn")
@@ -65,10 +65,11 @@ func checkViewOpenIn(view map[string]any) error {
 	if v == viewOpenCenterPeek && !centerPeekShipped {
 		return errViewOpenIn{"center_peek is not available yet; use side_peek or full_page"}
 	}
-	// A form shows no rows, so there is nothing for the setting to open. Stored
-	// anyway it would follow the view into a later type it can never have
-	// (a view's type does not change), and only confuse whoever reads it back.
-	if t, _ := view["type"].(string); t == "form" {
+	// A form shows no rows, so there is nothing for the setting to open: set
+	// on a form (strict: this change sets it), it is refused. One kept from
+	// before the view became a form stays, unused, for when it shows rows
+	// again (spec 018, FR-002); refusing it would fail every later save.
+	if t, _ := view["type"].(string); t == "form" && strict {
 		return errViewOpenIn{"a form view shows no rows, so it has no open_in"}
 	}
 	return nil
@@ -120,7 +121,9 @@ func normalizeViews(raw []byte, schema []map[string]any, stored []map[string]any
 			}
 		}
 		_, had := view["openIn"]
-		if err := checkViewOpenIn(view); err != nil {
+		wasOpen, _ := json.Marshal(prev["openIn"])
+		nowOpen, _ := json.Marshal(view["openIn"])
+		if err := checkViewOpenIn(view, !known || string(wasOpen) != string(nowOpen)); err != nil {
 			return nil, errViewOpenIn{fmt.Sprintf("%s: %s", name, err.Error())}
 		}
 		if _, has := view["openIn"]; had && !has {
@@ -150,7 +153,7 @@ func normalizeViews(raw []byte, schema []map[string]any, stored []map[string]any
 			{"colOrder", func() error { return checkViewColOrder(view, schema, changedKey("colOrder")) }, func(m string) error { return errViewColOrder{m} }},
 			{"quickFilters", func() error { return checkViewQuickFilters(view, schema, changedKey("quickFilters")) }, func(m string) error { return errViewQuickFilters{m} }},
 			{"subGroupBy", func() error {
-				return checkViewSubGroup(view, schema, changedKey("subGroupBy") || changedKey("groupBy"))
+				return checkViewSubGroup(view, schema, changedKey("subGroupBy"), changedKey("groupBy"))
 			}, func(m string) error { return errViewSubGroup{m} }},
 		} {
 			moved, err := normalizeKey(view, k.key, k.check)
@@ -324,7 +327,11 @@ func checkViewQuickFilters(view map[string]any, schema []map[string]any, strict 
 		if len(list) > 0 && strict {
 			return errViewQuickFilters{fmt.Sprintf("a %s view has no quick filters", t)}
 		}
-		delete(view, "quickFilters")
+		// Kept from before the view became a form or chart, unused, for when
+		// it shows rows again (spec 018, FR-002). An empty list still goes.
+		if len(list) == 0 {
+			delete(view, "quickFilters")
+		}
 		return nil
 	}
 	types := map[string]string{}
@@ -395,7 +402,11 @@ func (e errViewSubGroup) Error() string { return e.msg }
 //
 // strict as for checkViewQuickFilters: a stored sub-group made invalid by a
 // later schema change is removed rather than refused.
-func checkViewSubGroup(view map[string]any, schema []map[string]any, strict bool) error {
+func checkViewSubGroup(view map[string]any, schema []map[string]any, subChanged, groupChanged bool) error {
+	// Strict for a value somebody sets now. On a board its columns count too
+	// (lanes by the columns' own property); on any other view only the lanes
+	// themselves, so a former board's grouping can change (spec 018).
+	strict := subChanged || groupChanged
 	raw, ok := view["subGroupBy"]
 	if !ok || raw == nil {
 		delete(view, "subGroupBy")
@@ -413,7 +424,7 @@ func checkViewSubGroup(view map[string]any, schema []map[string]any, strict bool
 		// A board turned into another layout keeps its lanes, unused, and
 		// shows them again when it becomes a board (spec 018, FR-003). Set on
 		// a view that is not a board, it is refused.
-		if !strict {
+		if !subChanged {
 			return nil
 		}
 		return errViewSubGroup{"only a board has a sub-group"}

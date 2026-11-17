@@ -645,7 +645,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 	}
 	if spec.OpenIn != nil {
 		view["openIn"] = *spec.OpenIn
-		if err := checkViewOpenIn(view); err != nil {
+		if err := checkViewOpenIn(view, true); err != nil {
 			return err
 		}
 	}
@@ -690,7 +690,7 @@ func applyViewSpec(view map[string]any, spec viewSpec, schema []map[string]any) 
 	if err := checkViewQuickFilters(view, schema, spec.QuickFilters != nil); err != nil {
 		return fmt.Errorf("quick_filters: %w", err)
 	}
-	if err := checkViewSubGroup(view, schema, spec.SubGroupBy != nil || spec.GroupBy != nil); err != nil {
+	if err := checkViewSubGroup(view, schema, spec.SubGroupBy != nil, spec.GroupBy != nil); err != nil {
 		return fmt.Errorf("sub_group_by: %w", err)
 	}
 	if err := applyChartSpec(view, spec); err != nil {

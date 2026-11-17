@@ -36,7 +36,7 @@ func TestViewOpenInRule(t *testing.T) {
 		if err := json.Unmarshal([]byte(c.view), &view); err != nil {
 			t.Fatalf("%s: %v", c.name, err)
 		}
-		err := checkViewOpenIn(view)
+		err := checkViewOpenIn(view, true)
 		switch {
 		case c.wantErr == "" && err != nil:
 			t.Errorf("%s: refused: %v", c.name, err)
@@ -229,7 +229,7 @@ func TestCenterPeekRefusedWhileUnshipped(t *testing.T) {
 	centerPeekShipped = false
 	defer func() { centerPeekShipped = was }()
 	view := map[string]any{"type": "table", "openIn": "center_peek"}
-	if err := checkViewOpenIn(view); err == nil || !strings.Contains(err.Error(), "not available yet") {
+	if err := checkViewOpenIn(view, true); err == nil || !strings.Contains(err.Error(), "not available yet") {
 		t.Errorf("unshipped centre peek: %v, want a refusal", err)
 	}
 }

@@ -235,3 +235,61 @@ func TestSetViewChangesAnEmbedsLayout(t *testing.T) {
 		t.Errorf("changing an embed's layout changed the database's views:\n%s\n%s", before, after)
 	}
 }
+
+// What a layout change must not break (code review of spec 018): a side
+// peek kept on a view turned into a form, quick filters kept on a chart, and
+// a former board's grouping changed while it keeps its lanes. Each was
+// refused or dropped by a rule that read "set on this type" as "present".
+func TestSettingsKeptByALayoutChangeDoNotBlockSaves(t *testing.T) {
+	f, _ := layoutFixture(t)
+	put := func(views string) (int, string) {
+		rec := requestAs(t, f.s, f.cookie, "PUT", "/api/collections/"+f.col, `{"views":`+views+`}`)
+		return rec.Code, rec.Body.String()
+	}
+	// A table opening in a side peek becomes a form, then another view is
+	// renamed beside it: both saves go through, and the setting is kept.
+	if code, body := put(`[{"id":"t","name":"Work","type":"form","openIn":"side_peek"},{"id":"b","name":"Board","type":"board","groupBy":"status"}]`); code != 200 {
+		t.Fatalf("a side-peek table to a form: %d %s", code, body)
+	}
+	if code, body := put(`[{"id":"t","name":"Work","type":"form","openIn":"side_peek"},{"id":"b","name":"Renamed","type":"board","groupBy":"status"}]`); code != 200 {
+		t.Fatalf("a save next to that form: %d %s", code, body)
+	}
+	if v := viewOf(t, f, "t"); v["openIn"] != "side_peek" {
+		t.Errorf("the form dropped the side peek it will need again: %v", v)
+	}
+	// Setting it on a form is still refused.
+	if code, _ := put(`[{"id":"t","name":"Work","type":"form","openIn":"side_peek"},{"id":"f2","name":"New form","type":"form","openIn":"side_peek"}]`); code != 400 {
+		t.Errorf("a new form with a side peek: %d, want 400", code)
+	}
+
+	// Quick filters: table → chart → table keeps them.
+	if code, body := put(`[{"id":"q","name":"Q","type":"table","quickFilters":["status"]}]`); code != 200 {
+		t.Fatalf("quick filters: %d %s", code, body)
+	}
+	if code, body := put(`[{"id":"q","name":"Q","type":"chart","chartKind":"bar","groupBy":"status","quickFilters":["status"]}]`); code != 200 {
+		t.Fatalf("to a chart: %d %s", code, body)
+	}
+	if v := viewOf(t, f, "q"); v["quickFilters"] == nil {
+		t.Errorf("the chart dropped the table's quick filters: %v", v)
+	}
+	if _, err := callTool(t, f.s, f.agent, "set_view", `{"page_id":"`+f.col+`","view_id":"q","type":"table"}`); err != nil {
+		t.Fatalf("back to a table: %v", err)
+	}
+	if v := viewOf(t, f, "q"); v["quickFilters"] == nil {
+		t.Errorf("table → chart → table lost the quick filters: %v", v)
+	}
+
+	// A board with lanes becomes a chart and its grouping changes, on both doors.
+	if code, body := put(`[{"id":"l","name":"L","type":"board","groupBy":"status","subGroupBy":"owner"}]`); code != 200 {
+		t.Fatalf("board with lanes: %d %s", code, body)
+	}
+	if _, err := callTool(t, f.s, f.agent, "set_view", `{"page_id":"`+f.col+`","view_id":"l","type":"chart","group_by":"owner"}`); err != nil {
+		t.Errorf("set_view: a board with lanes to a chart grouped by owner: %v", err)
+	}
+	if code, body := put(`[{"id":"l","name":"L","type":"chart","chartKind":"bar","groupBy":"status","subGroupBy":"owner"}]`); code != 200 {
+		t.Errorf("REST: the former board's grouping changed: %d %s", code, body)
+	}
+	if v := viewOf(t, f, "l"); v["subGroupBy"] != "owner" {
+		t.Errorf("the lanes were not kept: %v", v)
+	}
+}
