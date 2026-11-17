@@ -126,6 +126,19 @@ function lightness(hex) {
   return 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s;
 }
 
+// OKLCH chroma and hue of a #rrggbb.
+function chromaHue(hex) {
+  const [r, g, b] = [1, 3, 5]
+    .map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+    .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b);
+  const m = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b);
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b);
+  const A = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+  const B = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+  return [Math.hypot(A, B), ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360];
+}
+
 function check(name, fn) {
   try {
     const problem = fn();
@@ -152,6 +165,12 @@ check('palette steps from a base', () => {
       if (!/^#[0-9a-f]{6}$/.test(v ?? '')) return `--palette-${name}-${step} is ${v}`;
       const want = f >= 0 ? L0 + f * (1 - L0) : L0 + f * L0;
       if (Math.abs(lightness(v) - want) > 0.006) return `--palette-${name}-${step} has lightness ${lightness(v).toFixed(4)}, the table says ${want.toFixed(4)}`;
+      // Hue stays: only chroma gives way to the gamut. Read back where the
+      // colour has enough chroma and light for its hue to survive rounding
+      // to hex (near black, one unit of a channel turns the hue by degrees).
+      const [, C0, H0] = primitives.palette[name]['500'].$value.components;
+      const [c, h] = chromaHue(v);
+      if (C0 > 0.05 && c > 0.04 && lightness(v) > 0.25 && Math.min(Math.abs(h - H0), 360 - Math.abs(h - H0)) > 3) return `--palette-${name}-${step} has hue ${h.toFixed(1)}, its base ${H0}`;
     }
   }
 });
@@ -194,11 +213,40 @@ check('a role references a step', () => {
     const t = theme === 'light' ? light : dark;
     if (!t[role] || t[role] !== t[step]) return `${role} (${theme}) is ${t[role]}, ${step} is ${t[step]}`;
   }
-  // A translucent role is its step at its alpha.
-  const hex = light['--palette-stone-850'];
-  const rgb = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
-  if (light['--hover'] !== `rgba(${rgb}, 0.045)`) return `--hover (light) is ${light['--hover']}, not --palette-stone-850 at 0.045`;
+  // A translucent role is its step at its alpha, in each theme.
+  const rgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
+  if (light['--hover'] !== `rgba(${rgb(light['--palette-stone-850'])}, 0.045)`) return `--hover (light) is ${light['--hover']}, not --palette-stone-850 at 0.045`;
+  if (dark['--border'] !== `rgba(${rgb(dark['--palette-slate-0'])}, 0.08)`) return `--border (dark) is ${dark['--border']}, not --palette-slate-0 at 0.08`;
 });
+
+// A translucent token that aliases a themed role writes the colour at its
+// alpha, not a var() of the opaque role (the var() shortcut in css()).
+check('a translucent alias of a role', () => {
+  const { light } = built('semantic', (j) => {
+    j.color.focus.$value = '{color.primary}';
+    j.color.focus.$extensions = { 'io.github.neatlittlemacapps.nigari.alpha': 0.5 };
+  });
+  const hex = light['--palette-raspberry-500'];
+  const want = `rgba(${[1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ')}, 0.5)`;
+  if (light['--color-focus'] !== want) return `--color-focus is ${light['--color-focus']}, not ${want}`;
+});
+
+// An alias of a translucent role keeps its opacity: a contrast pair on
+// color.accent.soft (an alias of primary-subtle, a wash at 8.5 %) must judge
+// the wash, which is far below 4.5:1, not opaque raspberry (found by review).
+broken('a contrast pair on an alias of a translucent role', 'semantic', (j) => {
+  j.color.accent.soft.$extensions = { ...j.color.accent.soft.$extensions, 'io.github.neatlittlemacapps.nigari.contrast': [{ on: '{color.surface.default}', min: 4.5 }] };
+}, /contrast: color\.accent\.soft on color\.surface\.default \(light\) is 1\.\d+:1/);
+
+// A dark opacity on a token with no dark value would be ignored without a word.
+broken('a dark alpha on a token with no dark value', 'semantic', (j) => {
+  j.color.focus.$extensions = { 'io.github.neatlittlemacapps.nigari.alpha': { light: 0.5, dark: 0.4 } };
+}, /color\.focus: .*alpha gives \{ light, dark \}, but the token has no dark value/);
+
+// A base outside sRGB would be clipped, shifting its hue off its own scale.
+broken('a base outside sRGB', 'primitives', (j) => {
+  j.palette.blue['500'].$value.components = [0.6, 0.35, 254.74];
+}, /palette\.blue\.500: the base is outside sRGB/);
 
 // Swapping a role is one edit, and it moves that role and nothing else.
 check('a swap moves only its role', () => {

@@ -134,6 +134,13 @@ function palettes() {
       fail(`palette.${name}.500: a base is an OKLCH colour { colorSpace: "oklch", components: [L, C, H] }`);
       continue;
     }
+    // The steps are brought into sRGB by lowering chroma; a base outside it
+    // would instead be clipped channel by channel, which shifts its hue, and
+    // the base would not belong to its own scale.
+    if (!inGamut(base.components)) {
+      fail(`palette.${name}.500: the base is outside sRGB; lower its chroma`);
+      continue;
+    }
     for (const step of Object.keys(node)) {
       if (!step.startsWith('$') && step !== '500') fail(`palette.${name}.${step}: steps are generated from the base; write only 500`);
     }
@@ -207,7 +214,12 @@ function resolve(value, theme, seen) {
     if (!t) throw new Error(`alias {${name}} names no token`);
     if (seen.includes(name)) throw new Error(`alias cycle: ${[...seen, name].join(' → ')}`);
     const v = theme === 'dark' && themed(t) ? t.dark : t.value;
-    return resolve(v, theme, [...seen, name]);
+    const r = resolve(v, theme, [...seen, name]);
+    // An alias of a translucent role is that role, opacity included: without
+    // this, a contrast pair or an rgb triplet on the alias would judge the
+    // colour as opaque (found by review, spec 019).
+    const a = t.type === 'color' ? alphaOf(t, theme) : undefined;
+    return a === undefined ? r : { ...r, alpha: a };
   }
   if (Array.isArray(value)) return value.map((v) => resolve(v, theme, seen));
   if (value && typeof value === 'object') {
@@ -226,6 +238,9 @@ const ALPHA = 'io.github.neatlittlemacapps.nigari.alpha';
 function alphaOf(t, theme) {
   const a = t.ext[ALPHA];
   if (a === undefined) return undefined;
+  // A token with no dark value is not written in dark at all, so a dark
+  // opacity on it would be silently ignored.
+  if (typeof a === 'object' && a !== null && !themed(t)) throw new Error(`${ALPHA} gives { light, dark }, but the token has no dark value; use one number`);
   const v = typeof a === 'number' ? a : a?.[theme];
   if (typeof v !== 'number' || v < 0 || v > 1) throw new Error(`${ALPHA} must be a number from 0 to 1, or { light, dark } of them`);
   return v;
