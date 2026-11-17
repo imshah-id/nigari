@@ -50,7 +50,7 @@ description: "Tasks for named colour palettes and the role tokens that reference
 ## Phase 4: Data colours (owner, "same for data")
 
 - [x] T008 [ui] Data palettes (the twelve series hues and gray, from today's OKLCH values) and data roles `data-1` … `data-12`, `data-<hue>-strong|medium|soft`, `data-background-1–4`; today's `color.chart.*` names kept as aliases; `chartTheme.ts` `OPTION_TOKEN` and `check-chartcolours.mjs` read the role names; the 3:1 rule passes
-- [ ] T009 [test] `check-chartcolours.mjs` and the chart browser tests (`chart-colours.mjs`, `chart-view.mjs`) pass on the data roles
+- [x] T009 [test] `check-chartcolours.mjs` and the chart browser tests (`chart-colours.mjs`, `chart-view.mjs`) pass on the data roles
 
 ---
 
@@ -63,7 +63,7 @@ description: "Tasks for named colour palettes and the role tokens that reference
 
 ## Phase 6: Polish
 
-- [ ] T012 [wiki] Screenshots made stale by `tokens.css` retaken and compared; `web/src/ui/README.md` (or the catalogue) shows the palettes and roles, light and dark
+- [x] T012 [wiki] Screenshots made stale by `tokens.css` retaken and compared; `web/src/ui/README.md` (or the catalogue) shows the palettes and roles, light and dark
 - [ ] T013 [test] Reviews before the PR: `/code-review`; `ux-ui-audit` light/dark, desktop/phone, on the before/after; `codegraph sync` then `codegraph callers` on every symbol renamed (`OPTION_TOKEN`, the build's new functions)
 
 ---
