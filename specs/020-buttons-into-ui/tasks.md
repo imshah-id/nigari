@@ -64,10 +64,10 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 - [x] T010 [ui] `ui/README.md`: the Button entry (properties, the mapping,
   when to use which); the registry's Design system entry gains the button
   rule (plan, New concepts)
-- [ ] T011 [wiki] Screenshots the PR makes stale retaken and compared; the
+- [x] T011 [wiki] Screenshots the PR makes stale retaken and compared; the
   three defaults (radius, small height, weight) named with before/after in
   the PR
-- [ ] T012 [test] Reviews: `/code-review`; `ux-ui-audit` light/dark,
+- [x] T012 [test] Reviews: `/code-review`; `ux-ui-audit` light/dark,
   desktop/phone; `codegraph sync`, then `codegraph callers Button` and
   confirm `IconButton` has none
 

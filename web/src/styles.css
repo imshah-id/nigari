@@ -8189,8 +8189,9 @@ a,
   padding-inline: var(--space-100);
 }
 /* Yours: the accent border and a heavier count as well as the tint, so the
-   difference is not carried by colour alone. */
-.ui-button.cp-chip[aria-pressed='true'] {
+   difference is not carried by colour alone. The extra attributes outweigh
+   ui/Button's pressed rule, which takes the border away (spec 020). */
+.ui-button.cp-chip[aria-pressed='true'][data-emphasis][data-tone] {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-default);
 }
@@ -8210,7 +8211,7 @@ a,
   gap: var(--space-50);
 }
 .cp-picker-item { font-size: var(--font-size-lg); }
-.ui-button.cp-picker-item[aria-pressed='true'] {
+.ui-button.cp-picker-item[aria-pressed='true'][data-emphasis][data-tone] {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-default);
 }
