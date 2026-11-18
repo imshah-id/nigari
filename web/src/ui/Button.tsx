@@ -45,7 +45,7 @@ type Common = Omit<ComponentPropsWithoutRef<typeof BaseButton>, 'className' | 'c
  *  `label` is required, read by a screen reader and shown as a tooltip, and
  *  arrives already translated (spec 001, FR-008). */
 export type ButtonProps = Common &
-  ({ children: ReactNode; icon?: ReactNode; label?: never } | { children?: undefined; icon: ReactNode; label: string });
+  ({ children: ReactNode; icon?: ReactNode; label?: never } | { children?: undefined; icon: ReactNode; label: string; href?: never; download?: never });
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
   { emphasis = 'medium', tone = 'neutral', size = 'md', pressed, shortcut, className, children, icon, label, type = 'button', disabled, href, download, ...rest },
@@ -112,12 +112,19 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
     </>
   );
   if (href !== undefined) {
+    // Base UI's own props mean nothing on an <a>, and React warns about them.
+    // A disabled link has no href and no click (found by review), and keeps
+    // role="link" by hand, since an <a> without href has no role for
+    // aria-disabled to qualify.
+    const { render: _render, nativeButton: _native, focusableWhenDisabled: _focusable, onClick, ...anchor } = rest;
     return (
       <a
         ref={ref as unknown as Ref<HTMLAnchorElement>}
-        {...(rest as ComponentPropsWithoutRef<'a'>)}
+        {...(anchor as ComponentPropsWithoutRef<'a'>)}
+        onClick={disabled ? undefined : (onClick as ComponentPropsWithoutRef<'a'>['onClick'])}
         href={disabled ? undefined : href}
         download={disabled ? undefined : download}
+        role={disabled ? 'link' : undefined}
         aria-disabled={disabled || undefined}
         data-disabled={disabled ? '' : undefined}
         {...look}

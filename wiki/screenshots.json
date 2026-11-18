@@ -27,10 +27,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Setup.tsx": "b8dc0ef7f2a2",
+        "web/src/components/Setup.tsx": "5038db9f5272",
         "web/src/Logo.tsx": "71d65508ee9a",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "instance": "fresh",
       "element": ".login-card"
@@ -57,10 +57,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Login.tsx": "7b7804d014a5",
+        "web/src/components/Login.tsx": "5995a08742a0",
         "web/src/Logo.tsx": "71d65508ee9a",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "instance": "anon",
       "element": ".login-card"
@@ -88,11 +88,11 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Sidebar.tsx": "1f3e2d8c86ed",
-        "web/src/components/Editor.tsx": "27d191199691",
-        "web/src/App.tsx": "7500814b42c9",
+        "web/src/components/Sidebar.tsx": "fce9bd1d0c2b",
+        "web/src/components/Editor.tsx": "e478bba33397",
+        "web/src/App.tsx": "9ef75dcf2f6f",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -117,10 +117,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Sidebar.tsx": "1f3e2d8c86ed",
+        "web/src/components/Sidebar.tsx": "fce9bd1d0c2b",
         "web/src/treeMode.ts": "413de5b84cd9",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".sidebar"
     },
@@ -144,7 +144,7 @@
           "wait": 600
         },
         {
-          "click": ".topbar [title=\"More\"]"
+          "click": ".topbar >> role=button[name=\"More actions\"]"
         },
         {
           "waitFor": "[role=menu]"
@@ -154,9 +154,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Editor.tsx": "27d191199691",
+        "web/src/components/Editor.tsx": "e478bba33397",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -176,7 +176,7 @@
           "waitFor": ".sidebar"
         },
         {
-          "click": "[title=\"Show structure\"]"
+          "click": "role=button[name=\"Structure\"]"
         },
         {
           "waitFor": ".structure-panel"
@@ -186,9 +186,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/StructurePanel.tsx": "e4449a2639f7",
+        "web/src/components/StructurePanel.tsx": "69a9fc682581",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -209,7 +209,7 @@
           "waitFor": ".sidebar"
         },
         {
-          "click": "[title=\"Show comments\"]"
+          "click": "role=button[name=\"Comments\"]"
         },
         {
           "waitFor": ".comments-panel"
@@ -222,7 +222,7 @@
         "web/src/components/CommentsPanel.tsx": "503affa6d9c6",
         "web/src/components/CommentItem.tsx": "7a178485e79d",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -247,10 +247,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/NoteTrail.tsx": "042c5731373d",
+        "web/src/components/NoteTrail.tsx": "0b15a239b588",
         "server/notelog.go": "654fd6335e65",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".trail-wrap"
     },
@@ -291,7 +291,7 @@
         "web/src/components/SearchModal.tsx": "7387e608c706",
         "server/searchindex.go": "f7912b758b23",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -324,9 +324,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "92e620dd9398",
+        "web/src/components/CollectionView.tsx": "d71546179df8",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -361,11 +361,11 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "92e620dd9398",
+        "web/src/components/CollectionView.tsx": "d71546179df8",
         "web/src/components/BoardView.tsx": "4dac5818b928",
         "web/src/cardLayout.ts": "81a08ba36ba8",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -398,9 +398,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "92e620dd9398",
+        "web/src/components/CollectionView.tsx": "d71546179df8",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -442,7 +442,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "92e620dd9398",
+        "web/src/components/CollectionView.tsx": "d71546179df8",
         "web/src/components/ChartFigure.tsx": "d8d497a63489",
         "web/src/components/ChartView.css": "ad6a7c9c7acf",
         "web/src/components/ChartSettings.tsx": "845dc5779885",
@@ -450,7 +450,7 @@
         "web/src/chartLayout.ts": "1035a3e068ac",
         "web/src/chartTheme.ts": "e520e5c58966",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -505,7 +505,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/CollectionView.tsx": "92e620dd9398",
+        "web/src/components/CollectionView.tsx": "d71546179df8",
         "web/src/components/ChartSettings.tsx": "845dc5779885",
         "web/src/components/ChartSettings.css": "16a9584f65dc",
         "web/src/components/ChartPane.tsx": "1fbe458f0d0b",
@@ -517,7 +517,7 @@
         "web/src/components/ChartFigure.tsx": "d8d497a63489",
         "web/src/components/ChartView.css": "ad6a7c9c7acf",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -537,16 +537,16 @@
           "waitFor": ".sidebar"
         },
         {
-          "click": "[title^=\"Library\"]"
+          "click": "role=button[name=/^Library/]"
         },
         {
           "wait": 1100
         }
       ],
       "takenAt": {
-        "web/src/components/IndexView.tsx": "91351ea10e06",
+        "web/src/components/IndexView.tsx": "16cc92b45803",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -566,7 +566,7 @@
           "waitFor": ".sidebar"
         },
         {
-          "click": "[title^=\"Library\"]"
+          "click": "role=button[name=/^Library/]"
         },
         {
           "wait": 700
@@ -581,7 +581,7 @@
       "takenAt": {
         "web/src/components/GraphView.tsx": "c7fa47ab456d",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -602,7 +602,7 @@
           "waitFor": ".sidebar"
         },
         {
-          "click": ".share-wrap .icon-btn[title=\"Shared\"]"
+          "click": ".share-wrap >> role=button[name=\"Shared\"]"
         },
         {
           "click": ".share-menu button:has-text(\"New link\")"
@@ -613,9 +613,9 @@
       ],
       "takenAt": {
         "server/public.go": "86b2a62a07d2",
-        "web/src/components/Editor.tsx": "27d191199691",
+        "web/src/components/Editor.tsx": "e478bba33397",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       }
     },
     {
@@ -645,9 +645,9 @@
         }
       ],
       "takenAt": {
-        "web/src/components/UserMenu.tsx": "e06ab144311f",
+        "web/src/components/UserMenu.tsx": "1f6a365db8eb",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -680,9 +680,9 @@
       ],
       "takenAt": {
         "server/users.go": "136e05917103",
-        "web/src/components/UserMenu.tsx": "e06ab144311f",
+        "web/src/components/UserMenu.tsx": "1f6a365db8eb",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -714,10 +714,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/LanguageTime.tsx": "274ac44244e0",
+        "web/src/components/LanguageTime.tsx": "eceab1ee0ada",
         "server/prefs.go": "7946afa64dc2",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -749,10 +749,10 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AgentConnect.tsx": "5845471c4aee",
+        "web/src/components/AgentConnect.tsx": "ba749e60a17a",
         "server/mcp.go": "b908fc8d01de",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -785,7 +785,7 @@
       "takenAt": {
         "server/users.go": "136e05917103",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -828,13 +828,13 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/instance.go": "dcc0a4516373",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       },
@@ -879,13 +879,13 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/oauth.go": "23d966a3d480",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       },
@@ -931,14 +931,14 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/mail_oauth.go": "76b951ae59bc",
         "server/admin.go": "d9bafd916d93",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       },
@@ -982,12 +982,12 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       },
@@ -1032,13 +1032,13 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/webhooks.go": "db7b5d463d57",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       },
@@ -1084,13 +1084,13 @@
       ],
       "element": ".ui-dialog",
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/export_html.go": "289f0ae9019d",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec"
       }
@@ -1141,13 +1141,13 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/backup.go": "a8d1d8bc81fc",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d",
+        "web/src/theme.css": "34c1a126953b",
         "web/src/ui/Dialog.tsx": "cf65d6c96beb",
         "web/src/ui/Dialog.css": "e7b7600573e9",
-        "web/src/ui/Button.css": "f9bc9ccbe9f4",
+        "web/src/ui/Button.css": "ce84bd93d3ba",
         "web/src/ui/Field.css": "27405010c413",
         "web/src/ui/Checkbox.css": "6334484548ec",
         "web/src/components/DatabaseUpgrades.tsx": "c6a3ae98fa09"
@@ -1183,11 +1183,11 @@
         }
       ],
       "takenAt": {
-        "web/src/components/AdminSettings.tsx": "e7750572c401",
+        "web/src/components/AdminSettings.tsx": "fff1c9ab1d1b",
         "server/admin.go": "d9bafd916d93",
         "server/lifecycle_account.go": "1a6058b79f8d",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     },
@@ -1220,7 +1220,7 @@
       "takenAt": {
         "server/audit.go": "b024b8800af4",
         "web/src/tokens.css": "ed66c7b12df0",
-        "web/src/theme.css": "0ef4724d4a6d"
+        "web/src/theme.css": "34c1a126953b"
       },
       "element": ".dialog"
     }

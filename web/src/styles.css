@@ -5455,7 +5455,9 @@ body.is-col-resizing {
 .sidebar-hotzone { display: none; }
 /* The collapse button is desktop-only (mobile uses the drawer's ✕). */
 @media (max-width: 768px) {
-  .collapse-btn { display: none; }
+  /* .ui-button too: Button.css loads after this file (spec 020). */
+  .collapse-btn,
+  .ui-button.collapse-btn { display: none; }
 }
 
 /* Tree section labels (Dokumente / Datenbanken split) */
@@ -8783,7 +8785,9 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
    overflow menu stay; the rest come back as items inside that menu. Nothing
    becomes unreachable — it just stops competing for the same 40 pixels. */
 @media (max-width: 640px) {
-  .topbar-wide-only { display: none; }
+  /* .ui-button too: Button.css loads after this file (spec 020). */
+  .topbar-wide-only,
+  .ui-button.topbar-wide-only { display: none; }
 }
 
 /* An agent that says it is working here. Named .agent-work, not .agent-badge —

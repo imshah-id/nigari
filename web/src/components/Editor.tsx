@@ -963,36 +963,50 @@ function PageHeader({
               "comments are off" rather than "the panel is closed", which is a
               different and alarming thing to say about a page. */}
           {canComment && (
-          // Not icon-only: the count of open comments rides beside the icon, so
-          // the name is set here and the native tooltip stays (spec 020).
-          <Button
-            emphasis="low"
-            pressed={commentsOpen}
-            className="topbar-wide-only"
-            title={commentsOpen ? t('Hide comments') : t('Show comments')}
-            aria-label={commentsOpen ? t('Hide comments') : t('Show comments')}
-            icon={<MessageSquare size={17} />}
-            onClick={() => onToggleComments(!commentsOpen)}
-          >
-            {openComments > 0 && <span className="badge-count">{openComments}</span>}
-          </Button>
+          // A square icon button, unless comments are open: then their count
+          // rides beside the icon, and the name is set by hand (spec 020).
+          openComments > 0 ? (
+            <Button
+              emphasis="low"
+              pressed={commentsOpen}
+              className="topbar-wide-only"
+              title={t('Comments')}
+              aria-label={t('Comments')}
+              icon={<MessageSquare size={17} />}
+              onClick={() => onToggleComments(!commentsOpen)}
+            >
+              <span className="badge-count">{openComments}</span>
+            </Button>
+          ) : (
+            <Button
+              emphasis="low"
+              pressed={commentsOpen}
+              className="topbar-wide-only"
+              icon={<MessageSquare size={17} />}
+              label={t('Comments')}
+              onClick={() => onToggleComments(!commentsOpen)}
+            />
+          )
           )}
           {/* The toggles say "on" the one way every button does (pressed: a
-              faint tint, spec 020 Q2). Favourite and private used to borrow a
-              gold of their own; the filled star and the closed lock still say
-              which state it is. */}
+              faint tint, spec 020 Q2), so their names stay put: a name that
+              flipped with the state ("Remove from favorites") beside
+              aria-pressed told a screen reader the state twice, and the two
+              read as opposites (found by review). Favourite and private used
+              to borrow a gold of their own; the filled star and the closed
+              lock still show which state it is. */}
           <Button
             emphasis="low"
             pressed={structureOpen}
             icon={<PanelRight size={17} />}
-            label={structureOpen ? t('Hide structure') : t('Show structure')}
+            label={t('Structure')}
             onClick={onToggleStructure}
           />
           <Button
             emphasis="low"
             pressed={favorite}
             icon={<Star size={17} fill={favorite ? 'currentColor' : 'none'} />}
-            label={favorite ? t('Remove from favorites') : t('Add to favorites')}
+            label={t('Favorite')}
             onClick={() => onToggleFavorite(pageId)}
           />
           <Button
@@ -1000,7 +1014,7 @@ function PageHeader({
             pressed={visibility === 'private'}
             className="topbar-wide-only"
             icon={visibility === 'private' ? <Lock size={17} /> : <LockOpen size={17} />}
-            label={visibility === 'private' ? t('Private (only you): click to share with the workspace') : t('Visible to the workspace: click to make it private')}
+            label={t('Private')}
             onClick={togglePrivate}
           />
           <div className="share-wrap" ref={shareWrapRef}>
