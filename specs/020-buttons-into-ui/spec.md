@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-17 · **Rewritten**: 2026-11-18, to the owner's button model
 
-**Status**: Draft
+**Status**: Clarified
 
 **Issues**: #379
 
@@ -85,12 +85,17 @@ What the code says today (2026-11-18, `main` at c74557a):
   hand-built text and icon buttons everywhere. (3) `Tabs` and `ToggleGroup`.
   (4) The rest. Each PR reviews one kind of change. Turned down: screen by
   screen.
-- Q4: [NEEDS CLARIFICATION: How is a button that stays hand-built marked?
-  **A**, a marker on the line, `button-ok: <reason>`, that
-  `check-tokens.mjs` requires (recommended: a new raw button without a
-  reason fails, and the budget can only reach the marked ones; it is a
-  change to a check, so the owner's call). **B**, a comment only, and the
-  budget alone guards the number.]
+- Q4 (owner, 2026-11-18, "A"; asked first "Are you saying a board card
+  is considered a button today? I would have you recreate that card as a
+  true card component"): the controls inside larger things (a card's "+3
+  more", tree-row chevrons, search-result rows) are not marked and left.
+  They get **real components** (`Card`, `TreeRow`, `ResultRow` …) whose
+  controls are `Button`s. That is a spec of its own, after this one
+  (#763). Only the editor library's own controls
+  (BlockNote's, which nigari cannot rebuild from outside) stay
+  hand-built. Each carries a `button-ok: <reason>` marker that
+  `check-tokens.mjs` requires (the owner's call on a change to a check, made
+  here). Turned down: marking every leftover as hand-built.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -170,8 +175,8 @@ the browser tests of the screens a pull request touches.
 ### User Story 4 - The count stays down (Priority: P2)
 
 Whoever writes the next feature cannot add a hand-built button without
-noticing: the budget only goes down, and (per Q4) a button that must stay
-hand-built says why.
+noticing: the budget only goes down, and a button that must stay
+hand-built (the editor library's own, Q4) says why on its line.
 
 **Independent Test**: `check-tokens.mjs` fails on one more raw button.
 
@@ -181,8 +186,8 @@ hand-built says why.
 
 - **Inside an editor block** (BlockNote's own controls, `bn-*`): stays
   hand-built. The editor's styles and events drive it.
-- **A drag handle or a whole row** (tree rows, board cards): stays. The row
-  is the component.
+- **A drag handle or a whole row** (tree rows, board cards): waits for its
+  component (the follow-up spec, Q4).
 - **A look from a parent's rule** (`.toolbar .btn-sm`): the property that
   matches is chosen. Where none matches, the plan names it.
 - **`type="submit"` in a form**: keeps its type.
@@ -216,8 +221,11 @@ hand-built says why.
 - **FR-006**: `ui/Tabs` (arrow keys, selected state) and `ui/ToggleGroup`
   (pressed state announced) MUST be built on the button's tokens.
 - **FR-007**: Hand-built text and icon buttons, tabs and choose-one rows
-  MUST move to these parts. A button that stays hand-built MUST say why
-  (per Q4).
+  MUST move to these parts. `check-tokens.mjs` MUST require a
+  `button-ok: <reason>` marker on any raw button it allows. Only the
+  editor library's own controls carry it (Q4). The controls inside cards,
+  tree rows and result rows wait for their components (the follow-up spec),
+  counted in the budget until then.
 - **FR-008**: Each new or changed part MUST have a `ui/README.md` entry and
   a catalogue section, light and dark.
 - **FR-009**: Each pull request MUST show before and after for every
@@ -240,8 +248,10 @@ None: no data changes.
   `ui/Tabs` and `ui/ToggleGroup` (`check-tokens.mjs` on `web/src/ui/`).
 - **SC-003**: Labels centred within 1px at both sizes, in both fonts, in
   the real app (US2).
-- **SC-004**: The raw-button count falls from 257 to the hand-built ones
-  that must stay (about 60 by the census), each marked (Q4).
+- **SC-004**: The raw-button count falls from 257 to the controls that
+  wait for the follow-up components plus the editor library's own (the plan
+  counts them), and every raw button left is either marked (editor
+  library) or listed for the follow-up spec (Q4).
 - **SC-005**: Every icon-only button has a name (axe in the catalogue and
   the touched screens' browser tests).
 

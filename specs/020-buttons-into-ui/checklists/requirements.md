@@ -1,4 +1,4 @@
-# Specification Quality Checklist: The hand-built buttons move into the design system's parts
+# Specification Quality Checklist: One button, with properties, from tokens
 
 **Purpose**: Validate specification completeness and quality before proceeding to planning
 **Created**: 2026-11-17
@@ -13,7 +13,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain (Q1–Q3 open)
+- [x] No [NEEDS CLARIFICATION] markers remain (Q1–Q4 answered by the owner, 2026-11-18)
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,7 +31,8 @@
 
 ## Notes
 
+- Rewritten 2026-11-18 to the owner's button model (one Button with
+  properties, one radius, every value a token, centred labels). The first
+  draft's "keep today's look" no longer applies.
 - The Context section names code (from the code graph), as specs here do;
-  requirements stay at the level of behaviour. `set_view` in FR-009 is the
-  agent-facing product surface.
-- Story 2 scenario 2 answered by the owner 2026-11-17 (B).
+  requirements stay at the level of behaviour.
