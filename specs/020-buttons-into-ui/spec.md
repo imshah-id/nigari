@@ -81,12 +81,11 @@ What the code says today (2026-11-18, `main` at c74557a):
   behind `primary` text (recommended: the choice is visible without
   shouting, and the one filled button on a screen stays the main action).
   **B**, today's solid pink (`primary` filled, `on-primary` text).]
-- Q3: [NEEDS CLARIFICATION: How is the work cut into pull requests?
-  **A**, by part (recommended): (1) the new `Button` and its tokens, with
-  today's 20 + 14 callers moved, (2) the text and icon buttons everywhere,
-  (3) `Tabs` and `ToggleGroup`, (4) the rest that can move. Each PR reviews
-  one kind of change. **B**, screen by screen (settings and dialogs first,
-  then the big screens), each PR touching every kind on its screens.]
+- Q3 (owner, 2026-11-18, "1"): **by part**. (1) The new `Button` and its
+  tokens, with today's `Button` and `IconButton` callers moved. (2) The
+  hand-built text and icon buttons everywhere. (3) `Tabs` and `ToggleGroup`.
+  (4) The rest. Each PR reviews one kind of change. Turned down: screen by
+  screen.
 - Q4: [NEEDS CLARIFICATION: How is a button that stays hand-built marked?
   **A**, a marker on the line, `button-ok: <reason>`, that
   `check-tokens.mjs` requires (recommended: a new raw button without a
