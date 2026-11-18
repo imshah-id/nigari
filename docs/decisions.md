@@ -34,12 +34,15 @@ Two choices beyond the plan:
   given new names with the old ones as aliases. Accent and danger got new
   role names (`primary`, `destructive`) because those are what spec 020
   builds on; `--accent`, `--danger` and `color.accent.*` are aliases.
-- **The chart backgrounds** (only the frame of Save chart as) take their
-  nearest hue palette: orange, blue, red, yellow at 100 (light) and 850
-  (dark). Light matches closely; dark is visibly more saturated than today's
-  greyish browns, because a step keeps its palette's chroma. Turned down:
-  keeping them as hex (no hex in the role tier, FR-003); four extra palettes
-  for one decorative frame.
+- **The chart backgrounds** (only the frame of Save chart as) get four soft
+  palettes of their own, `frame-orange`, `frame-blue`, `frame-red` and
+  `frame-yellow`, each with today's frame's hue and chroma (0.019–0.04), at
+  100 (light) and 850 (dark). The owner chose this (**B**, 2026-11-18) after
+  a side-by-side picture: the dark frames match today's within a few units
+  per channel. Turned down: **A**, the nearest step of the chart hue
+  palettes, which turned the dark frames deep brown, navy and maroon (a
+  step keeps its palette's chroma); keeping them as hex (no hex in the role
+  tier, FR-003).
 
 A translucent role names its step and an opacity
 (`io.github.neatlittlemacapps.nigari.alpha`), because DTCG cannot put an alpha

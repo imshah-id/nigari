@@ -314,6 +314,58 @@
           ]
         }
       }
+    },
+    "frame-orange": {
+      "$description": "A soft frame for Save chart as: a hint of orange, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.019,
+            60.2
+          ]
+        }
+      }
+    },
+    "frame-blue": {
+      "$description": "A soft frame for Save chart as: a hint of blue, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.025,
+            238.7
+          ]
+        }
+      }
+    },
+    "frame-red": {
+      "$description": "A soft frame for Save chart as: a hint of red, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.025,
+            9.8
+          ]
+        }
+      }
+    },
+    "frame-yellow": {
+      "$description": "A soft frame for Save chart as: a hint of yellow, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.04,
+            84.6
+          ]
+        }
+      }
     }
   },
   "font": {

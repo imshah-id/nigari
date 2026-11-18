@@ -994,32 +994,32 @@
       "background": {
         "$description": "Soft backgrounds for Save chart as (research R17 of spec 004). No contrast claim: they frame the chart, whose own colours are checked.",
         "1": {
-          "$value": "{palette.orange.100}",
+          "$value": "{palette.frame-orange.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.850}"
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-orange.850}"
           },
-          "$description": "Background 1 (orange)."
+          "$description": "Background 1 (a soft orange)."
         },
         "2": {
-          "$value": "{palette.blue.100}",
+          "$value": "{palette.frame-blue.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.850}"
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-blue.850}"
           },
-          "$description": "Background 2 (blue)."
+          "$description": "Background 2 (a soft blue)."
         },
         "3": {
-          "$value": "{palette.red.100}",
+          "$value": "{palette.frame-red.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": "{palette.red.850}"
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-red.850}"
           },
-          "$description": "Background 3 (red)."
+          "$description": "Background 3 (a soft red)."
         },
         "4": {
-          "$value": "{palette.yellow.100}",
+          "$value": "{palette.frame-yellow.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": "{palette.yellow.850}"
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-yellow.850}"
           },
-          "$description": "Background 4 (yellow)."
+          "$description": "Background 4 (a soft yellow)."
         }
       }
     },
