@@ -47,7 +47,7 @@ export default function ChartSave({ name, pictureRef }: { name: string; pictureR
       label={t('Save chart as')}
       closeLabel={t('Close')}
       trigger={
-        <Button size="sm" variant="ghost">
+        <Button size="sm" emphasis="low">
           <ImageDown size={14} aria-hidden="true" />
           {t('Save chart as')}
         </Button>

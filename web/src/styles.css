@@ -2830,6 +2830,13 @@ body:has(.icon-picker) .bn-side-menu {
   cursor: grab;
 }
 
+/* Its height comes from the heading's text: no trimming of the label to its
+   capitals, which a fixed-height button does (ui/Button.css). */
+.db-table th .th-label > .ui-button-label,
+.ui-button.prop-empty-edit > .ui-button-label {
+  text-box: normal;
+}
+
 body.is-col-moving,
 body.is-col-moving .db-table th .th-label {
   cursor: grabbing;
@@ -3035,16 +3042,19 @@ body.is-col-resizing {
 /* An empty date (and, on the row page, an empty number) is a button until it
    is clicked (#269). It sits in the field's place like the value would: the
    width of its cell, the height of a line of text, no frame until hovered.
-   ui/Button has no inline variant yet (#379 is about adding the shapes such
-   buttons need), so this states the inline shape over the ghost button, with
-   the attribute selector outweighing Button's own [data-size] rule. */
+   ui/Button has no inline shape (a low button the height of a line of text),
+   so this states it over the low button, with the attribute selector
+   outweighing Button's own [data-size] rule. height: auto undoes the
+   button's fixed height (spec 020), which would make every empty cell 28px
+   tall. Until a property covers it, the one class rule that may change a
+   button's size. */
 .ui-button.prop-empty-edit[data-size] {
   display: flex;
   justify-content: flex-start;
   width: 100%;
+  height: auto;
   min-height: 1.6em;
   padding: var(--space-50) var(--space-100);
-  border-radius: var(--radius-scale-md);
   font-family: inherit;
   font-size: inherit;
   letter-spacing: normal;
@@ -8172,15 +8182,16 @@ a,
   gap: var(--space-50);
   margin-top: var(--space-100);
 }
+/* The button's one radius (spec 020), not a pill of its own. */
 .ui-button.cp-chip {
   gap: var(--space-50);
   border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-scale-full);
   padding-inline: var(--space-100);
 }
 /* Yours: the accent border and a heavier count as well as the tint, so the
-   difference is not carried by colour alone. */
-.ui-button.cp-chip[aria-pressed='true'] {
+   difference is not carried by colour alone. The extra attributes outweigh
+   ui/Button's pressed rule, which takes the border away (spec 020). */
+.ui-button.cp-chip[aria-pressed='true'][data-emphasis][data-tone] {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-default);
 }
@@ -8200,7 +8211,7 @@ a,
   gap: var(--space-50);
 }
 .cp-picker-item { font-size: var(--font-size-lg); }
-.ui-button.cp-picker-item[aria-pressed='true'] {
+.ui-button.cp-picker-item[aria-pressed='true'][data-emphasis][data-tone] {
   background: var(--color-accent-soft);
   border-color: var(--color-accent-default);
 }

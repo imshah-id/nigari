@@ -1,46 +1,84 @@
-/* Button: the look of today's .btn / .btn-sm, stated once from tokens.
-   Values are the ones the old cascade ended on (measured in the settings
-   dialog), not the ones any single old rule wrote. */
+/* The one button (spec 020). Every value is a token: the button's own
+   (--button-*, component.tokens.json) or a colour role of spec 019. Its look
+   is set by data-emphasis, data-tone, data-size, data-icon-only and
+   data-pressed, never by a class. One radius for every emphasis and size
+   (owner). */
 
 .ui-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-150);
-  /* today's .btn, so a migrated button keeps its height (34px) */
-  padding: 7px 14px;
-  border: 1px solid var(--color-border-default);
-  border-radius: var(--radius-scale-lg);
+  gap: var(--button-gap);
+  box-sizing: border-box;
+  /* A fixed height and no vertical padding: the label is centred by flex on
+     a box that is exactly its capitals (text-box below), not on the font's
+     line box, whose space above and below differs per font. The owner saw a
+     label sit low in a preview built the other way (spec 020, R4). */
+  height: var(--button-height-md);
+  padding: 0 var(--button-padding-x-md);
+  border: var(--button-border-width) solid transparent;
+  border-radius: var(--button-radius);
   background: transparent;
   color: var(--color-text-default);
   font: inherit;
-  font-size: var(--font-size-sm);
-  line-height: 1.2;
+  font-size: var(--button-font-size-md);
+  font-weight: var(--button-font-weight);
+  line-height: 1;
   white-space: nowrap;
   cursor: pointer;
   transition:
     background-color var(--motion-duration-base) ease,
     border-color var(--motion-duration-base) ease,
+    color var(--motion-duration-base) ease,
     box-shadow var(--motion-duration-base) ease,
     transform var(--motion-duration-fast) ease;
 }
 
 .ui-button[data-size='sm'] {
-  padding: 5px 11px; /* today's .btn-sm */
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-xs);
+  height: var(--button-height-sm);
+  padding: 0 var(--button-padding-x-sm);
+  font-size: var(--button-font-size-sm);
 }
 
-/* Labels in the brand typeface, as every .btn is (styles.css "Labels and
+/* Labels in the brand typeface, as every button was (styles.css "Labels and
    buttons in mono"). */
 [data-font='brand'] .ui-button {
   font-family: var(--font-family-mono);
   letter-spacing: 0.02em;
 }
 
-.ui-button:hover:not([data-disabled]) {
-  background: var(--color-hover);
-  border-color: var(--color-border-strong);
+/* The label's box is its capital height down to the baseline, so flex
+   centres what the eye reads as the middle. A flex item is blockified, which
+   text-box needs. Only where the button has its fixed height: a button that
+   takes its height from its content (link, or a class that sets height: auto,
+   such as a table's column heading) would shrink to the capitals (found by
+   review). */
+.ui-button:not([data-emphasis='link']) > .ui-button-label {
+  text-box: trim-both cap alphabetic;
+}
+
+.ui-button-icon {
+  display: inline-flex;
+}
+
+.ui-button-icon svg {
+  width: var(--button-icon-size-md);
+  height: var(--button-icon-size-md);
+}
+
+.ui-button[data-size='sm'] .ui-button-icon svg {
+  width: var(--button-icon-size-sm);
+  height: var(--button-icon-size-sm);
+}
+
+/* Icon only: a square of the size's height. */
+.ui-button[data-icon-only] {
+  width: var(--button-height-md);
+  padding: 0;
+}
+
+.ui-button[data-icon-only][data-size='sm'] {
+  width: var(--button-height-sm);
 }
 
 .ui-button:focus-visible {
@@ -50,41 +88,141 @@
 
 .ui-button[data-disabled],
 .ui-button:disabled {
-  opacity: 0.5;
+  opacity: var(--button-disabled-opacity);
   cursor: default;
 }
 
-/* Primary: the ink pill. Colour would make every dialog shout; ink is the
-   loudest thing on a page of ink on paper. */
-.ui-button[data-variant='primary'] {
-  background: var(--color-pill-default);
-  border-color: transparent;
-  border-radius: var(--radius-scale-full);
-  color: var(--color-pill-text);
-  font-weight: 600;
-}
+/* ---- high: filled --------------------------------------------------------- */
 
-.ui-button[data-variant='primary']:hover:not([data-disabled]) {
+/* Neutral high is the ink pill: ink is the loudest thing on a page of ink on
+   paper, so the main action needs no colour. */
+.ui-button[data-emphasis='high'][data-tone='neutral'] {
+  background: var(--color-pill-default);
+  color: var(--color-pill-text);
+}
+.ui-button[data-emphasis='high'][data-tone='neutral']:hover:not([data-disabled]) {
   background: var(--color-pill-hover);
-  border-color: transparent;
   box-shadow: var(--shadow-glow);
   transform: translateY(-1px);
 }
-
-.ui-button[data-variant='primary']:active:not([data-disabled]) {
+.ui-button[data-emphasis='high'][data-tone='neutral']:active:not([data-disabled]) {
+  background: var(--color-pill-default);
   transform: translateY(0);
 }
 
-.ui-button[data-variant='ghost'] {
+.ui-button[data-emphasis='high'][data-tone='primary'] {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
+.ui-button[data-emphasis='high'][data-tone='primary']:hover:not([data-disabled]) {
+  background: var(--color-primary-hover);
+}
+.ui-button[data-emphasis='high'][data-tone='primary']:active:not([data-disabled]) {
+  background: var(--color-primary-pressed);
+}
+
+.ui-button[data-emphasis='high'][data-tone='destructive'] {
+  background: var(--color-destructive);
+  color: var(--color-on-destructive);
+}
+.ui-button[data-emphasis='high'][data-tone='destructive']:hover:not([data-disabled]) {
+  background: var(--color-destructive-hover);
+}
+.ui-button[data-emphasis='high'][data-tone='destructive']:active:not([data-disabled]) {
+  background: var(--color-destructive-pressed);
+}
+
+/* ---- medium: an outline --------------------------------------------------- */
+
+.ui-button[data-emphasis='medium'] {
+  border-color: var(--color-border-default);
+}
+.ui-button[data-emphasis='medium'][data-tone='neutral']:hover:not([data-disabled]) {
+  background: var(--color-hover);
+  border-color: var(--color-border-strong);
+}
+.ui-button[data-emphasis='medium'][data-tone='neutral']:active:not([data-disabled]) {
+  background: var(--color-active);
+}
+
+/* A destructive button is a red outline at rest (owner, spec 020 Q1): it
+   reads as careful before the pointer reaches it. */
+.ui-button[data-emphasis='medium'][data-tone='primary'] {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+.ui-button[data-emphasis='medium'][data-tone='destructive'] {
+  border-color: var(--color-destructive);
+  color: var(--color-destructive);
+}
+
+/* ---- low: a background on hover only ------------------------------------ */
+
+.ui-button[data-emphasis='low'][data-tone='neutral']:hover:not([data-disabled]) {
+  background: var(--color-hover);
+}
+.ui-button[data-emphasis='low'][data-tone='neutral']:active:not([data-disabled]) {
+  background: var(--color-active);
+}
+.ui-button[data-emphasis='low'][data-tone='primary'] {
+  color: var(--color-primary);
+}
+.ui-button[data-emphasis='low'][data-tone='destructive'] {
+  color: var(--color-destructive);
+}
+
+/* The tinted tones of medium and low share their hover and press: a wash of
+   their own colour, with the text one step further from it (the hover role).
+   The tone's own colour on its wash fell to 4.08:1 for destructive on the
+   light sidebar; the token build checks the hover role there (spec 020, R5). */
+.ui-button:is([data-emphasis='medium'], [data-emphasis='low'])[data-tone='primary']:is(:hover, :active):not([data-disabled]) {
+  background: var(--color-primary-subtle);
+  color: var(--color-primary-hover);
+}
+.ui-button:is([data-emphasis='medium'], [data-emphasis='low'])[data-tone='destructive']:is(:hover, :active):not([data-disabled]) {
+  background: var(--color-destructive-subtle);
+  color: var(--color-destructive-hover);
+}
+
+/* ---- link: text only ----------------------------------------------------- */
+
+.ui-button[data-emphasis='link'] {
+  height: auto;
+  padding: 0;
+  border: 0;
+  color: var(--color-text-default);
+  text-underline-offset: 0.2em;
+}
+.ui-button[data-emphasis='link'][data-tone='primary'] {
+  color: var(--color-primary);
+}
+.ui-button[data-emphasis='link'][data-tone='destructive'] {
+  color: var(--color-destructive);
+}
+.ui-button[data-emphasis='link']:hover:not([data-disabled]) {
+  text-decoration: underline;
+}
+
+/* ---- pressed: a toggle that is on ----------------------------------------- */
+
+/* The faint primary tint, whatever the emphasis and tone (owner, spec 020
+   Q2): the choice is visible, and the one filled button on a screen stays
+   the main action. [data-emphasis][data-tone] outweighs the emphasis × tone
+   rules (three attributes and a class against two), and the hover rule below
+   outweighs their hover: source order alone does not (found by review). */
+.ui-button[data-pressed][data-emphasis][data-tone] {
+  background: var(--color-primary-subtle);
   border-color: transparent;
+  color: var(--color-primary);
+  box-shadow: none;
+  transform: none;
 }
-
-.ui-button[data-variant='danger'] {
-  color: var(--color-danger);
-}
-
-.ui-button[data-variant='danger']:hover:not([data-disabled]) {
-  border-color: var(--color-danger);
+.ui-button[data-pressed][data-emphasis][data-tone]:is(:hover, :active):not([data-disabled]) {
+  background: var(--color-primary-subtle);
+  border-color: transparent;
+  color: var(--color-primary-hover);
+  box-shadow: none;
+  transform: none;
 }
 
 .ui-button-kbd {
@@ -94,18 +232,40 @@
   opacity: 0.6;
 }
 
+/* ---- the tooltip of an icon-only button -------------------------------- */
+
+.ui-tooltip-positioner {
+  z-index: var(--layer-tooltip);
+}
+
+.ui-tooltip {
+  padding: var(--space-100) var(--space-200);
+  border-radius: var(--radius-scale-md);
+  background: var(--color-surface-raised);
+  color: var(--color-text-default);
+  box-shadow: var(--shadow-overlay);
+  font-size: var(--font-size-xs);
+  transition: opacity var(--motion-duration-fast) ease;
+}
+
+.ui-tooltip[data-starting-style],
+.ui-tooltip[data-ending-style] {
+  opacity: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .ui-button {
+  .ui-button,
+  .ui-tooltip {
     transition: none;
   }
-  .ui-button[data-variant='primary']:hover:not([data-disabled]) {
+  .ui-button[data-emphasis='high'][data-tone='neutral']:hover:not([data-disabled]) {
     box-shadow: none;
     transform: none;
   }
 }
 
 @media (hover: none) {
-  .ui-button[data-variant='primary']:hover:not([data-disabled]) {
+  .ui-button[data-emphasis='high'][data-tone='neutral']:hover:not([data-disabled]) {
     transform: none;
   }
 }

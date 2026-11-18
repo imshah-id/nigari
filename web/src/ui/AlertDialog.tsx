@@ -40,7 +40,8 @@ export function AlertDialog({ title, description, confirmLabel, cancelLabel, dan
             <div className="ui-dialog-footer">
               <BaseAlertDialog.Close render={<Button ref={cancel}>{cancelLabel}</Button>} />
               <Button
-                variant={danger ? 'danger' : 'primary'}
+                emphasis={danger ? 'medium' : 'high'}
+                tone={danger ? 'destructive' : 'neutral'}
                 onClick={() => {
                   onConfirm();
                   onClose();

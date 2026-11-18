@@ -62,7 +62,7 @@ function EmptyValue({ show, dash }: { show?: boolean; dash?: boolean }) {
 function EmptyEdit({ name, show, onClick }: { name: string; show?: boolean; onClick: () => void }) {
   return (
     <Button
-      variant="ghost"
+      emphasis="low"
       size="sm"
       className="prop-empty-edit"
       aria-label={show ? name + ': ' + t('Empty') : t('Edit') + ': ' + name}

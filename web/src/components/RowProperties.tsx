@@ -237,7 +237,7 @@ export default function RowProperties({
               if (el) names.current.set(p.id, el);
               else names.current.delete(p.id);
             }}
-            variant="ghost"
+            emphasis="low"
             size="sm"
             className="row-prop-name"
             aria-haspopup="menu"
@@ -289,7 +289,7 @@ export default function RowProperties({
                 openAdded();
               }}
               trigger={
-                <Button variant="ghost" size="sm" className="row-props-add">
+                <Button emphasis="low" size="sm" className="row-props-add">
                   <Plus size={14} aria-hidden="true" />
                   {t('Add a property')}
                 </Button>
@@ -309,7 +309,7 @@ export default function RowProperties({
             </Menu>
           )}
           {folded.length > 0 && (
-            <Button variant="ghost" size="sm" className="row-props-fold" aria-expanded={unfolded} onClick={() => setUnfolded((u) => !u)}>
+            <Button emphasis="low" size="sm" className="row-props-fold" aria-expanded={unfolded} onClick={() => setUnfolded((u) => !u)}>
               {unfolded ? <ChevronUp size={14} aria-hidden="true" /> : <ChevronDown size={14} aria-hidden="true" />}
               {unfolded
                 ? plural(folded.length, 'Hide {n} property', 'Hide {n} properties')

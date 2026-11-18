@@ -231,7 +231,7 @@ export function PropertyFields({
                                 {isStatus && (
                                   <Menu
                                     label={t('Move to')}
-                                    trigger={<Button variant="ghost" size="sm" className="schema-option-move">{t('Move to')}</Button>}
+                                    trigger={<Button emphasis="low" size="sm" className="schema-option-move">{t('Move to')}</Button>}
                                     align="start"
                                     className="schema-option-move-menu"
                                   >

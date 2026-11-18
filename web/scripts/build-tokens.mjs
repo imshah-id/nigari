@@ -411,20 +411,35 @@ function contrast() {
   for (const t of tokens.values()) {
     const pairs = t.ext['io.github.neatlittlemacapps.nigari.contrast'];
     if (!pairs) continue;
-    for (const { on, min } of Array.isArray(pairs) ? pairs : [pairs]) {
+    // `over`: a translucent `on` (a wash such as primary-subtle, the pressed
+    // button's background) is laid over this opaque surface first, which is
+    // what the eye sees; a pressed label is then checked on it (spec 020, R5).
+    for (const { on, over: onTop, min } of Array.isArray(pairs) ? pairs : [pairs]) {
       if (!isAlias(on) || !tokens.has(target(on))) {
         fail(`${t.name}: io.github.neatlittlemacapps.nigari.contrast names "${on}", which is not a token alias`);
+        continue;
+      }
+      if (onTop !== undefined && (!isAlias(onTop) || !tokens.has(target(onTop)))) {
+        fail(`${t.name}: io.github.neatlittlemacapps.nigari.contrast names "over": "${onTop}", which is not a token alias`);
         continue;
       }
       for (const theme of ['light', 'dark']) {
         try {
           const fg = rgba(valueOf(t, theme), t.name);
           const surface = tokens.get(target(on));
-          const bg = rgba(valueOf(surface, theme), surface.name);
-          if (bg[3] !== 1) throw new Error(`${surface.name} is translucent; contrast needs an opaque surface`);
+          let bg = rgba(valueOf(surface, theme), surface.name);
+          let where = surface.name;
+          if (onTop !== undefined) {
+            const base = tokens.get(target(onTop));
+            const under = rgba(valueOf(base, theme), base.name);
+            if (under[3] !== 1) throw new Error(`${base.name} is translucent; "over" needs an opaque surface`);
+            bg = [...over(bg, under), 1];
+            where = `${surface.name} over ${base.name}`;
+          }
+          if (bg[3] !== 1) throw new Error(`${surface.name} is translucent; contrast needs an opaque surface, or "over" one`);
           const r = ratio(fg, bg);
           if (r < min) {
-            fail(`contrast: ${t.name} on ${surface.name} (${theme}) is ${r.toFixed(2)}:1, below ${min}:1`);
+            fail(`contrast: ${t.name} on ${where} (${theme}) is ${r.toFixed(2)}:1, below ${min}:1`);
           }
         } catch (e) {
           fail(`${t.name}: ${e.message}`);

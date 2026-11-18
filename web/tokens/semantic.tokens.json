@@ -18,6 +18,21 @@
           {
             "on": "{color.surface.raised}",
             "min": 4.5
+          },
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.raised}",
+            "min": 4.5
           }
         ],
         "io.github.neatlittlemacapps.nigari.rgb": "--accent-rgb"
@@ -27,9 +42,26 @@
     "primary-hover": {
       "$value": "{palette.raspberry.600}",
       "$extensions": {
-        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.300}"
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.300}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.primary-subtle}",
+            "over": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ]
       },
-      "$description": "Primary under the pointer: one step further from the surface."
+      "$description": "Primary under the pointer: one step further from the surface. Also the text of a primary outline or low button under the pointer, on its own wash: checked there (spec 020)."
     },
     "primary-pressed": {
       "$value": "{palette.raspberry.700}",
@@ -86,9 +118,26 @@
     "destructive-hover": {
       "$value": "{palette.burnt-orange.600}",
       "$extensions": {
-        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.300}"
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.300}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.destructive-subtle}",
+            "over": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.destructive-subtle}",
+            "over": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.destructive-subtle}",
+            "over": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ]
       },
-      "$description": "Destructive under the pointer."
+      "$description": "Destructive under the pointer. Also the text of a destructive outline or low button under the pointer, on its own wash: checked there (spec 020)."
     },
     "destructive-pressed": {
       "$value": "{palette.burnt-orange.700}",

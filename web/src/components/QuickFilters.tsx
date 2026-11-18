@@ -3,7 +3,6 @@ import { ChevronDown, X } from 'lucide-react';
 import { t } from '../i18n';
 import type { PropDef } from '../types';
 import { Button } from '../ui/Button';
-import { IconButton } from '../ui/IconButton';
 import { Menu, MenuValueItem, MenuValues } from '../ui/Menu';
 import { STATUS_GROUPS, statusGroupLabel } from '../statusGroups';
 import { groupPick, pickedGroup } from '../statusPick';
@@ -16,10 +15,10 @@ import { loadMembers, loadRelationOptions, type Member, type RelOption } from '.
 // the view for them alone: the pick is added to the filters they see as an
 // "is" condition (mergeViewState, on both sides).
 //
-// Built from ui/Button, ui/IconButton and ui/Menu: a chip is a button that
+// Built from ui/Button and ui/Menu: a chip is a button that
 // opens a menu of values, and a picked chip has a clear button beside it.
 // No chip primitive of its own in ui/: nothing here needs a behaviour those
-// three do not already have (Tab order, Escape, focus return, the phone
+// two do not already have (Tab order, Escape, focus return, the phone
 // sheet).
 
 type Value = { value: string; label: string };
@@ -77,7 +76,7 @@ function Chip({ prop, picked, onPick }: { prop: PropDef; picked: string; onPick:
         align="start"
         narrow="sheet"
         trigger={
-          <Button variant={picked ? 'primary' : 'secondary'} size="sm" className="quick-filter-chip">
+          <Button emphasis={picked ? 'high' : 'medium'} size="sm" className="quick-filter-chip">
             {picked ? t('{name}: {value}', { name: prop.name, value: pickedLabel }) : prop.name}
             <ChevronDown size={14} aria-hidden="true" />
           </Button>
@@ -117,7 +116,7 @@ function Chip({ prop, picked, onPick }: { prop: PropDef; picked: string; onPick:
         )}
       </Menu>
       {picked && (
-        <IconButton
+        <Button emphasis="low"
           label={t('Clear {name}', { name: prop.name })}
           icon={<X size={14} />}
           size="sm"

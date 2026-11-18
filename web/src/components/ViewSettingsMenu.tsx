@@ -4,7 +4,7 @@ import { t } from '../i18n';
 import { CENTER_PEEK_SHIPPED } from '../peek';
 import { MAX_QUICK_FILTERS, quickFilterProps, subGroupProps } from '../quickFilters';
 import { isSingleOptionType, type PropDef, type ViewDef } from '../types';
-import { IconButton } from '../ui/IconButton';
+import { Button } from '../ui/Button';
 import { Menu, MenuCheckboxItem, MenuItem, MenuLabel, MenuRadioGroup, MenuRadioItem, MenuSeparator, MenuSubmenu } from '../ui/Menu';
 import { ViewActionItems, ViewTypeItems } from './CollectionMenus';
 import ViewOpenMenu from './ViewOpenMenu';
@@ -142,7 +142,7 @@ export default function ViewSettingsMenu({
       onOpenChange={onOpenChange}
       className="view-settings-menu"
       returnFocus={button}
-      trigger={<IconButton ref={button} label={t('Settings')} icon={<SlidersHorizontal size={16} />} size="sm" className="view-settings-btn" />}
+      trigger={<Button emphasis="low" ref={button} label={t('Settings')} icon={<SlidersHorizontal size={16} />} size="sm" className="view-settings-btn" />}
     >
       {!locked && (
         <>

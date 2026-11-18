@@ -78,14 +78,16 @@ broken('two tokens writing one property', 'primitives', (j) => {
 
 // Build the tokens, with `edit` applied to one tier, and return every custom
 // property's value per theme, var() chains followed: what a page computes.
+// `tier` may also be { primitives: edit, semantic: edit } to change two files.
 function built(tier, edit) {
   const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
   try {
     cpSync(join(web, 'tokens'), dir, { recursive: true });
-    if (edit) {
-      const file = join(dir, `${tier}.tokens.json`);
+    const edits = typeof tier === 'object' ? tier : tier ? { [tier]: edit } : {};
+    for (const [name, change] of Object.entries(edits)) {
+      const file = join(dir, `${name}.tokens.json`);
       const json = JSON.parse(readFileSync(file, 'utf8'));
-      edit(json);
+      change(json);
       writeFileSync(file, JSON.stringify(json, null, 2));
     }
     const out = join(dir, 'tokens.css');
@@ -248,15 +250,24 @@ broken('a base outside sRGB', 'primitives', (j) => {
   j.palette.blue['500'].$value.components = [0.6, 0.35, 254.74];
 }, /palette\.blue\.500: the base is outside sRGB/);
 
-// Swapping a role is one edit, and it moves that role and nothing else.
+// Swapping a role is one edit, and it moves that role and nothing else. The
+// palette it moves to is made here, a dark plum readable everywhere primary
+// is (on every surface, on its own wash): an existing palette such as
+// burnt-orange is refused, because its text on its wash is below AA, which
+// is the build doing its job (spec 020).
 check('a swap moves only its role', () => {
   const before = built();
-  const after = built('semantic', (j) => {
-    for (const k of ['primary', 'primary-hover', 'primary-pressed', 'primary-subtle']) {
-      const t = j.color[k];
-      t.$value = t.$value.replace('raspberry', 'burnt-orange');
-      t.$extensions['io.github.neatlittlemacapps.nigari.dark'] = t.$extensions['io.github.neatlittlemacapps.nigari.dark'].replace('raspberry', 'burnt-orange');
-    }
+  const after = built({
+    primitives: (j) => {
+      j.palette.plum = { 500: { $value: { colorSpace: 'oklch', components: [0.45, 0.15, 330] } } };
+    },
+    semantic: (j) => {
+      for (const k of ['primary', 'primary-hover', 'primary-pressed', 'primary-subtle']) {
+        const t = j.color[k];
+        t.$value = t.$value.replace('raspberry', 'plum');
+        t.$extensions['io.github.neatlittlemacapps.nigari.dark'] = t.$extensions['io.github.neatlittlemacapps.nigari.dark'].replace('raspberry', 'plum');
+      }
+    },
   });
   // What reads primary: its own names, today's aliases, and what is built on them.
   const follows = /^--(color-primary|color-accent|accent|color-focus|editor-highlight|grad-accent)/;
@@ -268,7 +279,7 @@ check('a swap moves only its role', () => {
   }
   if (moved.length) return `these moved too: ${moved.join(', ')}`;
   if (after.light['--color-primary'] === before.light['--color-primary']) return 'primary did not move';
-  if (after.light['--accent'] !== after.light['--palette-burnt-orange-500']) return `--accent did not follow: ${after.light['--accent']}`;
+  if (after.light['--accent'] !== after.light['--palette-plum-500']) return `--accent did not follow: ${after.light['--accent']}`;
 });
 
 // A base too light for text: the build names the role and the ratio.
@@ -298,6 +309,22 @@ broken('a swap that fails contrast', 'primitives', (j) => {
   }
 }
 
+// A wash under text (a pressed or hovered button): the translucent surface is
+// laid over an opaque one first. The case is the one this check found: the
+// destructive role's own colour on its wash, on the light sidebar, is 4.08:1
+// (spec 020, R5), which is why a tinted button's hover text is the hover role.
+broken('text on a wash over a surface, below AA', 'semantic', (j) => {
+  j.color.destructive.$extensions['io.github.neatlittlemacapps.nigari.contrast'].push({ on: '{color.destructive-subtle}', over: '{color.surface.sidebar}', min: 4.5 });
+}, /contrast: color\.destructive on color\.destructive-subtle over color\.surface\.sidebar \(light\) is 4\.0\d:1, below 4\.5:1/);
+
+broken('a wash over a surface that is no token', 'semantic', (j) => {
+  j.color['primary-hover'].$extensions['io.github.neatlittlemacapps.nigari.contrast'][0].over = '{color.surface.nowhere}';
+}, /color\.primary-hover: .*names "over": "\{color\.surface\.nowhere\}", which is not a token alias/);
+
+broken('a wash without a surface under it', 'semantic', (j) => {
+  delete j.color['primary-hover'].$extensions['io.github.neatlittlemacapps.nigari.contrast'][0].over;
+}, /color\.primary-subtle is translucent; contrast needs an opaque surface, or "over" one/);
+
 // A hand edit to the generated file.
 {
   const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
@@ -321,4 +348,4 @@ if (failures.length) {
   console.error(`build-tokens: ${failures.length} problem(s)\n` + failures.map((f) => '  ' + f).join('\n'));
   process.exit(1);
 }
-console.log('  build-tokens: refuses broken aliases, cycles, contrast below AA, bad types, foreign extensions, clashing names, hand-written palette steps, palette steps in components and hand edits; palettes come from their bases, roles from their steps, a swap moves only its role; committed tokens up to date');
+console.log('  build-tokens: refuses broken aliases, cycles, contrast below AA, bad types, foreign extensions, clashing names, hand-written palette steps, palette steps in components, text on a wash below AA and hand edits; palettes come from their bases, roles from their steps, a swap moves only its role; committed tokens up to date');

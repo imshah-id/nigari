@@ -20,7 +20,7 @@ paths:
   that only go down, and a value that must stay literal carries
   `/* token-ok: <reason> */`. Every change is checked in light and dark.
   `theme.css` re-states the look; it adds no features.
-- **Components.** Build from `web/src/ui/` first (Button, IconButton, Dialog,
+- **Components.** Build from `web/src/ui/` first (Button, Dialog,
   AlertDialog, Field/Input, Checkbox, Select, Switch; `web/src/ui/README.md`
   says which for what). See them all in the catalogue: `npx vite --config
   vite.catalog.config.ts`, then `/catalog.html`. A new component gets a README

@@ -285,6 +285,60 @@ try {
   assert.notEqual(await disabled.getAttribute('data-disabled'), null, 'Button: disabled has no data-disabled');
   await disabled.click({ force: true });
   assert.equal(await last.textContent(), '', 'Button: a disabled button ran its click');
+  // The same for one with only an icon: its tooltip trigger kept `disabled`
+  // to itself and the button stayed clickable (found by review).
+  const disabledIcon = page.getByRole('button', { name: 'Remove (disabled)' });
+  assert.notEqual(await disabledIcon.getAttribute('data-disabled'), null, 'Button: a disabled icon-only button has no data-disabled');
+  await disabledIcon.click({ force: true });
+  assert.equal(await last.textContent(), '', 'Button: a disabled icon-only button ran its click');
+
+  // A button's label sits in the middle (spec 020, US2): the rows of ink above
+  // the capitals and below the baseline differ by at most 1px, at both sizes,
+  // in both of the app's fonts, measured from the rendered pixels with the
+  // fonts loaded. The owner saw a label sit low in a preview page that never
+  // loaded the app's fonts; the font's normal line box puts Inter 2px low in a
+  // small button, which this catches.
+  for (const font of ['brand', 'sans']) {
+    await page.evaluate((f) => {
+      if (f === 'brand') document.documentElement.dataset.font = 'brand';
+      else delete document.documentElement.dataset.font;
+      return document.fonts.ready;
+    }, font);
+    for (const id of ['centre-md', 'centre-sm']) {
+      const png = await page.getByTestId(id).screenshot();
+      const ink = await page.evaluate(async (b64) => {
+        const img = await createImageBitmap(await (await fetch('data:image/png;base64,' + b64)).blob());
+        const canvas = new OffscreenCanvas(img.width, img.height);
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const d = ctx.getImageData(0, 0, img.width, img.height).data;
+        const at = (x, y) => d.slice((y * img.width + x) * 4, (y * img.width + x) * 4 + 3);
+        // The fill, sampled left of the label; ink is any pixel far from it.
+        const fill = at(4, img.height >> 1);
+        const far = (p) => Math.abs(p[0] - fill[0]) + Math.abs(p[1] - fill[1]) + Math.abs(p[2] - fill[2]) > 200;
+        let top = -1;
+        let bottom = -1;
+        for (let y = 0; y < img.height; y++) {
+          for (let x = 6; x < img.width - 6; x++) {
+            if (far(at(x, y))) {
+              if (top < 0) top = y;
+              bottom = y;
+              break;
+            }
+          }
+        }
+        return { above: top, below: img.height - 1 - bottom };
+      }, png.toString('base64'));
+      assert(ink.above > 0 && ink.below > 0, `Button ${id} (${font}): no label ink found`);
+      assert(
+        Math.abs(ink.above - ink.below) <= 1,
+        `Button ${id} (${font}): the label is off centre, ${ink.above}px above and ${ink.below}px below`,
+      );
+    }
+  }
+  await page.evaluate(() => {
+    document.documentElement.dataset.font = 'brand';
+  });
 
   // Dialog: opens with focus inside, Tab stays inside, Escape closes and
   // returns focus to the button that opened it.
@@ -334,6 +388,10 @@ try {
   await page.keyboard.press('Enter');
   const menuPopup = page.getByRole('menu', { name: 'Page actions' });
   await menuPopup.waitFor();
+  // Base UI's Menu.Trigger marks itself data-pressed while its menu is open;
+  // the button must not take that for its own pressed toggle (spec 020: the
+  // tint turned every open menu's button raspberry, found by review).
+  assert.equal(await menuOpener.getAttribute('data-pressed'), null, 'Button: an open menu made its trigger look pressed');
   const focusedItem = async () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? '');
   await eventually(async () => (await focusedItem()) === 'Open in new tab').catch(() => {
     throw new Error('Menu: Enter did not open the menu on its first item');

@@ -327,7 +327,7 @@ ingress:
           <DialogClose>
             <Button>{t('Cancel')}</Button>
           </DialogClose>
-          <Button variant="primary" onClick={() => void save()}>
+          <Button emphasis="high" onClick={() => void save()}>
             {t('Save')}
           </Button>
         </>
@@ -796,7 +796,7 @@ ingress:
                 </div>
                 {hookErr && <div className="login-error">{hookErr}</div>}
                 <Button
-                  variant="primary"
+                  emphasis="high"
                   disabled={hookBusy || !hookURL.trim() || hookEvents.length === 0}
                   onClick={() => {
                     setHookBusy(true);
@@ -848,7 +848,7 @@ ingress:
                     </span>
                     <Button
                       size="sm"
-                      variant="danger"
+                      tone="destructive"
                       onClick={() => {
                         void api.deleteWebhook(h.id).then(() => api.webhooks().then(setHooks));
                       }}

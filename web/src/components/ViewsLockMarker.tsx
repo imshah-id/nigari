@@ -39,7 +39,7 @@ export default function ViewsLockMarker({ lock }: { lock: ViewsLock }) {
       align="start"
       className="views-lock-panel"
       trigger={
-        <Button variant="ghost" size="sm" className="views-lock-marker">
+        <Button emphasis="low" size="sm" className="views-lock-marker">
           <LockKeyhole size={14} aria-hidden="true" /> {t('Views locked')}
         </Button>
       }
