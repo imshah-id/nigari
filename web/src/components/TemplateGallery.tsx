@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import type { PageMeta } from '../types';
@@ -223,20 +224,20 @@ export default function TemplateGallery({
             <span className="tpl-count">{plural(templates.length, '{n} template', '{n} templates')}</span>
             {current && (
               <>
-                <button className="btn-sm" onClick={() => onUnflag(current.id)}>
+                <Button size="sm" onClick={() => onUnflag(current.id)}>
                   <LayoutTemplate size={13} /> {t('Remove template flag')}
-                </button>
-                <button className="btn-sm danger" onClick={() => onTrash(current.id)}>
+                </Button>
+                <Button size="sm" tone="destructive" onClick={() => onTrash(current.id)}>
                   <Trash2 size={13} /> {t('Delete')}
-                </button>
+                </Button>
               </>
             )}
-            <button className="btn-sm" onClick={onClose}>
+            <Button size="sm" onClick={onClose}>
               {t('Close')}
-            </button>
-            <button className="btn primary" disabled={!current || busy} onClick={() => void use()}>
+            </Button>
+            <Button emphasis="high" disabled={!current || busy} onClick={() => void use()}>
               {t('Use template')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

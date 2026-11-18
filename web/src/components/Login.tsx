@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import type { User } from '../types';
@@ -152,14 +153,14 @@ export default function Login({ onSuccess }: { onSuccess: (user: User) => void }
           />
         )}
         {error && <div className="login-error">{error}</div>}
-        <button className="btn primary" type="submit" disabled={busy}>
+        <Button emphasis="high" type="submit" disabled={busy}>
           {mode === 'signup' ? t('Create account') : t('Sign in')}
-        </button>
+        </Button>
         {(oauth.google || oauth.microsoft) && (
           <>
             <div className="login-divider"><span>{t('or')}</span></div>
             {oauth.google && (
-              <a className="btn oauth-btn" href={'/api/oauth/google/start' + oauthNextParam()}>
+              <Button className="oauth-btn" href={'/api/oauth/google/start' + oauthNextParam()}>
                 <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true">
                   <path fill="#4285F4" d="M23.5 12.27c0-.85-.08-1.66-.22-2.45H12v4.64h6.45a5.52 5.52 0 0 1-2.39 3.62v3h3.86c2.26-2.09 3.58-5.17 3.58-8.81z" />
                   <path fill="#34A853" d="M12 24c3.24 0 5.96-1.07 7.94-2.91l-3.86-3c-1.07.72-2.44 1.14-4.08 1.14-3.13 0-5.78-2.11-6.73-4.96H1.29v3.1A12 12 0 0 0 12 24z" />
@@ -167,10 +168,10 @@ export default function Login({ onSuccess }: { onSuccess: (user: User) => void }
                   <path fill="#EA4335" d="M12 4.77c1.76 0 3.35.61 4.6 1.8l3.42-3.42A11.97 11.97 0 0 0 12 0 12 12 0 0 0 1.29 6.63l3.98 3.1C6.22 6.88 8.87 4.77 12 4.77z" />
                 </svg>
                 {t('Sign in with Google')}
-              </a>
+              </Button>
             )}
             {oauth.microsoft && (
-              <a className="btn oauth-btn" href={'/api/oauth/microsoft/start' + oauthNextParam()}>
+              <Button className="oauth-btn" href={'/api/oauth/microsoft/start' + oauthNextParam()}>
                 <svg width="17" height="17" viewBox="0 0 23 23" aria-hidden="true">
                   <rect x="1" y="1" width="10" height="10" fill="#F35325" />
                   <rect x="12" y="1" width="10" height="10" fill="#81BC06" />
@@ -178,7 +179,7 @@ export default function Login({ onSuccess }: { onSuccess: (user: User) => void }
                   <rect x="12" y="12" width="10" height="10" fill="#FFBA08" />
                 </svg>
                 {t('Sign in with Microsoft')}
-              </a>
+              </Button>
             )}
           </>
         )}

@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import Portal from './Portal';
 import { useExclusiveModal } from '../modal';
@@ -217,12 +218,12 @@ export function LanguageTimeModal({ onClose }: { onClose: () => void }) {
 
           {error && <div className="login-error">{error}</div>}
           <div className="dialog-actions">
-            <button className="btn" onClick={onClose}>
+            <Button onClick={onClose}>
               {t('Cancel')}
-            </button>
-            <button className="btn primary" onClick={() => void save()} disabled={saving}>
+            </Button>
+            <Button emphasis="high" onClick={() => void save()} disabled={saving}>
               {saving ? t('Saving…') : t('Save')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

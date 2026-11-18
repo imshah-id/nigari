@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import type { Revision } from '../types';
@@ -47,12 +48,12 @@ export function HistoryModal({
             <div key={r.id} className="user-row">
               <span className="user-row-name">🕘 {when(r.createdAt)}</span>
               <span className="user-row-email">{r.authorName || t('unknown')}</span>
-              <button className="btn-sm" onClick={() => void restore(r)}>{t('Restore')}</button>
+              <Button size="sm" onClick={() => void restore(r)}>{t('Restore')}</Button>
             </div>
           ))}
           {revisions.length === 0 && <div className="dialog-hint">{t('No versions yet.')}</div>}
         </div>
-        <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+        <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
       </div>
     </div>
     </Portal>

@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { t } from '../i18n';
 
@@ -31,12 +32,12 @@ export default class ErrorBoundary extends Component<Props, State> {
           <p>{t('This view hit an error. Your data is safely stored.')}</p>
           <pre className="error-boundary-detail">{this.state.error.message}</pre>
           <div className="error-boundary-actions">
-            <button className="btn primary" onClick={() => window.location.reload()}>
+            <Button emphasis="high" onClick={() => window.location.reload()}>
               {t('Reload')}
-            </button>
-            <button className="btn" onClick={() => this.setState({ error: null })}>
+            </Button>
+            <Button onClick={() => this.setState({ error: null })}>
               {t('Try again')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

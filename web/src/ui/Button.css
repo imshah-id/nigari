@@ -34,6 +34,12 @@
     transform var(--motion-duration-fast) ease;
 }
 
+/* A link that looks like a button (Button's href) keeps the button's text,
+   not a link's underline and colour. */
+a.ui-button:not([data-emphasis='link']) {
+  text-decoration: none;
+}
+
 .ui-button[data-size='sm'] {
   height: var(--button-height-sm);
   padding: 0 var(--button-padding-x-sm);

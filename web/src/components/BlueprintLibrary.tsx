@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../api';
 import type { BlueprintEntry, Workspace } from '../types';
@@ -189,9 +190,9 @@ export default function BlueprintLibrary({
               </div>
 
               <div className="dialog-actions">
-                <button className="btn-sm" onClick={onClose}>
+                <Button size="sm" onClick={onClose}>
                   {t('Cancel')}
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -240,12 +241,12 @@ export default function BlueprintLibrary({
               {error && <div className="dialog-error">{error}</div>}
 
               <div className="dialog-actions">
-                <button className="btn-sm" onClick={() => setChoice(null)}>
+                <Button size="sm" onClick={() => setChoice(null)}>
                   {t('Back')}
-                </button>
-                <button className="btn primary" disabled={!name.trim() || busy} onClick={() => void create()}>
+                </Button>
+                <Button emphasis="high" disabled={!name.trim() || busy} onClick={() => void create()}>
                   {t('Create workspace')}
-                </button>
+                </Button>
               </div>
             </>
           )}

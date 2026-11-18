@@ -11,6 +11,7 @@ import { toast } from '../toast';
 import Portal from './Portal';
 import { RowActions, openRowMenu } from './SidebarMenus';
 import { Menu, MenuItem, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint } from '../ui/Menu';
+import { Button } from '../ui/Button';
 import IconPicker from './IconPicker';
 import { PageIcon } from '../pageIcon';
 import TrashSection from './TrashSection';
@@ -1124,21 +1125,21 @@ export default function Sidebar({
           />
         </div>
         <div className="sidebar-header-actions">
-          <button className="icon-btn" title={t('Library (every page)')} onClick={onOpenIndex}>
-            <Library size={17} />
-          </button>
+          <Button emphasis="low" icon={<Library size={17} />} label={t('Library (every page)')} onClick={onOpenIndex} />
           {collapsed ? (
-            <button
-              className="icon-btn collapse-btn pin-btn"
-              title={hint(t('Pin the sidebar'), 'sidebar.toggle')}
+            <Button
+              emphasis="low"
+              className="collapse-btn pin-btn"
+              icon={<PanelLeftOpen size={17} />}
+              label={hint(t('Pin the sidebar'), 'sidebar.toggle')}
               onClick={() => onExpand?.()}
-            >
-              <PanelLeftOpen size={17} />
-            </button>
+            />
           ) : (
-            <button
-              className="icon-btn collapse-btn"
-              title={hint(t('Collapse the sidebar'), 'sidebar.toggle')}
+            <Button
+              emphasis="low"
+              className="collapse-btn"
+              icon={<PanelLeftClose size={17} />}
+              label={hint(t('Collapse the sidebar'), 'sidebar.toggle')}
               onClick={(e) => {
                 // This button lives inside the sidebar, so after the click it keeps
                 // focus and the collapsed sidebar would stay revealed via the
@@ -1146,9 +1147,7 @@ export default function Sidebar({
                 e.currentTarget.blur();
                 onCollapse();
               }}
-            >
-              <PanelLeftClose size={17} />
-            </button>
+            />
           )}
         </div>
       </div>
@@ -1561,9 +1560,9 @@ function WorkspaceImageModal({
           <p className="dialog-hint">{t('Pick an emoji or upload a logo (a company or project logo, say).')}</p>
           <label className="dialog-hint">{t('Emoji')}</label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', position: 'relative' }}>
-            <button className="btn icon-trigger" ref={pickerBtnRef} onClick={() => setPickerOpen((o) => !o)}>
+            <Button className="icon-trigger" ref={pickerBtnRef} onClick={() => setPickerOpen((o) => !o)}>
               {emoji || '🙂'} {t('Choose…')}
-            </button>
+            </Button>
             <input
               className="prop-input"
               style={{ width: 90, textAlign: 'center', fontSize: 20 }}
@@ -1572,7 +1571,7 @@ function WorkspaceImageModal({
               maxLength={4}
               onChange={(e) => setEmoji(e.target.value)}
             />
-            <button className="btn primary" disabled={busy || !emoji.trim()} onClick={() => void saveEmoji()}>{t('Save')}</button>
+            <Button emphasis="high" disabled={busy || !emoji.trim()} onClick={() => void saveEmoji()}>{t('Save')}</Button>
             {pickerOpen && (
               <IconPicker
                 anchor={pickerBtnRef}
@@ -1593,12 +1592,12 @@ function WorkspaceImageModal({
           <label className="dialog-hint">{t('Upload a logo')}</label>
           <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => void uploadImage(e)} />
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="btn" disabled={busy} onClick={() => fileRef.current?.click()}>{t('Choose a picture…')}</button>
+            <Button disabled={busy} onClick={() => fileRef.current?.click()}>{t('Choose a picture…')}</Button>
             {(ws.icon || ws.image) && (
-              <button className="btn danger" disabled={busy} onClick={() => void clear()}>{t('Remove')}</button>
+              <Button tone="destructive" disabled={busy} onClick={() => void clear()}>{t('Remove')}</Button>
             )}
           </div>
-          <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+          <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
         </div>
       </div>
     </Portal>

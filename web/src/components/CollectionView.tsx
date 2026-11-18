@@ -37,6 +37,7 @@ import ViewSettingsMenu from './ViewSettingsMenu';
 import ViewsLockMarker, { setViewsLocked } from './ViewsLockMarker';
 import { AddViewMenu, ViewActionItems } from './CollectionMenus';
 import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValues, MenuValueSubmenu, type MenuPoint } from '../ui/Menu';
+import { Button } from '../ui/Button';
 import { readViewId, readViewScroll, writeViewId, writeViewScroll } from '../pageUiState';
 import { AgentDot } from './AgentBadge';
 // Loaded when opened (spec 015: the main bundle's cap; the same as the lazy
@@ -56,7 +57,7 @@ import { PageIcon } from '../pageIcon';
 import { groupFilterMatch, isGroupOp } from '../statusFilter';
 import StatusGroupFilter from './StatusGroupFilter';
 import { toast } from '../toast';
-import { Table2, Columns3, LayoutGrid, CalendarDays, List, Plus, Filter as FilterIcon, ArrowUpDown, Calendar, ClipboardList, Check, Send, Share2, Globe, ChartPie, GanttChartSquare, ChevronDown, LayoutTemplate, Copy } from 'lucide-react';
+import { Table2, Columns3, LayoutGrid, CalendarDays, List, Plus, Filter as FilterIcon, ArrowUpDown, Calendar, ClipboardList, Check, Send, Share2, Globe, ChartPie, GanttChartSquare, ChevronDown, LayoutTemplate, Copy, X } from 'lucide-react';
 
 /** A collection shown inside a document rather than as its own page.
  *
@@ -1080,9 +1081,9 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
         )}
         {view.type !== 'form' && (
           <div className="view-menu-wrap split-btn">
-            <button className="btn-sm primary" onClick={() => void addRow()}>
-              <Plus size={14} /> {t('New')}
-            </button>
+            <Button size="sm" emphasis="high" icon={<Plus size={14} />} onClick={() => void addRow()}>
+              {t('New')}
+            </Button>
             <Menu
               label={t('Templates')}
               narrow="sheet"
@@ -1090,9 +1091,7 @@ export default function CollectionView({ collectionId, pages, tagColors, onNavig
               onOpenChange={(o) => (o ? openTemplates() : setTplOpen(false))}
               className="dbt-menu"
               trigger={
-                <button className="btn-sm primary split-btn-arrow" title={t('Templates')} aria-label={t('Templates')}>
-                  <ChevronDown size={14} />
-                </button>
+                <Button size="sm" emphasis="high" icon={<ChevronDown size={14} />} label={t('Templates')} />
               }
             >
               <MenuLabel>{t('Templates for {name}').replace('{name}', pages.get(collectionId)?.title || t('Untitled'))}</MenuLabel>
@@ -1424,9 +1423,9 @@ function FormView({
           </div>
           <h2>{t('Sent')}</h2>
           <p>{t('Your answer has been saved.')}</p>
-          <button className="btn-sm primary" onClick={reset}>
+          <Button size="sm" emphasis="high" onClick={reset}>
             {t('Send another answer')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -1437,20 +1436,20 @@ function FormView({
       <div className="form-card">
         <div className="form-share-bar">
           {!shared ? (
-            <button className="btn-sm" disabled={shareBusy} onClick={() => void doShare()}>
-              <Share2 size={14} /> {t('Share publicly')}
-            </button>
+            <Button size="sm" disabled={shareBusy} icon={<Share2 size={14} />} onClick={() => void doShare()}>
+              {t('Share publicly')}
+            </Button>
           ) : (
             <>
               <span className="form-share-live">
                 <Globe size={13} /> {t('Public')}
               </span>
-              <button className="btn-sm" disabled={shareBusy} onClick={() => void doShare()}>
+              <Button size="sm" disabled={shareBusy} onClick={() => void doShare()}>
                 {t('Copy link')}
-              </button>
-              <button className="btn-sm" disabled={shareBusy} onClick={() => void doUnshare()}>
+              </Button>
+              <Button size="sm" disabled={shareBusy} onClick={() => void doUnshare()}>
                 {t('Revoke')}
-              </button>
+              </Button>
             </>
           )}
         </div>
@@ -1500,9 +1499,9 @@ function FormView({
           ))}
         </div>
         <div className="form-actions">
-          <button className="btn-sm primary form-submit" disabled={busy || !title.trim()} onClick={() => void submit()}>
-            <Send size={14} /> {view.formSubmit?.trim() || t('Submit')}
-          </button>
+          <Button emphasis="high" className="form-submit" disabled={busy || !title.trim()} icon={<Send size={14} />} onClick={() => void submit()}>
+            {view.formSubmit?.trim() || t('Submit')}
+          </Button>
         </div>
       </div>
     </div>
@@ -1821,29 +1820,35 @@ function FilterSortControls({
 
   return (
     <div className="fs-controls" ref={controlsRef}>
-      <button
-        className={'btn-sm' + (filters.length ? ' active' : '')}
+      <Button
+        size="sm"
+        tone={filters.length ? 'primary' : 'neutral'}
+        icon={<FilterIcon size={14} />}
         onClick={() => setOpen(open === 'filter' ? null : 'filter')}
       >
-        <FilterIcon size={14} /> Filter{filters.length ? ` (${filters.length})` : ''}
-      </button>
-      <button
-        className={'btn-sm' + (sort ? ' active' : '')}
+        Filter{filters.length ? ` (${filters.length})` : ''}
+      </Button>
+      <Button
+        size="sm"
+        tone={sort ? 'primary' : 'neutral'}
+        icon={<ArrowUpDown size={14} />}
         onClick={() => setOpen(open === 'sort' ? null : 'sort')}
       >
-        <ArrowUpDown size={14} /> {t('Sort')}
-      </button>
+        {t('Sort')}
+      </Button>
       {/* Only a board has columns to group into. The setting existed before
           this button did — it just took whatever select property came first,
           which is why nobody could put their tasks into one column per
           project. */}
       {view.type === 'board' && canGroup && (
-        <button
-          className={'btn-sm' + (view.groupBy ? ' active' : '')}
+        <Button
+          size="sm"
+          tone={view.groupBy ? 'primary' : 'neutral'}
+          icon={<Columns3 size={14} />}
           onClick={() => setOpen(open === 'group' ? null : 'group')}
         >
-          <Columns3 size={14} /> {t('Group')}
-        </button>
+          {t('Group')}
+        </Button>
       )}
 
       {open && pos && (
@@ -1911,13 +1916,14 @@ function FilterSortControls({
                       </option>
                     ))}
                   </select>
-                  <button
-                    className="icon-btn danger fs-remove"
-                    title={t('Remove filter')}
+                  <Button
+                    emphasis="low"
+                    tone="destructive"
+                    className="fs-remove"
+                    icon={<X size={14} />}
+                    label={t('Remove filter')}
                     onClick={() => onChange({ filters: filters.filter((_, j) => j !== i) })}
-                  >
-                    ✕
-                  </button>
+                  />
                 </div>
                 {hasValueInput(op) && (
                   <div className="fs-filter-value">
@@ -2610,10 +2616,10 @@ function CalendarView({
   return (
     <div className="calendar">
       <div className="calendar-head">
-        <button className="btn-sm" onClick={() => step(-1)} aria-label={t('Previous month')}>‹</button>
+        <Button size="sm" onClick={() => step(-1)} aria-label={t('Previous month')}>‹</Button>
         <span className="calendar-title">{monthLabel}</span>
-        <button className="btn-sm" onClick={() => step(1)} aria-label={t('Next month')}>›</button>
-        <button className="btn-sm" onClick={() => setMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}>{t('Today')}</button>
+        <Button size="sm" onClick={() => step(1)} aria-label={t('Next month')}>›</Button>
+        <Button size="sm" onClick={() => setMonth(new Date(new Date().getFullYear(), new Date().getMonth(), 1))}>{t('Today')}</Button>
       </div>
       <div className="calendar-grid">
         {weekdayNames().map((d) => (

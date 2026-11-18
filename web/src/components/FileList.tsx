@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import Portal from './Portal';
@@ -115,7 +116,7 @@ export default function FileList({
               </div>
             </>
           )}
-          <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+          <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
         </div>
       </div>
     </Portal>

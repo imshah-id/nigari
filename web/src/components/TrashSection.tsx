@@ -5,6 +5,7 @@ import { PageIcon } from '../pageIcon';
 import { plural, t } from '../i18n';
 import { formatMoment, formatRelative } from '../format';
 import Portal from './Portal';
+import { Button } from '../ui/Button';
 
 /** Case and accents do not count when searching the trash. */
 function fold(s: string): string {
@@ -176,9 +177,7 @@ function TrashPreview({ page, inside, onClose, onRestore, onDeleteForever }: Pre
                 {inside > 0 && <span>{plural(inside, 'Contains {n} sub-page', 'Contains {n} sub-pages')}</span>}
               </div>
             </div>
-            <button className="icon-btn" title={t('Close')} aria-label={t('Close')} onClick={onClose}>
-              <X size={16} />
-            </button>
+            <Button emphasis="low" icon={<X size={16} />} label={t('Close')} onClick={onClose} />
           </div>
           <iframe
             className="trash-preview-frame"
@@ -187,12 +186,12 @@ function TrashPreview({ page, inside, onClose, onRestore, onDeleteForever }: Pre
             sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox"
           />
           <div className="dialog-actions">
-            <button className="btn danger" onClick={() => onDeleteForever(page.id)}>
+            <Button tone="destructive" onClick={() => onDeleteForever(page.id)}>
               {t('Delete forever')}
-            </button>
-            <button className="btn primary" onClick={() => onRestore(page.id)}>
+            </Button>
+            <Button emphasis="high" onClick={() => onRestore(page.id)}>
               {t('Restore')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

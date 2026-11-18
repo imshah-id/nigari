@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect } from 'react';
 import Portal from './Portal';
 import { useExclusiveModal } from '../modal';
@@ -55,12 +56,12 @@ export function FilePreview({
             {/* A plain link, not fetch+blob: the browser already sends the
                 session cookie, and download= keeps the readable name instead
                 of the random id the file is stored under. */}
-            <a className="btn-sm" href={url} download={name}>
+            <Button size="sm" href={url} download={name}>
               {t('Download')}
-            </a>
-            <button className="btn-sm" onClick={onClose}>
+            </Button>
+            <Button size="sm" onClick={onClose}>
               {t('Close')}
-            </button>
+            </Button>
           </div>
           <iframe className="file-preview-frame" src={url} title={name} />
         </div>

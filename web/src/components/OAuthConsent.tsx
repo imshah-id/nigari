@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { t } from '../i18n';
@@ -186,16 +187,15 @@ export default function OAuthConsent() {
         {error && <div className="dialog-error">{error}</div>}
 
         <div className="dialog-actions">
-          <button className="btn-sm" onClick={deny}>
+          <Button size="sm" onClick={deny}>
             {t('Deny')}
-          </button>
-          <button
-            className="btn primary"
+          </Button>
+          <Button emphasis="high"
             disabled={busy || (reach === 'picked' && picked.size === 0)}
             onClick={() => void approve()}
           >
             {t('Allow')}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

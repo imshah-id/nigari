@@ -29,15 +29,14 @@ function ConfBlock({ title, text }: { title: string; text: string }) {
     <div className="conf-block">
       <div className="conf-head">
         <span>{title}</span>
-        <button
-          className="btn-sm"
+        <Button size="sm"
           onClick={() => {
             void navigator.clipboard?.writeText(text);
             toast(t('Copied'));
           }}
         >
           {t('Copy')}
-        </button>
+        </Button>
       </div>
       <pre>
         <code>{text}</code>
@@ -481,8 +480,7 @@ ingress:
                   onChange={(e) => setAgentAddr({ ...agentAddr, list: e.target.value })}
                 />
                 <div className="agent-addresses-actions">
-                  <button
-                    className="btn-sm"
+                  <Button size="sm"
                     disabled={agentAddr.list.includes(agentAddr.anthropic)}
                     onClick={() => {
                       const line = `${agentAddr.anthropic}  # Anthropic (Claude)`;
@@ -491,7 +489,7 @@ ingress:
                     }}
                   >
                     {t('Add Anthropic (Claude)')}
-                  </button>
+                  </Button>
                   {info && (
                     <span className="dialog-hint">
                       {t('Your address, as the server sees it:')} <code>{info.yourIp}</code>
@@ -516,8 +514,8 @@ ingress:
                       {t('Connected: sends as')}{' '}
                       <strong>{s.mailFrom || mail.address || mail.provider}</strong>
                       {' '}({mail.provider === 'google' ? 'Gmail' : 'Microsoft'})
-                      <button className="btn-sm" disabled={mailBusy} onClick={() => void mailTest()}>{t('Send test mail')}</button>
-                      <button className="btn-sm" onClick={() => void mailDisconnect()}>{t('Disconnect')}</button>
+                      <Button size="sm" disabled={mailBusy} onClick={() => void mailTest()}>{t('Send test mail')}</Button>
+                      <Button size="sm" onClick={() => void mailDisconnect()}>{t('Disconnect')}</Button>
                     </div>
                     <label>{t('Override the sender address (optional, alias)')}</label>
                     <input
@@ -541,20 +539,18 @@ ingress:
                       )}
                     </p>
                     <div className="settings-row">
-                      <a
-                        className={'btn' + (oauthSet.google ? '' : ' btn-disabled')}
+                      <Button
                         href={oauthSet.google ? '/api/admin/mail-oauth/google/start' : undefined}
                         onClick={(e) => { if (!oauthSet.google) { e.preventDefault(); toast(t('Set up Google OAuth on the Access tab first')); } }}
                       >
                         {t('Connect with Google')}
-                      </a>
-                      <a
-                        className={'btn' + (oauthSet.ms ? '' : ' btn-disabled')}
+                      </Button>
+                      <Button
                         href={oauthSet.ms ? '/api/admin/mail-oauth/microsoft/start' : undefined}
                         onClick={(e) => { if (!oauthSet.ms) { e.preventDefault(); toast(t('Set up Microsoft OAuth on the Access tab first')); } }}
                       >
                         {t('Connect with Microsoft')}
-                      </a>
+                      </Button>
                     </div>
                     <p className="dialog-hint settings-hint" style={{ margin: 0 }}>
                       {t(
@@ -566,7 +562,7 @@ ingress:
 
                 <h3>{t('Or the classic way: SMTP')}</h3>
                 <div className="settings-row" style={{ justifyContent: 'flex-start' }}>
-                  <button className="btn-sm" disabled={mailBusy} onClick={() => void mailTest()}>{t('Send test mail')}</button>
+                  <Button size="sm" disabled={mailBusy} onClick={() => void mailTest()}>{t('Send test mail')}</Button>
                 </div>
                 <label>{t('Host')}</label>
                 <input className="prop-input" placeholder="smtp.example.com" value={s.smtpHost} onChange={(e) => set('smtpHost', e.target.value)} />
@@ -592,20 +588,20 @@ ingress:
                       <>
                         {t('Publicly reachable:')}&nbsp;
                         <a href={pa.url} target="_blank" rel="noreferrer">{pa.url}</a>
-                        <button className="btn-sm" onClick={() => { void navigator.clipboard?.writeText(pa.url); toast(t('Link copied')); }}>{t('Copy')}</button>
+                        <Button size="sm" onClick={() => { void navigator.clipboard?.writeText(pa.url); toast(t('Link copied')); }}>{t('Copy')}</Button>
                       </>
                     )}
                     {pa.status === 'running' && pa.mode === 'token' && (
                       <>{t('Tunnel connected, reachable under the hostname set in the Cloudflare dashboard.')}</>
                     )}
-                    <button className="btn-sm" disabled={tunnelBusy} onClick={() => void tunnel('stop')}>{t('Stop')}</button>
+                    <Button size="sm" disabled={tunnelBusy} onClick={() => void tunnel('stop')}>{t('Stop')}</Button>
                   </div>
                 )}
                 {pa && pa.status === 'error' && (
                   <div className="pa-status pa-error">
                     <span className="pa-dot" />
                     {pa.lastError || t('Tunnel error')}
-                    <button className="btn-sm" disabled={tunnelBusy} onClick={() => void tunnel('stop')}>{t('Reset')}</button>
+                    <Button size="sm" disabled={tunnelBusy} onClick={() => void tunnel('stop')}>{t('Reset')}</Button>
                   </div>
                 )}
 
@@ -619,13 +615,12 @@ ingress:
                     {!pa?.cloudflaredHere && t('On first start nigari downloads the official cloudflared automatically.')}
                   </p>
                   <div className="settings-row">
-                    <button
-                      className="btn primary"
+                    <Button emphasis="high"
                       disabled={tunnelBusy || pa?.status === 'running' || pa?.status === 'starting'}
                       onClick={() => void tunnel('start-quick')}
                     >
                       {tunnelBusy ? t('Please wait…') : t('Start quick tunnel')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -649,13 +644,12 @@ ingress:
                       value={tunnelToken}
                       onChange={(e) => setTunnelToken(e.target.value)}
                     />
-                    <button
-                      className="btn primary"
+                    <Button emphasis="high"
                       disabled={tunnelBusy || pa?.status === 'running' || pa?.status === 'starting' || (!tunnelToken.trim() && !pa?.tokenSet)}
                       onClick={() => void tunnel('start-token', tunnelToken.trim() || undefined)}
                     >
                       {t('Connect')}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -689,13 +683,12 @@ ingress:
                           />
                           <span>{t('Keep it up to date automatically (checked daily, checksum verified)')}</span>
                         </label>
-                        <button
-                          className="btn-sm"
+                        <Button size="sm"
                           disabled={tunnelBusy || pa.cloudflaredUpdating}
                           onClick={() => void tunnel('update-cloudflared')}
                         >
                           {tunnelBusy ? t('Please wait…') : t('Check now')}
-                        </button>
+                        </Button>
                       </div>
                     )}
                   </div>
@@ -896,9 +889,9 @@ ingress:
               <>
                 <label>{t('Backup')}</label>
                 <div className="settings-row">
-                  <button className="btn primary" onClick={() => api.download('/api/admin/backup')}>
+                  <Button emphasis="high" onClick={() => api.download('/api/admin/backup')}>
                     {t('Download backup (.tar.gz)')}
-                  </button>
+                  </Button>
                 </div>
                 <p className="dialog-hint settings-hint">
                   {t('Contains the whole database (a consistent snapshot) and every upload. To restore:')}{' '}
@@ -932,13 +925,11 @@ ingress:
                       onChange={(e) => set('auditDays', e.target.value)}
                     />
                   )}
-                  <button
-                    className="btn"
-                    disabled={s.auditDays === '0' || pruning}
+                  <Button disabled={s.auditDays === '0' || pruning}
                     onClick={() => void prune()}
                   >
                     {t('Clean up now')}
-                  </button>
+                  </Button>
                 </div>
                 <p className="dialog-hint settings-hint">
                   {pruned !== null
@@ -1072,22 +1063,20 @@ export function CalendarSubModal({ onClose }: { onClose: () => void }) {
                 onFocus={(e) => e.currentTarget.select()}
               />
               <div className="dialog-buttons" style={{ justifyContent: 'flex-start', gap: 8 }}>
-                <a className="btn primary" href={current?.links.webcal ?? info.webcal}>{t('Open in calendar')}</a>
-                <button
-                  className="btn"
-                  onClick={() => void navigator.clipboard?.writeText(current?.links.url ?? info.url)}
+                <Button emphasis="high" href={current?.links.webcal ?? info.webcal}>{t('Open in calendar')}</Button>
+                <Button onClick={() => void navigator.clipboard?.writeText(current?.links.url ?? info.url)}
                 >
                   {t('Copy URL')}
-                </button>
+                </Button>
                 {/* Rotating kills EVERY feed at once, because there is one token
                     behind all of them — say so where the button is. */}
-                <button className="btn" onClick={() => void rotate()} title={t('Invalidates all calendar links')}>
+                <Button onClick={() => void rotate()} title={t('Invalidates all calendar links')}>
                   {t('Reset the link')}
-                </button>
+                </Button>
               </div>
             </>
           )}
-          <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+          <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
         </div>
       </div>
     </Portal>
@@ -1150,14 +1139,14 @@ export function TwoFAModal({ onClose }: { onClose: () => void }) {
               <p className="dialog-hint">{t('2FA is active. Enter a current code to switch it off.')}</p>
               <input className="prop-input" inputMode="numeric" placeholder={t('6-digit code')} value={code} onChange={(e) => setCode(e.target.value)} />
               {error && <div className="login-error">{error}</div>}
-              <button className="btn danger" onClick={() => void disable()}>{t('Disable 2FA')}</button>
+              <Button tone="destructive" onClick={() => void disable()}>{t('Disable 2FA')}</Button>
             </>
           )}
 
           {status === false && !setup && (
             <>
               <p className="dialog-hint">{t('Protect your account with an authenticator app (Google Authenticator, 1Password, …).')}</p>
-              <button className="btn primary" onClick={() => void begin()}>{t('Set up 2FA')}</button>
+              <Button emphasis="high" onClick={() => void begin()}>{t('Set up 2FA')}</Button>
             </>
           )}
 
@@ -1175,11 +1164,11 @@ export function TwoFAModal({ onClose }: { onClose: () => void }) {
               </code>
               <input className="prop-input" inputMode="numeric" placeholder={t('6-digit code')} value={code} onChange={(e) => setCode(e.target.value)} autoFocus />
               {error && <div className="login-error">{error}</div>}
-              <button className="btn primary" onClick={() => void enable()}>{t('Enable')}</button>
+              <Button emphasis="high" onClick={() => void enable()}>{t('Enable')}</Button>
             </>
           )}
 
-          <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+          <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
         </div>
       </div>
     </Portal>

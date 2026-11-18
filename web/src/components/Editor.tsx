@@ -41,6 +41,7 @@ import { tagColorClass, TAG_PALETTE } from '../tags';
 import { collectTags, suggestTags } from '../tagSuggest';
 import { modalOpen, useMenuDismiss } from '../modal';
 import { Menu, MenuCheckboxItem, MenuItem, MenuLabel, MenuSeparator, useNarrowScreen } from '../ui/Menu';
+import { Button } from '../ui/Button';
 import { SideMenuWithIcons, slashIcon, withPairedIcons } from '../slashIcons';
 import { Menu as MenuGlyph, Copy, Star, Lock, LockOpen, Globe, MessageSquare, MoreHorizontal, FileText, Upload, AlignLeft, Check, Image as ImageIcon, Smile, PanelRight, Link2, FilePlus2, LayoutTemplate } from 'lucide-react';
 import { CHART_SLASH_KINDS } from '../chartInsert';
@@ -192,9 +193,9 @@ export default function Editor(props: EditorProps) {
     return (
       <div className="editor-error">
         <p>{t('This page could not be loaded.')}</p>
-        <button className="btn" onClick={() => props.onMissing(props.pageId)}>
+        <Button onClick={() => props.onMissing(props.pageId)}>
           {t('Back to workspace')}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -314,9 +315,9 @@ function TemplateEditDialog({
         <div className="dialog wide tpl-editor" role="dialog" aria-modal="true" aria-label={t('Edit template')}>
           <div className="tpl-editor-bar">
             <span>{t('Edit template')}</span>
-            <button className="btn-sm primary" onClick={onClose}>
+            <Button size="sm" emphasis="high" onClick={onClose}>
               {t('Done')}
-            </button>
+            </Button>
           </div>
           <div className="tpl-editor-body">
             <Editor
@@ -914,9 +915,7 @@ function PageHeader({
           // is here instead, where the menu button would be.
           peekStart
         ) : (
-          <button className="menu-btn topbar-menu" title={t('Menu')} onClick={onMenu}>
-            <MenuGlyph size={18} />
-          </button>
+          <Button emphasis="low" className="menu-btn topbar-menu" icon={<MenuGlyph size={18} />} label={t('Menu')} onClick={onMenu} />
         )}
         <nav className="breadcrumbs">
           {breadcrumbs.map((b, i) => (
@@ -964,40 +963,57 @@ function PageHeader({
               "comments are off" rather than "the panel is closed", which is a
               different and alarming thing to say about a page. */}
           {canComment && (
-          <button
-            className={'icon-btn topbar-wide-only' + (commentsOpen ? ' is-on' : '')}
+          // Not icon-only: the count of open comments rides beside the icon, so
+          // the name is set here and the native tooltip stays (spec 020).
+          <Button
+            emphasis="low"
+            pressed={commentsOpen}
+            className="topbar-wide-only"
             title={commentsOpen ? t('Hide comments') : t('Show comments')}
+            aria-label={commentsOpen ? t('Hide comments') : t('Show comments')}
+            icon={<MessageSquare size={17} />}
             onClick={() => onToggleComments(!commentsOpen)}
           >
-            <MessageSquare size={17} />
             {openComments > 0 && <span className="badge-count">{openComments}</span>}
-          </button>
+          </Button>
           )}
-          <button
-            className={'icon-btn' + (structureOpen ? ' is-on' : '')}
-            title={structureOpen ? t('Hide structure') : t('Show structure')}
+          {/* The toggles say "on" the one way every button does (pressed: a
+              faint tint, spec 020 Q2). Favourite and private used to borrow a
+              gold of their own; the filled star and the closed lock still say
+              which state it is. */}
+          <Button
+            emphasis="low"
+            pressed={structureOpen}
+            icon={<PanelRight size={17} />}
+            label={structureOpen ? t('Hide structure') : t('Show structure')}
             onClick={onToggleStructure}
-          >
-            <PanelRight size={17} />
-          </button>
-          <button
-            className={'icon-btn' + (favorite ? ' active-star' : '')}
-            title={favorite ? t('Remove from favorites') : t('Add to favorites')}
+          />
+          <Button
+            emphasis="low"
+            pressed={favorite}
+            icon={<Star size={17} fill={favorite ? 'currentColor' : 'none'} />}
+            label={favorite ? t('Remove from favorites') : t('Add to favorites')}
             onClick={() => onToggleFavorite(pageId)}
-          >
-            <Star size={17} fill={favorite ? 'currentColor' : 'none'} />
-          </button>
-          <button
-            className={'icon-btn topbar-wide-only' + (visibility === 'private' ? ' active-star' : '')}
-            title={visibility === 'private' ? t('Private (only you): click to share with the workspace') : t('Visible to the workspace: click to make it private')}
+          />
+          <Button
+            emphasis="low"
+            pressed={visibility === 'private'}
+            className="topbar-wide-only"
+            icon={visibility === 'private' ? <Lock size={17} /> : <LockOpen size={17} />}
+            label={visibility === 'private' ? t('Private (only you): click to share with the workspace') : t('Visible to the workspace: click to make it private')}
             onClick={togglePrivate}
-          >
-            {visibility === 'private' ? <Lock size={17} /> : <LockOpen size={17} />}
-          </button>
+          />
           <div className="share-wrap" ref={shareWrapRef}>
-            <button className={'icon-btn topbar-wide-only' + (isShared ? ' shared-active' : '')} title={isShared ? t('Shared') : t('Share to web (read-only link)')} onClick={openShare}>
-              <Globe size={17} />
-            </button>
+            {/* Opens the share panel, so not a toggle: a live link shows in
+                the primary tone. */}
+            <Button
+              emphasis="low"
+              tone={isShared ? 'primary' : 'neutral'}
+              className="topbar-wide-only share-toggle"
+              icon={<Globe size={17} />}
+              label={isShared ? t('Shared') : t('Share to web (read-only link)')}
+              onClick={openShare}
+            />
             {shareOpen && (
               <div className="menu share-menu" data-menu-exempt="the share panel: a link and its settings, not a list of actions">
                 {shareUrl ? (
@@ -1005,9 +1021,7 @@ function PageHeader({
                     <div className="share-hint">{t('Anyone with this link can view this page (read-only).')}</div>
                     <div className="share-link-row">
                       <input className="share-input" readOnly aria-label={t('Public link')} value={shareUrl} onFocus={(e) => e.currentTarget.select()} />
-                      <button className="icon-btn share-copy" title={shareCopied ? t('Copied') : t('Copy link')} aria-label={shareCopied ? t('Copied') : t('Copy link')} onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); setShareCopied(true); } catch { toast(t('Copy failed; select the link')); } }}>
-                        {shareCopied ? <Check size={16} /> : <Copy size={16} />}
-                      </button>
+                      <Button emphasis="low" className="share-copy" icon={shareCopied ? <Check size={16} /> : <Copy size={16} />} label={shareCopied ? t('Copied') : t('Copy link')} onClick={async () => { try { await navigator.clipboard.writeText(shareUrl); setShareCopied(true); } catch { toast(t('Copy failed; select the link')); } }} />
                       <span className="share-copy-status" role="status">{shareCopied ? t('Copied') : ''}</span>
                     </div>
                   </>
@@ -1054,19 +1068,19 @@ function PageHeader({
                     )}
                     <div className="share-actions">
                       {!isShared && (
-                        <button className="btn-sm" disabled={shareBusy} onClick={() => void createShare()}>
+                        <Button size="sm" disabled={shareBusy} onClick={() => void createShare()}>
                           {t('Create link')}
-                        </button>
+                        </Button>
                       )}
                       {isShared && (!shareUrl || shareSettingsChanged) && (
-                        <button className="btn-sm" disabled={shareBusy} onClick={() => void createShare()}>
+                        <Button size="sm" disabled={shareBusy} onClick={() => void createShare()}>
                           {t('New link')}
-                        </button>
+                        </Button>
                       )}
                       {isShared && (
-                        <button className="btn-sm danger" disabled={shareBusy} onClick={() => void stopShare()}>
+                        <Button size="sm" tone="destructive" disabled={shareBusy} onClick={() => void stopShare()}>
                           {t('Stop sharing')}
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </>
@@ -1090,9 +1104,7 @@ function PageHeader({
               onOpenChange={setOverflowOpen}
               className="overflow-menu"
               trigger={
-                <button className="icon-btn" title={t('More')} aria-label={t('More actions')}>
-                  <MoreHorizontal size={17} />
-                </button>
+                <Button emphasis="low" icon={<MoreHorizontal size={17} />} label={t('More actions')} />
               }
             >
               {/* One function, two labels: the description is there or it is not. */}
@@ -1259,9 +1271,9 @@ function PageHeader({
             )}
           </span>
           {container !== 'dialog' && (
-            <button className="btn-sm" onClick={() => onNavigate(page.templateOf!)}>
+            <Button size="sm" onClick={() => onNavigate(page.templateOf!)}>
               {t('Back to the database')}
-            </button>
+            </Button>
           )}
         </div>
       )}

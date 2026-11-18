@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import type { FontPref } from '../App';
@@ -9,7 +10,7 @@ import { useExclusiveModal } from '../modal';
 import { Menu, MenuCheckboxItem, MenuItem, MenuSeparator } from '../ui/Menu';
 import { formatDay, formatMoment } from '../format';
 import { plural, t } from '../i18n';
-import { Key, Bot, Server, User as UserIcon, Undo2, Keyboard } from 'lucide-react';
+import { Key, Bot, Server, User as UserIcon, Undo2, Keyboard, X } from 'lucide-react';
 import { chordFor } from '../keys';
 // Loaded when first opened, not with the app: the instance settings alone are
 // over a thousand lines that most people never open, and the main bundle has
@@ -129,9 +130,9 @@ function ProfileModal({
           <div className="profile-avatar-row">
             <Avatar user={{ ...user, name, color, avatar }} size={56} />
             <div className="profile-avatar-btns">
-              <button className="btn-sm" onClick={() => fileRef.current?.click()}>{t('Upload picture')}</button>
+              <Button size="sm" onClick={() => fileRef.current?.click()}>{t('Upload picture')}</Button>
               {avatar && (
-                <button className="btn-sm" onClick={() => setAvatar('')}>{t('Remove picture')}</button>
+                <Button size="sm" onClick={() => setAvatar('')}>{t('Remove picture')}</Button>
               )}
               <input
                 ref={fileRef}
@@ -197,13 +198,12 @@ function ProfileModal({
 
           <div className="profile-2fa-row">
             <span>{t('Two-factor authentication')}</span>
-            <button className="btn-sm" onClick={onOpen2FA}>{t('Manage')}</button>
+            <Button size="sm" onClick={onOpen2FA}>{t('Manage')}</Button>
           </div>
 
           <div className="dialog-actions">
-            <button className="btn" onClick={onClose}>{t('Cancel')}</button>
-            <button
-              className="btn primary"
+            <Button onClick={onClose}>{t('Cancel')}</Button>
+            <Button emphasis="high"
               disabled={
                 busy ||
                 (!!pw && pw.length < 8) ||
@@ -213,7 +213,7 @@ function ProfileModal({
               onClick={() => void save()}
             >
               {t('Save')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -516,14 +516,13 @@ export function ActivityModal({ onClose, pageId, pageTitle }: { onClose: () => v
                 )}
               </span>
               {e.revertible && (
-                <button
-                  className="btn-sm"
+                <Button size="sm"
                   disabled={busy === e.id}
                   title={t('Put back what this changed, unless it has been edited since')}
                   onClick={() => void revert(e.id)}
                 >
                   <Undo2 size={13} /> {t('Take back')}
-                </button>
+                </Button>
               )}
               {/* Was `createdAt.slice(0, 16)`, which printed the stored UTC
                   string verbatim — two hours off for a reader in Berlin, and
@@ -534,12 +533,12 @@ export function ActivityModal({ onClose, pageId, pageTitle }: { onClose: () => v
           })}
           {entries.length === 0 && <div className="dialog-hint">{t('Nothing has happened yet.')}</div>}
           {!done && entries.length > 0 && (
-            <button className="btn-sm" onClick={() => void loadMore()}>
+            <Button size="sm" onClick={() => void loadMore()}>
               {t('Load more…')}
-            </button>
+            </Button>
           )}
         </div>
-        <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+        <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
       </div>
     </div>
     </Portal>
@@ -765,7 +764,7 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
         <div className="dialog users-dialog" role="dialog" aria-modal="true" aria-label={t('Manage users')}>
           <div className="users-head">
             <h2>{t('Manage users')}</h2>
-            <button className="btn-sm" onClick={() => { setInviting(true); setSelId(null); }}>{t('+ User')}</button>
+            <Button size="sm" onClick={() => { setInviting(true); setSelId(null); }}>{t('+ User')}</Button>
           </div>
           {error && <div className="login-error">{error}</div>}
           <div className="users-body">
@@ -827,22 +826,22 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
                       charge. */}
                   <div className="users-detail-actions">
                     {sel.id !== me.id && sel.orgRole !== 'owner' && (
-                      <button className="btn-sm" onClick={() => void toggleAdmin(sel)}>
+                      <Button size="sm" onClick={() => void toggleAdmin(sel)}>
                         {sel.isAdmin ? t('Revoke admin rights') : t('Make instance admin')}
-                      </button>
+                      </Button>
                     )}
                     {sel.id !== me.id && sel.orgRole !== 'owner' && (
-                      <button className="btn-sm" onClick={() => void toggleDisabled(sel)}>
+                      <Button size="sm" onClick={() => void toggleDisabled(sel)}>
                         {sel.disabled ? t('Reactivate') : t('Deactivate account')}
-                      </button>
+                      </Button>
                     )}
                     {/* Deleting destroys the account's personal space. That is
                         control over data and belongs to the owner — an admin
                         deactivates, and nothing is lost that way. */}
                     {sel.id !== me.id && sel.orgRole !== 'owner' && me.orgRole === 'owner' && (
-                      <button className="btn-sm danger" onClick={() => void remove(sel)}>
+                      <Button size="sm" tone="destructive" onClick={() => void remove(sel)}>
                         {t('Delete user')}
-                      </button>
+                      </Button>
                     )}
                     {sel.id !== me.id && sel.orgRole !== 'owner' && me.orgRole !== 'owner' && (
                       <span className="dialog-hint">
@@ -856,9 +855,9 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
                         on at all — and two error messages advise doing exactly
                         that. */}
                     {me.orgRole === 'owner' && sel.id !== me.id && sel.isAdmin && !sel.disabled && (
-                      <button className="btn-sm" onClick={() => void handOver(sel)}>
+                      <Button size="sm" onClick={() => void handOver(sel)}>
                         {t('Hand over the instance')}
-                      </button>
+                      </Button>
                     )}
                     {sel.orgRole === 'owner' && (
                       <span className="dialog-hint">
@@ -884,15 +883,14 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
                         <div key={ws.id} className={'ws-access-row' + (role !== 'none' ? ' has-access' : '')}>
                           <span className="ws-access-name">{ws.name}</span>
                           {mayPeek && (
-                            <button
-                              className="btn-sm"
+                            <Button size="sm"
                               title={t(
                                 'Time-limited access with a stated reason, logged and shown to the people in charge',
                               )}
                               onClick={() => void requestBreakGlass(ws.id, ws.name)}
                             >
                               {t('Emergency access')}
-                            </button>
+                            </Button>
                           )}
                           <div className="ws-role-seg">
                             {roleOptions().map((r) => (
@@ -928,7 +926,7 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
             </section>
           </div>
           <div className="dialog-actions">
-            <button className="btn" onClick={onClose}>{t('Close')}</button>
+            <Button onClick={onClose}>{t('Close')}</Button>
           </div>
         </div>
       </div>
@@ -1019,8 +1017,8 @@ function InvitePanel({
 
       {error && <div className="login-error">{error}</div>}
       <div className="invite-actions">
-        <button type="button" className="btn" onClick={onCancel}>{t('Cancel')}</button>
-        <button className="btn primary" type="submit" disabled={busy}>{t('Create user')}</button>
+        <Button type="button" onClick={onCancel}>{t('Cancel')}</Button>
+        <Button emphasis="high" type="submit" disabled={busy}>{t('Create user')}</Button>
       </div>
     </form>
   );
@@ -1091,28 +1089,24 @@ function TokensModal({ onClose }: { onClose: () => void }) {
           <div className="token-fresh">
             <div>{t('Copy this token now. It will not be shown again:')}</div>
             <code>{fresh}</code>
-            <button
-              className="btn"
-              onClick={() => {
+            <Button onClick={() => {
                 void navigator.clipboard.writeText(fresh);
                 setCopied('token');
               }}
             >
               {copied === 'token' ? t('Copied ✓') : t('Copy token')}
-            </button>
+            </Button>
             <div style={{ marginTop: 10 }}>
               {t('Or connect an agent in one step. Paste this into your terminal:')}
             </div>
             <code style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{mcpCommand}</code>
-            <button
-              className="btn"
-              onClick={() => {
+            <Button onClick={() => {
                 void navigator.clipboard.writeText(mcpCommand);
                 setCopied('cmd');
               }}
             >
               {copied === 'cmd' ? t('Copied ✓') : t('Copy MCP command')}
-            </button>
+            </Button>
           </div>
         )}
         <div className="user-list">
@@ -1144,16 +1138,16 @@ function TokensModal({ onClose }: { onClose: () => void }) {
                   </>
                 )}
               </span>
-              <button
-                className="icon-btn danger"
-                title={t('Revoke')}
+              <Button
+                emphasis="low"
+                tone="destructive"
+                icon={<X size={14} />}
+                label={t('Revoke')}
                 onClick={async () => {
                   await api.deleteToken(tk.id);
                   load();
                 }}
-              >
-                ✕
-              </button>
+              />
             </div>
           ))}
           {tokens.length === 0 && <div className="dialog-hint">{t('No tokens yet.')}</div>}
@@ -1178,7 +1172,7 @@ function TokensModal({ onClose }: { onClose: () => void }) {
             <option value="all">{t('All workspaces')}</option>
             <option value="some">{t('Specific workspaces…')}</option>
           </select>
-          <button className="btn primary" type="submit">{t('Create token')}</button>
+          <Button emphasis="high" type="submit">{t('Create token')}</Button>
           {wsMode === 'some' && (
             <div className="token-ws-picker" style={{ flexBasis: '100%', display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 6 }}>
               {workspaces.map((w) => (
@@ -1195,7 +1189,7 @@ function TokensModal({ onClose }: { onClose: () => void }) {
             </div>
           )}
         </form>
-        <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+        <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
       </div>
     </div>
     </Portal>
