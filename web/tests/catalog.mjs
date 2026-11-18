@@ -285,6 +285,12 @@ try {
   assert.notEqual(await disabled.getAttribute('data-disabled'), null, 'Button: disabled has no data-disabled');
   await disabled.click({ force: true });
   assert.equal(await last.textContent(), '', 'Button: a disabled button ran its click');
+  // The same for one with only an icon: its tooltip trigger kept `disabled`
+  // to itself and the button stayed clickable (found by review).
+  const disabledIcon = page.getByRole('button', { name: 'Remove (disabled)' });
+  assert.notEqual(await disabledIcon.getAttribute('data-disabled'), null, 'Button: a disabled icon-only button has no data-disabled');
+  await disabledIcon.click({ force: true });
+  assert.equal(await last.textContent(), '', 'Button: a disabled icon-only button ran its click');
 
   // A button's label sits in the middle (spec 020, US2): the rows of ink above
   // the capitals and below the baseline differ by at most 1px, at both sizes,
@@ -382,6 +388,10 @@ try {
   await page.keyboard.press('Enter');
   const menuPopup = page.getByRole('menu', { name: 'Page actions' });
   await menuPopup.waitFor();
+  // Base UI's Menu.Trigger marks itself data-pressed while its menu is open;
+  // the button must not take that for its own pressed toggle (spec 020: the
+  // tint turned every open menu's button raspberry, found by review).
+  assert.equal(await menuOpener.getAttribute('data-pressed'), null, 'Button: an open menu made its trigger look pressed');
   const focusedItem = async () => page.evaluate(() => document.activeElement?.textContent?.trim() ?? '');
   await eventually(async () => (await focusedItem()) === 'Open in new tab').catch(() => {
     throw new Error('Menu: Enter did not open the menu on its first item');

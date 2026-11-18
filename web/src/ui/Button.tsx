@@ -42,11 +42,17 @@ export type ButtonProps = Common &
   ({ children: ReactNode; icon?: ReactNode; label?: never } | { children?: undefined; icon: ReactNode; label: string });
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { emphasis = 'medium', tone = 'neutral', size = 'md', pressed, shortcut, className, children, icon, label, type = 'button', ...rest },
+  { emphasis = 'medium', tone = 'neutral', size = 'md', pressed, shortcut, className, children, icon, label, type = 'button', disabled, ...rest },
   ref,
 ) {
-  const iconOnly = children === undefined || children === null || children === false;
+  // Icon only when there is a name and nothing else to show: '' or 0 as
+  // children is a label, however short, not a missing one.
+  const iconOnly = label !== undefined && (children === undefined || children === null || children === false);
   const chord = shortcut ? chordFor(shortcut) : '';
+  // Spread after the caller's props, so nothing from outside changes the look:
+  // a Menu or Popover trigger clones its props onto the button, and Base UI's
+  // Menu.Trigger sets data-pressed while its menu is open, which turned every
+  // such button into a pressed toggle (found by review).
   const look = {
     className: 'ui-button' + (className ? ' ' + className : ''),
     'data-emphasis': emphasis,
@@ -67,10 +73,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       <Tooltip.Root>
         <Tooltip.Trigger
           ref={ref}
-          type={type}
           aria-label={label}
-          {...look}
           {...(rest as ComponentPropsWithoutRef<'button'>)}
+          {...look}
+          // Tooltip.Trigger keeps `disabled` to itself (it only switches the
+          // tooltip off), so the button would stay clickable: hand it to the
+          // element, with the attribute the look reads (found by review).
+          render={<button type={type} disabled={disabled} data-disabled={disabled ? '' : undefined} />}
         >
           {glyph}
         </Tooltip.Trigger>
@@ -82,10 +91,17 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       </Tooltip.Root>
     );
   }
+  // A plain-text label gets its own box, trimmed to its capitals (text-box in
+  // Button.css applies to a block, and a flex item is one). Anything else
+  // (a swatch and a count, an icon among the children) stays a direct child
+  // of the button: wrapping it took away the gap between its parts and broke
+  // callers that style them as the button's children (a chart legend lost its
+  // colour dots).
+  const text = typeof children === 'string' || typeof children === 'number';
   return (
-    <BaseButton ref={ref} type={type} {...look} {...rest}>
+    <BaseButton ref={ref} type={type} disabled={disabled} {...rest} {...look}>
       {glyph}
-      <span className="ui-button-label">{children}</span>
+      {text ? <span className="ui-button-label">{children}</span> : children}
       {chord && <kbd className="ui-button-kbd">{chord}</kbd>}
     </BaseButton>
   );

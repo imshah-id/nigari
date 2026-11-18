@@ -76,7 +76,7 @@ function Chip({ prop, picked, onPick }: { prop: PropDef; picked: string; onPick:
         align="start"
         narrow="sheet"
         trigger={
-          <Button pressed={!!picked} size="sm" className="quick-filter-chip">
+          <Button emphasis={picked ? 'high' : 'medium'} size="sm" className="quick-filter-chip">
             {picked ? t('{name}: {value}', { name: prop.name, value: pickedLabel }) : prop.name}
             <ChevronDown size={14} aria-hidden="true" />
           </Button>

@@ -49,8 +49,11 @@
 
 /* The label's box is its capital height down to the baseline, so flex
    centres what the eye reads as the middle. A flex item is blockified, which
-   text-box needs. */
-.ui-button-label {
+   text-box needs. Only where the button has its fixed height: a button that
+   takes its height from its content (link, or a class that sets height: auto,
+   such as a table's column heading) would shrink to the capitals (found by
+   review). */
+.ui-button:not([data-emphasis='link']) > .ui-button-label {
   text-box: trim-both cap alphabetic;
 }
 
@@ -204,11 +207,22 @@
 
 /* The faint primary tint, whatever the emphasis and tone (owner, spec 020
    Q2): the choice is visible, and the one filled button on a screen stays
-   the main action. After the emphasis rules, so it wins over their rest. */
-.ui-button[data-pressed] {
+   the main action. [data-emphasis][data-tone] outweighs the emphasis × tone
+   rules (three attributes and a class against two), and the hover rule below
+   outweighs their hover: source order alone does not (found by review). */
+.ui-button[data-pressed][data-emphasis][data-tone] {
   background: var(--color-primary-subtle);
   border-color: transparent;
   color: var(--color-primary);
+  box-shadow: none;
+  transform: none;
+}
+.ui-button[data-pressed][data-emphasis][data-tone]:is(:hover, :active):not([data-disabled]) {
+  background: var(--color-primary-subtle);
+  border-color: transparent;
+  color: var(--color-primary-hover);
+  box-shadow: none;
+  transform: none;
 }
 
 .ui-button-kbd {

@@ -225,6 +225,9 @@ function Catalog() {
           </Button>
           <Button emphasis="low" pressed icon={<Plus />} label="Add a page" />
         </Row>
+        <Row label="icon only, disabled">
+          <Button emphasis="low" icon={<Trash2 />} label="Remove (disabled)" disabled onClick={() => setLast('disabled icon')} />
+        </Row>
       </Section>
 
       <Section id="field" title="Field and Input">
