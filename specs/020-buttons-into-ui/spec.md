@@ -71,16 +71,15 @@ What the code says today (2026-11-18, `main` at c74557a):
 
 ### Open (to be asked)
 
-- Q1: [NEEDS CLARIFICATION: What does a destructive button look like at
-  rest? **A**, a red outline, medium emphasis (recommended: it reads as
-  "careful" before the pointer reaches it, and it is the same as every other
-  outline button, only red). **B**, today's look: neutral at rest, red
-  text, red frame on hover.]
-- Q2: [NEEDS CLARIFICATION: What does the chosen item of a ToggleGroup
-  (and a pressed button) look like? **A**, a quiet tint: `primary-subtle`
-  behind `primary` text (recommended: the choice is visible without
-  shouting, and the one filled button on a screen stays the main action).
-  **B**, today's solid pink (`primary` filled, `on-primary` text).]
+- Q1 (owner, 2026-11-18, "colored outline", after a picture of both): a
+  destructive button at rest is **a red outline**: medium emphasis,
+  destructive tone, with `destructive` frame and text, and
+  `destructive-subtle` behind it on hover. Turned down: today's look
+  (neutral at rest, red frame only on hover).
+- Q2 (owner, 2026-11-18, "faint tint", after a picture of both): the chosen
+  item of a ToggleGroup, and a pressed button, is **a faint tint**:
+  `primary-subtle` behind `primary` text. The one filled button on a screen
+  stays the main action. Turned down: solid pink (today's).
 - Q3 (owner, 2026-11-18, "1"): **by part**. (1) The new `Button` and its
   tokens, with today's `Button` and `IconButton` callers moved. (2) The
   hand-built text and icon buttons everywhere. (3) `Tabs` and `ToggleGroup`.
