@@ -95,7 +95,7 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
   lower `rawButtons`
 - [x] T019 [wiki] Screenshots retaken and compared; the wiki text checked for
   a button described by its old look
-- [ ] T020 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
+- [x] T020 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
   screens; `codegraph callers Button`
 
 ---
