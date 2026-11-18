@@ -20,6 +20,7 @@ import { Menu, MenuItem, MenuCheckboxItem, MenuSubmenu, MenuValues, MenuValueIte
 import ChartFigure from '../src/components/ChartFigure';
 import type { PropDef, ViewDef } from '../src/types';
 import type { AggResult } from '../src/chartLayout';
+import primitives from '../tokens/primitives.tokens.json';
 
 // The component catalogue (spec 001, FR-012). Every component in web/src/ui/,
 // every state the contract names, on nothing but tokens.css: no styles.css, so
@@ -48,6 +49,29 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
       <span className="cat-row-label">{label}</span>
       <div className="cat-row-items">{children}</div>
     </div>
+  );
+}
+
+// Colours (spec 019): the roles components use, then the palettes the roles
+// reference, read from the token file so a new palette or step shows up here
+// without a change to this page. The catalogue may show palette steps; a
+// component may not (check-tokens.mjs counts --palette-* in web/src).
+const PALETTES = Object.keys(primitives.palette).filter((k) => !k.startsWith('$'));
+const STEPS = Object.keys(primitives.palette.$extensions['io.github.neatlittlemacapps.nigari.steps']).sort((a, b) => Number(a) - Number(b));
+const ROLES: [string, string[]][] = [
+  ['primary', ['primary', 'primary-hover', 'primary-pressed', 'primary-subtle', 'on-primary']],
+  ['destructive', ['destructive', 'destructive-hover', 'destructive-pressed', 'destructive-subtle', 'on-destructive']],
+  ['surface', ['surface-default', 'surface-sidebar', 'surface-raised']],
+  ['text and lines', ['text-default', 'text-muted', 'border-default', 'border-strong', 'hover', 'active']],
+  ['data', Array.from({ length: 12 }, (_, i) => `data-${i + 1}`)],
+];
+
+function Swatch({ token, label }: { token: string; label: string }) {
+  return (
+    <figure className="cat-swatch">
+      <span className="cat-swatch-chip" style={{ background: `var(${token})` }} />
+      <figcaption>{label}</figcaption>
+    </figure>
   );
 }
 
@@ -134,6 +158,25 @@ function Catalog() {
         </div>
         <output className="cat-last" data-testid="last">{last}</output>
       </header>
+
+      <Section id="colours" title="Colours (roles and palettes)">
+        {ROLES.map(([group, names]) => (
+          <Row key={group} label={group}>
+            {names.map((n) => (
+              <Swatch key={n} token={`--color-${n}`} label={n} />
+            ))}
+          </Row>
+        ))}
+        {PALETTES.map((p) => (
+          <Row key={p} label={p}>
+            <div className="cat-palette">
+              {STEPS.map((step) => (
+                <Swatch key={step} token={`--palette-${p}-${step}`} label={step} />
+              ))}
+            </div>
+          </Row>
+        ))}
+      </Section>
 
       <Section id="button" title="Button">
         {(['primary', 'secondary', 'ghost', 'danger'] as const).map((v) => (

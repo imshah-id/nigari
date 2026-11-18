@@ -1,54 +1,159 @@
 {
-  "$description": "Roles. Each holds its light value in $value and its dark value in $extensions[\"io.github.neatlittlemacapps.nigari.dark\"]: one token, two themes (FR-002). io.github.neatlittlemacapps.nigari.css keeps the name styles.css already reads.",
+  "$description": "Roles. Each holds its light value in $value and its dark value in $extensions[\"io.github.neatlittlemacapps.nigari.dark\"]: one token, two themes (FR-002). A colour role names a palette step (\"{palette.raspberry.500}\") per theme, with io.github.neatlittlemacapps.nigari.alpha where it is translucent; never a hex (spec 019). To give a role another colour, point its tokens at another palette (primary, primary-hover, primary-pressed, primary-subtle together), or change that palette's base in primitives.tokens.json; the build checks contrast on the result. io.github.neatlittlemacapps.nigari.css keeps the name styles.css already reads.",
   "color": {
     "$type": "color",
+    "primary": {
+      "$value": "{palette.raspberry.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.400}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ],
+        "io.github.neatlittlemacapps.nigari.rgb": "--accent-rgb"
+      },
+      "$description": "The one accent: links, the chosen item, the main action. Text-safe on every surface in both themes."
+    },
+    "primary-hover": {
+      "$value": "{palette.raspberry.600}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.300}"
+      },
+      "$description": "Primary under the pointer: one step further from the surface."
+    },
+    "primary-pressed": {
+      "$value": "{palette.raspberry.700}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.200}"
+      },
+      "$description": "Primary while pressed or switched on: two steps further from the surface."
+    },
+    "primary-subtle": {
+      "$value": "{palette.raspberry.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.raspberry.400}",
+        "io.github.neatlittlemacapps.nigari.alpha": {
+          "light": 0.085,
+          "dark": 0.13
+        }
+      },
+      "$description": "A wash of primary behind a chosen row or chip."
+    },
+    "on-primary": {
+      "$value": "{palette.stone.0}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.primary}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Text and icons on a primary fill."
+    },
+    "destructive": {
+      "$value": "{palette.burnt-orange.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.400}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.surface.default}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.sidebar}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.surface.raised}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Deleting and other actions that cannot be undone. Text-safe on every surface in both themes."
+    },
+    "destructive-hover": {
+      "$value": "{palette.burnt-orange.600}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.300}"
+      },
+      "$description": "Destructive under the pointer."
+    },
+    "destructive-pressed": {
+      "$value": "{palette.burnt-orange.700}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.200}"
+      },
+      "$description": "Destructive while pressed."
+    },
+    "destructive-subtle": {
+      "$value": "{palette.burnt-orange.500}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.burnt-orange.400}",
+        "io.github.neatlittlemacapps.nigari.alpha": {
+          "light": 0.085,
+          "dark": 0.13
+        }
+      },
+      "$description": "A wash of destructive behind a warning."
+    },
+    "on-destructive": {
+      "$value": "{palette.stone.0}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.destructive}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Text and icons on a destructive fill."
+    },
     "surface": {
       "default": {
-        "$value": "{color.paper.50}",
+        "$value": "{palette.stone.50}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--bg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.900}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.925}"
         },
         "$description": "The document."
       },
       "sidebar": {
-        "$value": "{color.paper.100}",
+        "$value": "{palette.stone.100}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--sidebar-bg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.950}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}"
         },
         "$description": "The sidebar: one step off the document."
       },
       "raised": {
-        "$value": "{color.paper.0}",
+        "$value": "{palette.stone.0}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--card",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.850}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.900}"
         },
         "$description": "Cards, dialogs, menus."
       },
       "glass": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.97,
-          "hex": "#ffffff"
-        },
+        "$value": "{palette.stone.0}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--glass",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0745,
-              0.0745,
-              0.0941
-            ],
-            "alpha": 0.95,
-            "hex": "#131318"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.900}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.97,
+            "dark": 0.95
           }
         },
         "$description": "Nearly opaque on purpose: at 82% a menu over a code block showed a smudge of it through the blur."
@@ -56,10 +161,10 @@
     },
     "text": {
       "default": {
-        "$value": "{color.ink.900}",
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--fg",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.100}",
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.200}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -77,10 +182,10 @@
         }
       },
       "muted": {
-        "$value": "{color.ink.500}",
+        "$value": "{palette.stone.500}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--muted",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.500}",
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.500}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -101,232 +206,105 @@
     },
     "accent": {
       "default": {
-        "$value": "{color.pink.700}",
+        "$value": "{color.primary}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.css": "--accent",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.pink.400}",
-          "io.github.neatlittlemacapps.nigari.contrast": [
-            {
-              "on": "{color.surface.default}",
-              "min": 4.5
-            },
-            {
-              "on": "{color.surface.sidebar}",
-              "min": 4.5
-            },
-            {
-              "on": "{color.surface.raised}",
-              "min": 4.5
-            }
-          ],
-          "io.github.neatlittlemacapps.nigari.rgb": "--accent-rgb"
+          "io.github.neatlittlemacapps.nigari.css": "--accent"
         },
-        "$description": "Text-safe on its surfaces in both themes."
+        "$description": "Today's name, kept for the stylesheets that read it: an alias of color.primary (spec 019)."
       },
       "soft": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.702,
-            0.0706,
-            0.2471
-          ],
-          "alpha": 0.085,
-          "hex": "#b3123f"
-        },
+        "$value": "{color.primary-subtle}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.css": "--accent-soft",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              0.3608,
-              0.502
-            ],
-            "alpha": 0.13,
-            "hex": "#ff5c80"
-          }
+          "io.github.neatlittlemacapps.nigari.css": "--accent-soft"
         },
-        "$description": "A wash of the accent behind selected things."
+        "$description": "Today's name, kept for the stylesheets that read it: an alias of color.primary-subtle (spec 019)."
       }
     },
     "danger": {
-      "$value": "{color.orange.700}",
+      "$value": "{color.destructive}",
       "$extensions": {
-        "io.github.neatlittlemacapps.nigari.css": "--danger",
-        "io.github.neatlittlemacapps.nigari.dark": "{color.orange.400}",
-        "io.github.neatlittlemacapps.nigari.contrast": [
-          {
-            "on": "{color.surface.default}",
-            "min": 4.5
-          },
-          {
-            "on": "{color.surface.sidebar}",
-            "min": 4.5
-          },
-          {
-            "on": "{color.surface.raised}",
-            "min": 4.5
-          }
-        ]
-      }
+        "io.github.neatlittlemacapps.nigari.css": "--danger"
+      },
+      "$description": "Today's name, kept for the stylesheets that read it: an alias of color.destructive (spec 019)."
     },
     "focus": {
-      "$value": "{color.accent.default}",
+      "$value": "{color.primary}",
       "$extensions": {},
       "$description": "The focus ring. The accent today; a token of its own so it can change without the accent."
     },
     "hover": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [
-          0.1098,
-          0.102,
-          0.0824
-        ],
-        "alpha": 0.045,
-        "hex": "#1c1a15"
-      },
+      "$value": "{palette.stone.850}",
       "$extensions": {
         "io.github.neatlittlemacapps.nigari.css": "--hover",
-        "io.github.neatlittlemacapps.nigari.dark": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.045,
-          "hex": "#ffffff"
-        }
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+        "io.github.neatlittlemacapps.nigari.alpha": 0.045
       },
       "$description": "Pointing: a faint wash over whatever is underneath."
     },
     "active": {
-      "$value": {
-        "colorSpace": "srgb",
-        "components": [
-          0.1098,
-          0.102,
-          0.0824
-        ],
-        "alpha": 0.075,
-        "hex": "#1c1a15"
-      },
+      "$value": "{palette.stone.850}",
       "$extensions": {
         "io.github.neatlittlemacapps.nigari.css": "--active",
-        "io.github.neatlittlemacapps.nigari.dark": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "alpha": 0.075,
-          "hex": "#ffffff"
-        }
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+        "io.github.neatlittlemacapps.nigari.alpha": 0.075
       },
       "$description": "Pressed or chosen."
     },
     "border": {
       "default": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1098,
-            0.102,
-            0.0824
-          ],
-          "alpha": 0.11,
-          "hex": "#1c1a15"
-        },
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--border",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              1,
-              1
-            ],
-            "alpha": 0.08,
-            "hex": "#ffffff"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.11,
+            "dark": 0.08
           }
         },
         "$description": "Hairlines, not borders: alpha, so one value reads right on paper, sidebar and card."
       },
       "strong": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1098,
-            0.102,
-            0.0824
-          ],
-          "alpha": 0.2,
-          "hex": "#1c1a15"
-        },
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--border-strong",
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              1,
-              1,
-              1
-            ],
-            "alpha": 0.15,
-            "hex": "#ffffff"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}",
+          "io.github.neatlittlemacapps.nigari.alpha": {
+            "light": 0.2,
+            "dark": 0.15
           }
         }
       }
     },
     "pill": {
       "default": {
-        "$value": "{color.ink.900}",
+        "$value": "{palette.stone.850}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--pill-dark",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.mist.50}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.50}"
         },
         "$description": "The primary action is ink, as on the site: a filled pill in the text colour."
       },
       "hover": {
-        "$value": "{color.ink.800}",
+        "$value": "{palette.stone.800}",
         "$extensions": {
           "io.github.neatlittlemacapps.nigari.css": "--pill-dark-hover",
-          "io.github.neatlittlemacapps.nigari.dark": "{color.paper.0}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.0}"
         }
       },
       "text": {
-        "$value": "{color.paper.50}",
+        "$value": "{palette.stone.50}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": "{color.night.950}"
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.slate.950}"
         },
         "$description": "Text on the ink pill: the paper in light, near-black in dark."
       }
     },
-    "chart": {
-      "$description": "Chart colours (spec 004, research R8 and R16). Every drawn colour reaches 3:1 on the document and on cards in both themes (WCAG 1.4.11, graphical objects), so a bar or slice is never too faint to see; each also carries a text label, so colour is never the only cue. Generated in OKLCH at the lightness that passes, not picked by eye.",
+    "data": {
+      "$description": "Data roles: what charts draw with (spec 019, R5). Each names a data palette's step per theme; every drawn colour reaches 3:1 on the document and on cards in both themes (spec 004). The colours a select option stores (selectOptions.ts) are data, not tokens: chartTheme.ts maps each to a data role.",
       "1": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1647,
-            0.502,
-            0.8863
-          ],
-          "hex": "#2a80e2"
-        },
+        "$value": "{palette.blue.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.2745,
-              0.6,
-              0.9961
-            ],
-            "hex": "#4699fe"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -338,28 +316,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 1 (blue)."
+        "$description": "Chart series 1 (blue), the Colourful palette."
       },
       "2": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.7765,
-            0.3686,
-            0.0431
-          ],
-          "hex": "#c65e0b"
-        },
+        "$value": "{palette.orange.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.9098,
-              0.4471,
-              0.1098
-            ],
-            "hex": "#e8721c"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -371,28 +333,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 2 (orange)."
+        "$description": "Chart series 2 (orange), the Colourful palette."
       },
       "3": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1451,
-            0.5961,
-            0.302
-          ],
-          "hex": "#25984d"
-        },
+        "$value": "{palette.green.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.2706,
-              0.6941,
-              0.3922
-            ],
-            "hex": "#45b164"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.green.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -404,28 +350,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 3 (green)."
+        "$description": "Chart series 3 (green), the Colourful palette."
       },
       "4": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.5961,
-            0.3765,
-            0.8157
-          ],
-          "hex": "#9860d0"
-        },
+        "$value": "{palette.purple.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.6941,
-              0.4745,
-              0.9216
-            ],
-            "hex": "#b179eb"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.purple.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -437,28 +367,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 4 (purple)."
+        "$description": "Chart series 4 (purple), the Colourful palette."
       },
       "5": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0588,
-            0.5725,
-            0.5765
-          ],
-          "hex": "#0f9293"
-        },
+        "$value": "{palette.teal.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0353,
-              0.6824,
-              0.6824
-            ],
-            "hex": "#09aeae"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.teal.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -470,28 +384,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 5 (teal)."
+        "$description": "Chart series 5 (teal), the Colourful palette."
       },
       "6": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.7804,
-            0.298,
-            0.5569
-          ],
-          "hex": "#c74c8e"
-        },
+        "$value": "{palette.pink.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.8863,
-              0.4,
-              0.6549
-            ],
-            "hex": "#e266a7"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.pink.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -503,28 +401,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 6 (pink)."
+        "$description": "Chart series 6 (pink), the Colourful palette."
       },
       "7": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.6314,
-            0.4745,
-            0.0471
-          ],
-          "hex": "#a1790c"
-        },
+        "$value": "{palette.yellow.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.7451,
-              0.5647,
-              0.0784
-            ],
-            "hex": "#be9014"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.yellow.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -536,28 +418,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 7 (yellow)."
+        "$description": "Chart series 7 (yellow), the Colourful palette."
       },
       "8": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.8431,
-            0.2784,
-            0.2706
-          ],
-          "hex": "#d74745"
-        },
+        "$value": "{palette.red.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.9529,
-              0.3843,
-              0.3647
-            ],
-            "hex": "#f3625d"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.red.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -569,28 +435,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 8 (red)."
+        "$description": "Chart series 8 (red), the Colourful palette."
       },
       "9": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.4,
-            0.4549,
-            0.8706
-          ],
-          "hex": "#6674de"
-        },
+        "$value": "{palette.indigo.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.4902,
-              0.5529,
-              0.9765
-            ],
-            "hex": "#7d8df9"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.indigo.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -602,28 +452,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 9 (indigo)."
+        "$description": "Chart series 9 (indigo), the Colourful palette."
       },
       "10": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.4235,
-            0.5569,
-            0.0118
-          ],
-          "hex": "#6c8e03"
-        },
+        "$value": "{palette.lime.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.5098,
-              0.6588,
-              0.1294
-            ],
-            "hex": "#82a821"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.lime.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -635,28 +469,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 10 (lime)."
+        "$description": "Chart series 10 (lime), the Colourful palette."
       },
       "11": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.6314,
-            0.4588,
-            0.3412
-          ],
-          "hex": "#a17557"
-        },
+        "$value": "{palette.brown.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.7333,
-              0.5529,
-              0.4353
-            ],
-            "hex": "#bb8d6f"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.brown.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -668,28 +486,12 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 11 (brown)."
+        "$description": "Chart series 11 (brown), the Colourful palette."
       },
       "12": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0824,
-            0.5569,
-            0.6706
-          ],
-          "hex": "#158eab"
-        },
+        "$value": "{palette.cyan.500}",
         "$extensions": {
-          "io.github.neatlittlemacapps.nigari.dark": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0902,
-              0.6627,
-              0.7961
-            ],
-            "hex": "#17a9cb"
-          },
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.cyan.450}",
           "io.github.neatlittlemacapps.nigari.contrast": [
             {
               "on": "{color.surface.default}",
@@ -701,30 +503,14 @@
             }
           ]
         },
-        "$description": "Colourful palette, group 12 (cyan)."
+        "$description": "Chart series 12 (cyan), the Colourful palette."
       },
       "gray": {
-        "$description": "Single-colour palette 'colorless': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.2824,
-              0.2824,
-              0.2824
-            ],
-            "hex": "#484848"
-          },
+        "$description": "Single-colour chart palette 'gray': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.gray.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.8431,
-                0.8431,
-                0.8431
-              ],
-              "hex": "#d7d7d7"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.gray.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -735,28 +521,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.3882,
-              0.3882,
-              0.3882
-            ],
-            "hex": "#636363"
-          },
+        "medium": {
+          "$value": "{palette.gray.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.7176,
-                0.7176,
-                0.7176
-              ],
-              "hex": "#b7b7b7"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.gray.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -767,28 +538,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.502,
-              0.502,
-              0.502
-            ],
-            "hex": "#808080"
-          },
+        "soft": {
+          "$value": "{palette.gray.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.5961,
-                0.5961,
-                0.5961
-              ],
-              "hex": "#989898"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.gray.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -799,31 +555,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "blue": {
-        "$description": "Single-colour palette 'blue': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0078,
-              0.2745,
-              0.5451
-            ],
-            "hex": "#02468b"
-          },
+        "$description": "Single-colour chart palette 'blue': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.blue.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.7529,
-                0.8549,
-                0.9882
-              ],
-              "hex": "#c0dafc"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -834,28 +575,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0353,
-              0.3804,
-              0.7333
-            ],
-            "hex": "#0961bb"
-          },
+        "medium": {
+          "$value": "{palette.blue.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.5294,
-                0.7294,
-                0.9922
-              ],
-              "hex": "#87bafd"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -866,28 +592,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.1647,
-              0.502,
-              0.8863
-            ],
-            "hex": "#2a80e2"
-          },
+        "soft": {
+          "$value": "{palette.blue.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.2745,
-                0.6,
-                0.9961
-              ],
-              "hex": "#4699fe"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -898,31 +609,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "yellow": {
-        "$description": "Single-colour palette 'yellow': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.3569,
-              0.2667,
-              0.0157
-            ],
-            "hex": "#5b4404"
-          },
+        "$description": "Single-colour chart palette 'yellow': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.yellow.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                1.0,
-                0.8196,
-                0.4196
-              ],
-              "hex": "#ffd16b"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.yellow.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -933,28 +629,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.4902,
-              0.3686,
-              0.0275
-            ],
-            "hex": "#7d5e07"
-          },
+        "medium": {
+          "$value": "{palette.yellow.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.8902,
-                0.6824,
-                0.1569
-              ],
-              "hex": "#e3ae28"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.yellow.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -965,28 +646,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.6314,
-              0.4745,
-              0.0471
-            ],
-            "hex": "#a1790c"
-          },
+        "soft": {
+          "$value": "{palette.yellow.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.7451,
-                0.5647,
-                0.0784
-              ],
-              "hex": "#be9014"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.yellow.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -997,31 +663,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "green": {
-        "$description": "Single-colour palette 'green': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0,
-              0.3412,
-              0.1451
-            ],
-            "hex": "#005725"
-          },
+        "$description": "Single-colour chart palette 'green': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.green.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.5373,
-                0.9529,
-                0.6353
-              ],
-              "hex": "#89f3a2"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.green.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1032,28 +683,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0314,
-              0.4667,
-              0.2118
-            ],
-            "hex": "#087736"
-          },
+        "medium": {
+          "$value": "{palette.green.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.4039,
-                0.8235,
-                0.5137
-              ],
-              "hex": "#67d283"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.green.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1064,28 +700,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.1451,
-              0.5961,
-              0.302
-            ],
-            "hex": "#25984d"
-          },
+        "soft": {
+          "$value": "{palette.green.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.2706,
-                0.6941,
-                0.3922
-              ],
-              "hex": "#45b164"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.green.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1096,31 +717,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "purple": {
-        "$description": "Single-colour palette 'purple': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.3686,
-              0.1294,
-              0.5608
-            ],
-            "hex": "#5e218f"
-          },
+        "$description": "Single-colour chart palette 'purple': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.purple.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.8863,
-                0.8,
-                0.9922
-              ],
-              "hex": "#e2ccfd"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.purple.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1131,28 +737,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.4784,
-              0.2549,
-              0.6863
-            ],
-            "hex": "#7a41af"
-          },
+        "medium": {
+          "$value": "{palette.purple.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.8,
-                0.6235,
-                1.0
-              ],
-              "hex": "#cc9fff"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.purple.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1163,28 +754,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.5961,
-              0.3765,
-              0.8157
-            ],
-            "hex": "#9860d0"
-          },
+        "soft": {
+          "$value": "{palette.purple.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.6941,
-                0.4745,
-                0.9216
-              ],
-              "hex": "#b179eb"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.purple.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1195,31 +771,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "teal": {
-        "$description": "Single-colour palette 'teal': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0353,
-              0.3216,
-              0.3216
-            ],
-            "hex": "#095252"
-          },
+        "$description": "Single-colour chart palette 'teal': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.teal.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.3961,
-                0.9412,
-                0.9412
-              ],
-              "hex": "#65f0f0"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.teal.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1230,28 +791,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0039,
-              0.4471,
-              0.4471
-            ],
-            "hex": "#017272"
-          },
+        "medium": {
+          "$value": "{palette.teal.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.2314,
-                0.8118,
-                0.8118
-              ],
-              "hex": "#3bcfcf"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.teal.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1262,28 +808,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.0588,
-              0.5725,
-              0.5765
-            ],
-            "hex": "#0f9293"
-          },
+        "soft": {
+          "$value": "{palette.teal.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.0353,
-                0.6824,
-                0.6824
-              ],
-              "hex": "#09aeae"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.teal.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1294,31 +825,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "orange": {
-        "$description": "Single-colour palette 'orange': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.451,
-              0.2,
-              0.0039
-            ],
-            "hex": "#733301"
-          },
+        "$description": "Single-colour chart palette 'orange': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.orange.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9961,
-                0.7961,
-                0.6863
-              ],
-              "hex": "#fecbaf"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1329,28 +845,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.6078,
-              0.2824,
-              0.0196
-            ],
-            "hex": "#9b4805"
-          },
+        "medium": {
+          "$value": "{palette.orange.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9961,
-                0.6078,
-                0.3804
-              ],
-              "hex": "#fe9b61"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1361,28 +862,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.7765,
-              0.3686,
-              0.0431
-            ],
-            "hex": "#c65e0b"
-          },
+        "soft": {
+          "$value": "{palette.orange.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9098,
-                0.4471,
-                0.1098
-              ],
-              "hex": "#e8721c"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1393,31 +879,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "pink": {
-        "$description": "Single-colour palette 'pink': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.5059,
-              0.0118,
-              0.3294
-            ],
-            "hex": "#810354"
-          },
+        "$description": "Single-colour chart palette 'pink': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.pink.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                1.0,
-                0.7686,
-                0.8706
-              ],
-              "hex": "#ffc4de"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.pink.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1428,28 +899,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.6431,
-              0.1725,
-              0.4431
-            ],
-            "hex": "#a42c71"
-          },
+        "medium": {
+          "$value": "{palette.pink.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9961,
-                0.5529,
-                0.7725
-              ],
-              "hex": "#fe8dc5"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.pink.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1460,28 +916,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.7804,
-              0.298,
-              0.5569
-            ],
-            "hex": "#c74c8e"
-          },
+        "soft": {
+          "$value": "{palette.pink.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.8863,
-                0.4,
-                0.6549
-              ],
-              "hex": "#e266a7"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.pink.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1492,31 +933,16 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "red": {
-        "$description": "Single-colour palette 'red': three shades that all pass 3:1, darkest first. Notion fades to five, but its lightest two would fail the contrast rule; more groups repeat the shades and their labels tell them apart.",
-        "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.5412,
-              0.0118,
-              0.0784
-            ],
-            "hex": "#8a0314"
-          },
+        "$description": "Single-colour chart palette 'red': three shades that all pass 3:1, strongest first.",
+        "strong": {
+          "$value": "{palette.red.700}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9922,
-                0.7882,
-                0.7686
-              ],
-              "hex": "#fdc9c4"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.red.200}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1527,28 +953,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The strongest shade: the largest group of a sorted chart."
         },
-        "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.702,
-              0.1333,
-              0.1569
-            ],
-            "hex": "#b32228"
-          },
+        "medium": {
+          "$value": "{palette.red.600}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9922,
-                0.5882,
-                0.5608
-              ],
-              "hex": "#fd968f"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.red.400}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1559,28 +970,13 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The middle shade."
         },
-        "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.8431,
-              0.2784,
-              0.2706
-            ],
-            "hex": "#d74745"
-          },
+        "soft": {
+          "$value": "{palette.red.500}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.9529,
-                0.3843,
-                0.3647
-              ],
-              "hex": "#f3625d"
-            },
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.red.450}",
             "io.github.neatlittlemacapps.nigari.contrast": [
               {
                 "on": "{color.surface.default}",
@@ -1591,98 +987,234 @@
                 "min": 3
               }
             ]
-          }
+          },
+          "$description": "The softest shade that still passes 3:1; the same colour as the hue's chart series, so an option keeps its colour across palettes."
         }
       },
       "background": {
-        "$description": "Soft backgrounds for Save chart as (research R17). No contrast claim: the chart's own colours are checked on the surfaces, and these are a frame around them.",
+        "$description": "Soft backgrounds for Save chart as (research R17 of spec 004). No contrast claim: they frame the chart, whose own colours are checked.",
         "1": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.9882,
-              0.9373,
-              0.898
-            ],
-            "hex": "#fcefe5"
-          },
+          "$value": "{palette.frame-orange.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.149,
-                0.1137,
-                0.0863
-              ],
-              "hex": "#261d16"
-            }
-          }
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-orange.850}"
+          },
+          "$description": "Background 1 (a soft orange)."
         },
         "2": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.902,
-              0.9569,
-              0.9961
-            ],
-            "hex": "#e6f4fe"
-          },
+          "$value": "{palette.frame-blue.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.0667,
-                0.1294,
-                0.1725
-              ],
-              "hex": "#11212c"
-            }
-          }
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-blue.850}"
+          },
+          "$description": "Background 2 (a soft blue)."
         },
         "3": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              1.0,
-              0.9294,
-              0.9373
-            ],
-            "hex": "#ffedef"
-          },
+          "$value": "{palette.frame-red.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.1725,
-                0.098,
-                0.1098
-              ],
-              "hex": "#2c191c"
-            }
-          }
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-red.850}"
+          },
+          "$description": "Background 3 (a soft red)."
         },
         "4": {
-          "$value": {
-            "colorSpace": "srgb",
-            "components": [
-              0.9961,
-              0.9412,
-              0.8314
-            ],
-            "hex": "#fef0d4"
-          },
+          "$value": "{palette.frame-yellow.100}",
           "$extensions": {
-            "io.github.neatlittlemacapps.nigari.dark": {
-              "colorSpace": "srgb",
-              "components": [
-                0.1569,
-                0.1176,
-                0.0235
-              ],
-              "hex": "#281e06"
-            }
-          }
+            "io.github.neatlittlemacapps.nigari.dark": "{palette.frame-yellow.850}"
+          },
+          "$description": "Background 4 (a soft yellow)."
+        }
+      }
+    },
+    "chart": {
+      "$description": "Today's chart names, kept as aliases of the data roles (spec 019). New code reads color.data.*.",
+      "1": {
+        "$value": "{color.data.1}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "2": {
+        "$value": "{color.data.2}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "3": {
+        "$value": "{color.data.3}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "4": {
+        "$value": "{color.data.4}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "5": {
+        "$value": "{color.data.5}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "6": {
+        "$value": "{color.data.6}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "7": {
+        "$value": "{color.data.7}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "8": {
+        "$value": "{color.data.8}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "9": {
+        "$value": "{color.data.9}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "10": {
+        "$value": "{color.data.10}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "11": {
+        "$value": "{color.data.11}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "12": {
+        "$value": "{color.data.12}",
+        "$description": "Today's name, an alias of its data role (spec 019)."
+      },
+      "gray": {
+        "1": {
+          "$value": "{color.data.gray.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.gray.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.gray.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "blue": {
+        "1": {
+          "$value": "{color.data.blue.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.blue.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.blue.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "yellow": {
+        "1": {
+          "$value": "{color.data.yellow.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.yellow.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.yellow.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "green": {
+        "1": {
+          "$value": "{color.data.green.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.green.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.green.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "purple": {
+        "1": {
+          "$value": "{color.data.purple.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.purple.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.purple.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "teal": {
+        "1": {
+          "$value": "{color.data.teal.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.teal.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.teal.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "orange": {
+        "1": {
+          "$value": "{color.data.orange.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.orange.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.orange.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "pink": {
+        "1": {
+          "$value": "{color.data.pink.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.pink.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.pink.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "red": {
+        "1": {
+          "$value": "{color.data.red.strong}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.red.medium}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.red.soft}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        }
+      },
+      "background": {
+        "1": {
+          "$value": "{color.data.background.1}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "2": {
+          "$value": "{color.data.background.2}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "3": {
+          "$value": "{color.data.background.3}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
+        },
+        "4": {
+          "$value": "{color.data.background.4}",
+          "$description": "Today's name, an alias of its data role (spec 019)."
         }
       }
     }
@@ -1907,11 +1439,11 @@
     "accent": {
       "$value": [
         {
-          "color": "{color.pink.600}",
+          "color": "{palette.raspberry.450}",
           "position": 0
         },
         {
-          "color": "{color.pink.700}",
+          "color": "{palette.raspberry.500}",
           "position": 1
         }
       ],
@@ -1919,11 +1451,11 @@
         "io.github.neatlittlemacapps.nigari.css": "--grad-accent",
         "io.github.neatlittlemacapps.nigari.dark": [
           {
-            "color": "{color.pink.400}",
+            "color": "{palette.raspberry.400}",
             "position": 0
           },
           {
-            "color": "{color.pink.500}",
+            "color": "{palette.raspberry.450}",
             "position": 1
           }
         ],

@@ -31,7 +31,7 @@ function tokenValues(css, selector) {
   if (start < 0) throw new Error(`tokens.css has no "${selector} {" rule`);
   const block = css.slice(start, css.indexOf('}', start));
   const values = new Map();
-  for (const m of block.matchAll(/(--color-chart-[\w-]+):\s*([^;]+);/g)) {
+  for (const m of block.matchAll(/(--color-data-[\w-]+):\s*([^;]+);/g)) {
     if (m[2].includes('var(')) throw new Error(`${selector} ${m[1]} is a var(), not a colour`);
     values.set(m[1], m[2].trim().toLowerCase());
   }
@@ -76,10 +76,10 @@ try {
   const hueOf = { [orange]: 'orange', [yellow]: 'yellow', [green]: 'green', [blue]: 'blue', [purple]: 'purple', [pink]: 'pink', [red]: 'red' };
   for (const [theme, selector] of [['light', ':root'], ['dark', "[data-theme='dark']"], ['system dark', ":root:not([data-theme='light'])"]]) {
     const v = tokenValues(css, selector);
-    const names = [...Array(12)].map((_, i) => `--color-chart-${i + 1}`).concat('--color-chart-gray-2', '--color-chart-gray-3');
+    const names = [...Array(12)].map((_, i) => `--color-data-${i + 1}`).concat('--color-data-gray-medium', '--color-data-gray-soft');
     check(`${theme}: every colourful and grey name draws its own colour`, distinct(names.map((n) => v.get(n))), true);
     for (const [hex, hue] of Object.entries(hueOf)) {
-      check(`${theme}: a ${hue} option draws as before`, v.get(OPTION_TOKEN[hex]), v.get(`--color-chart-${hue}-3`));
+      check(`${theme}: a ${hue} option draws as before`, v.get(OPTION_TOKEN[hex]), v.get(`--color-data-${hue}-soft`));
     }
   }
 
@@ -105,12 +105,12 @@ try {
   check('past the free colours, no imported group takes an option colour', wide.slice(2).filter((t) => t === OPTION_TOKEN[blue] || t === OPTION_TOKEN[green]), []);
 
   // Unchanged where there is no clash: no options, Colourful, cycling.
-  check('without options the palette goes in order', groupColourTokens(groups(3), 'auto'), ['--color-chart-1', '--color-chart-2', '--color-chart-3']);
+  check('without options the palette goes in order', groupColourTokens(groups(3), 'auto'), ['--color-data-1', '--color-data-2', '--color-data-3']);
   const many = groupColourTokens(groups(14), 'colorful');
-  check('fourteen groups cycle', [many[0], many[12], many[13]], ['--color-chart-1', '--color-chart-1', '--color-chart-2']);
-  check('Colourful ignores option colours', groupColourTokens(groups(2), 'colorful', prop([red, red])), ['--color-chart-1', '--color-chart-2']);
-  check('a gray option is the grey scale', groupColourTokens(groups(1), 'auto', prop([gray])), ['--color-chart-gray-3']);
-  check('a brown option is brown', groupColourTokens(groups(1), 'auto', prop([brown])), ['--color-chart-11']);
+  check('fourteen groups cycle', [many[0], many[12], many[13]], ['--color-data-1', '--color-data-1', '--color-data-2']);
+  check('Colourful ignores option colours', groupColourTokens(groups(2), 'colorful', prop([red, red])), ['--color-data-1', '--color-data-2']);
+  check('a gray option is the grey scale', groupColourTokens(groups(1), 'auto', prop([gray])), ['--color-data-gray-soft']);
+  check('a brown option is brown', groupColourTokens(groups(1), 'auto', prop([brown])), ['--color-data-11']);
 
   // Each row stays one colour; Colourful gives each its own (#318).
   check('each row is one colour', distinct(groupColourTokens(groups(3), 'auto', undefined, true)), false);

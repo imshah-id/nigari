@@ -2,238 +2,6 @@
   "$description": "Raw scales. Components never read these directly; they read the semantic tier.",
   "color": {
     "$type": "color",
-    "paper": {
-      "0": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            1,
-            1
-          ],
-          "hex": "#ffffff"
-        },
-        "$description": "Pure white: cards, the dark pill on hover."
-      },
-      "50": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.9843,
-            0.9804,
-            0.9686
-          ],
-          "hex": "#fbfaf7"
-        },
-        "$description": "The document."
-      },
-      "100": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.949,
-            0.9451,
-            0.9176
-          ],
-          "hex": "#f2f1ea"
-        },
-        "$description": "The sidebar."
-      },
-      "$description": "The light ground: warm paper and stone."
-    },
-    "ink": {
-      "500": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.4353,
-            0.4314,
-            0.4157
-          ],
-          "hex": "#6f6e6a"
-        },
-        "$description": "Muted text. Was #7e7d78, which reached only 3.95:1 on the document and 3.64:1 on the sidebar; this is the same grey darkened just enough for 4.5:1 on the sidebar, the darkest light surface (spec 001, FR-004)."
-      },
-      "800": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1647,
-            0.1529,
-            0.1294
-          ],
-          "hex": "#2a2721"
-        },
-        "$description": "The ink pill on hover."
-      },
-      "900": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.1098,
-            0.102,
-            0.0824
-          ],
-          "hex": "#1c1a15"
-        },
-        "$description": "Body text and the ink pill."
-      },
-      "$description": "Light-theme text: ink, not black."
-    },
-    "night": {
-      "850": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0667,
-            0.0667,
-            0.0863
-          ],
-          "hex": "#111116"
-        },
-        "$description": "Dark cards."
-      },
-      "900": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0431,
-            0.0431,
-            0.0549
-          ],
-          "hex": "#0b0b0e"
-        },
-        "$description": "The dark document."
-      },
-      "950": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.0275,
-            0.0275,
-            0.0392
-          ],
-          "hex": "#07070a"
-        },
-        "$description": "The dark sidebar and text on the light pill."
-      },
-      "$description": "The dark ground: near-black with a trace of blue."
-    },
-    "mist": {
-      "50": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.9608,
-            0.9608,
-            0.9686
-          ],
-          "hex": "#f5f5f7"
-        },
-        "$description": "The light pill in dark."
-      },
-      "100": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.851,
-            0.851,
-            0.8588
-          ],
-          "hex": "#d9d9db"
-        },
-        "$description": "Body text in dark."
-      },
-      "500": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.502,
-            0.502,
-            0.5137
-          ],
-          "hex": "#808083"
-        },
-        "$description": "Muted text in dark."
-      },
-      "$description": "Dark-theme text."
-    },
-    "pink": {
-      "400": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            0.3608,
-            0.502
-          ],
-          "hex": "#ff5c80"
-        },
-        "$description": "Text-safe pink on dark."
-      },
-      "500": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            0.1765,
-            0.3765
-          ],
-          "hex": "#ff2d60"
-        },
-        "$description": "Signature pink; also the first rainbow stop."
-      },
-      "600": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.7608,
-            0.0941,
-            0.3569
-          ],
-          "hex": "#c2185b"
-        }
-      },
-      "700": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.702,
-            0.0706,
-            0.2471
-          ],
-          "hex": "#b3123f"
-        },
-        "$description": "Text-safe pink on paper."
-      },
-      "$description": "The site's one accent."
-    },
-    "orange": {
-      "400": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            1,
-            0.4784,
-            0.349
-          ],
-          "hex": "#ff7a59"
-        },
-        "$description": "Danger on dark."
-      },
-      "700": {
-        "$value": {
-          "colorSpace": "srgb",
-          "components": [
-            0.7608,
-            0.2549,
-            0.0471
-          ],
-          "hex": "#c2410c"
-        },
-        "$description": "Danger on paper."
-      }
-    },
     "rainbow": {
       "$description": "The six stops of the site's rainbow.",
       "red": {
@@ -300,6 +68,302 @@
             0.9176
           ],
           "hex": "#9333ea"
+        }
+      }
+    }
+  },
+  "palette": {
+    "$type": "color",
+    "$description": "Named palettes, each one OKLCH base at step 500. The build generates every other step from the base by the fractions in io.github.neatlittlemacapps.nigari.steps: a lighter step moves that fraction of the way from the base's lightness to white, a darker one that fraction of the way to black; hue stays, chroma is lowered only to fit sRGB (spec 019, R1). Write only the base. To change a colour everywhere, change its palette's base, or point the role tokens in semantic.tokens.json at another palette. Components never read a palette step (check-tokens.mjs refuses --palette-*): they use the role tokens.",
+    "$extensions": {
+      "io.github.neatlittlemacapps.nigari.steps": {
+        "0": 1,
+        "50": 0.965,
+        "100": 0.91,
+        "200": 0.71,
+        "300": 0.55,
+        "400": 0.4,
+        "450": 0.2,
+        "500": 0,
+        "600": -0.15,
+        "700": -0.3,
+        "800": -0.49,
+        "850": -0.59,
+        "900": -0.7,
+        "925": -0.75,
+        "950": -0.78
+      }
+    },
+    "raspberry": {
+      "$description": "Primary. Its base is today's accent on paper (#b3123f).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.494,
+            0.1887,
+            14.27
+          ]
+        }
+      }
+    },
+    "burnt-orange": {
+      "$description": "Destructive. Its base is today's danger on paper (#c2410c).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5534,
+            0.1739,
+            38.4
+          ]
+        }
+      }
+    },
+    "stone": {
+      "$description": "The warm grey of light mode: paper, ink and muted text. Its base is light muted text (#6f6e6a).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5379,
+            0.0063,
+            95.17
+          ]
+        }
+      }
+    },
+    "slate": {
+      "$description": "The cool grey of dark mode: the night surfaces and mist text. Its base is dark muted text (#808083).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6008,
+            0.0045,
+            286.26
+          ]
+        }
+      }
+    },
+    "blue": {
+      "$description": "Data hue 'blue': charts and option colours. Its base is today's blue chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6007,
+            0.1691,
+            254.74
+          ]
+        }
+      }
+    },
+    "orange": {
+      "$description": "Data hue 'orange': charts and option colours. Its base is today's orange chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5992,
+            0.1548,
+            50.02
+          ]
+        }
+      }
+    },
+    "green": {
+      "$description": "Data hue 'green': charts and option colours. Its base is today's green chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5998,
+            0.1496,
+            150.16
+          ]
+        }
+      }
+    },
+    "purple": {
+      "$description": "Data hue 'purple': charts and option colours. Its base is today's purple chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5994,
+            0.1701,
+            304.9
+          ]
+        }
+      }
+    },
+    "teal": {
+      "$description": "Data hue 'teal': charts and option colours. Its base is today's teal chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5991,
+            0.0997,
+            195.69
+          ]
+        }
+      }
+    },
+    "pink": {
+      "$description": "Data hue 'pink': charts and option colours. Its base is today's pink chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.1709,
+            350.21
+          ]
+        }
+      }
+    },
+    "yellow": {
+      "$description": "Data hue 'yellow': charts and option colours. Its base is today's yellow chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5995,
+            0.12,
+            84.66
+          ]
+        }
+      }
+    },
+    "red": {
+      "$description": "Data hue 'red': charts and option colours. Its base is today's red chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6004,
+            0.1809,
+            25.1
+          ]
+        }
+      }
+    },
+    "indigo": {
+      "$description": "Data hue 'indigo': charts and option colours. Its base is today's indigo chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5999,
+            0.1601,
+            274.86
+          ]
+        }
+      }
+    },
+    "lime": {
+      "$description": "Data hue 'lime': charts and option colours. Its base is today's lime chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5988,
+            0.1493,
+            124.82
+          ]
+        }
+      }
+    },
+    "brown": {
+      "$description": "Data hue 'brown': charts and option colours. Its base is today's brown chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5993,
+            0.0702,
+            55.23
+          ]
+        }
+      }
+    },
+    "cyan": {
+      "$description": "Data hue 'cyan': charts and option colours. Its base is today's cyan chart colour, at the lightness where a drawn colour reaches 3:1 on light surfaces.",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5994,
+            0.1049,
+            219.86
+          ]
+        }
+      }
+    },
+    "gray": {
+      "$description": "Data grey: No value, Other and the colourless chart palette. Its base is today's lightest grey (#808080).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.5999,
+            0,
+            89.88
+          ]
+        }
+      }
+    },
+    "frame-orange": {
+      "$description": "A soft frame for Save chart as: a hint of orange, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.019,
+            60.2
+          ]
+        }
+      }
+    },
+    "frame-blue": {
+      "$description": "A soft frame for Save chart as: a hint of blue, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.025,
+            238.7
+          ]
+        }
+      }
+    },
+    "frame-red": {
+      "$description": "A soft frame for Save chart as: a hint of red, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.025,
+            9.8
+          ]
+        }
+      }
+    },
+    "frame-yellow": {
+      "$description": "A soft frame for Save chart as: a hint of yellow, low enough in chroma that the chart's own colours stay the loudest thing in the picture. Its chroma is today's frame's (spec 019).",
+      "500": {
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.6,
+            0.04,
+            84.6
+          ]
         }
       }
     }

@@ -14,27 +14,28 @@ import type { Chart, Plugin } from 'chart.js';
 export type Palette = NonNullable<ChartStyle['palette']>;
 
 const HUES = ['gray', 'blue', 'yellow', 'green', 'purple', 'teal', 'orange', 'pink', 'red'] as const;
+const SHADES = ['strong', 'medium', 'soft'] as const;
 
 // A select option stores one of the option palette's hexes (selectOptions.ts).
 // Its chart colour is the colourful palette's colour of that hue: the option's
 // own hex is tuned for a chip's background, not for a bar on the page, and
 // several of them fall short of 3:1 there. These are the colourful palette's
 // own tokens (group 3 is "green", semantic.tokens.json), not the single-hue
-// palettes' --color-chart-green-3, which holds the same colour under a second
+// palettes' --color-data-green-soft, which holds the same colour under a second
 // name: with one name per colour, "another group already shows this colour"
 // is a comparison of names (#278), and check-chartcolours.mjs fails if two
 // names of the colourful palette ever draw the same colour. Gray has no place
 // in the colourful palette and keeps the grey scale's lightest.
 export const OPTION_TOKEN: Record<string, string> = {
-  [OPTION_HEXES[0]]: '--color-chart-gray-3',
-  [OPTION_HEXES[1]]: '--color-chart-11', // brown
-  [OPTION_HEXES[2]]: '--color-chart-2', // orange
-  [OPTION_HEXES[3]]: '--color-chart-7', // yellow
-  [OPTION_HEXES[4]]: '--color-chart-3', // green
-  [OPTION_HEXES[5]]: '--color-chart-1', // blue
-  [OPTION_HEXES[6]]: '--color-chart-4', // purple
-  [OPTION_HEXES[7]]: '--color-chart-6', // pink
-  [OPTION_HEXES[8]]: '--color-chart-8', // red
+  [OPTION_HEXES[0]]: '--color-data-gray-soft',
+  [OPTION_HEXES[1]]: '--color-data-11', // brown
+  [OPTION_HEXES[2]]: '--color-data-2', // orange
+  [OPTION_HEXES[3]]: '--color-data-7', // yellow
+  [OPTION_HEXES[4]]: '--color-data-3', // green
+  [OPTION_HEXES[5]]: '--color-data-1', // blue
+  [OPTION_HEXES[6]]: '--color-data-4', // purple
+  [OPTION_HEXES[7]]: '--color-data-6', // pink
+  [OPTION_HEXES[8]]: '--color-data-8', // red
 };
 
 /** The token each drawn group is painted with, in drawing order. "No value"
@@ -64,11 +65,11 @@ export function groupColourTokens(drawn: DrawnGroup[], palette: Palette, groupPr
   // stay off these.
   const taken = new Set(drawn.map(optionToken).filter((t): t is string => !!t));
   const used = new Set<string>();
-  const place = (n: number) => `--color-chart-${(n % 12) + 1}`;
+  const place = (n: number) => `--color-data-${(n % 12) + 1}`;
   let i = 0;
   return drawn.map((g) => {
-    if (g.key === NO_VALUE) return '--color-chart-gray-2';
-    if (g.key === OTHER) return '--color-chart-gray-3';
+    if (g.key === NO_VALUE) return '--color-data-gray-medium';
+    if (g.key === OTHER) return '--color-data-gray-soft';
     const n = oneColour ? 0 : i++;
     if (palette === 'auto' || palette === 'colorful') {
       const fromOption = optionToken(g);
@@ -88,8 +89,8 @@ export function groupColourTokens(drawn: DrawnGroup[], palette: Palette, groupPr
       return place(n);
     }
     const hue = palette === 'colorless' ? 'gray' : (HUES as readonly string[]).includes(palette) ? palette : 'blue';
-    // Darkest first, so the largest groups of a sorted chart stand out most.
-    return `--color-chart-${hue}-${(n % 3) + 1}`;
+    // Strongest first, so the largest groups of a sorted chart stand out most.
+    return `--color-data-${hue}-${SHADES[n % 3]}`;
   });
 }
 

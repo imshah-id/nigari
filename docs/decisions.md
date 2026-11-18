@@ -7,6 +7,50 @@ entries are not edited away.
 
 ---
 
+## 2026-11-17 — Spec 019: the palette step table, as built
+
+Building spec 019 changed its R1 table in three places, each measured
+against today's colours (before/after of every colour variable):
+
+- **Step 0 (white, f = +1)** added: cards and the dark pill's hover are pure
+  white, which no fraction below 1 gives.
+- **Step 100 at +0.91** instead of +0.905: at +0.905 the light sidebar came out
+  a hair darker and light muted text fell to 4.48:1 on it (the build's
+  contrast check refused it). The measured fraction of today's sidebar is
+  +0.907, so +0.91 fits as well.
+- **Step 450 (+0.2)** added: every dark chart colour sits at +0.2 from its
+  light one. With only 400 and 500 the nearest step moved each by 0.08 in
+  lightness (visible); 450 fits all thirteen within 0.001.
+
+Light accent and danger are exactly as before (each is its palette's 500);
+every interface colour moved by at most 0.015 in lightness, chart shades by
+at most 0.022.
+
+Two choices beyond the plan:
+
+- **The neutral roles keep their names** (`color.surface.*`, `color.text.*`,
+  `color.border.*`, `color.hover`, `color.active`, `color.pill.*`): they were
+  already named by role, so they were pointed at `stone`/`slate` rather than
+  given new names with the old ones as aliases. Accent and danger got new
+  role names (`primary`, `destructive`) because those are what spec 020
+  builds on; `--accent`, `--danger` and `color.accent.*` are aliases.
+- **The chart backgrounds** (only the frame of Save chart as) get four soft
+  palettes of their own, `frame-orange`, `frame-blue`, `frame-red` and
+  `frame-yellow`, each with today's frame's hue and chroma (0.019–0.04), at
+  100 (light) and 850 (dark). The owner chose this (**B**, 2026-11-18) after
+  a side-by-side picture: the dark frames match today's within a few units
+  per channel. Turned down: **A**, the nearest step of the chart hue
+  palettes, which turned the dark frames deep brown, navy and maroon (a
+  step keeps its palette's chroma); keeping them as hex (no hex in the role
+  tier, FR-003).
+
+A translucent role names its step and an opacity
+(`io.github.neatlittlemacapps.nigari.alpha`), because DTCG cannot put an alpha
+on an alias. Turned down: writing those colours out again as hex (they would
+no longer follow their palette).
+
+---
+
 ## 2026-11-17 — Spec 018: a view still named after its layout takes the new name
 
 The UX audit of spec 018 found tabs reading "Table" over a calendar, and a
