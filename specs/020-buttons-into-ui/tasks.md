@@ -15,7 +15,7 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 - The browser tests of every touched screen.
 - Before and after screenshots, light and dark.
 
-**Issues**: none yet
+**Issues**: parent #379; tasks T001–T034 are #764–#797
 
 **Delivery**: four pull requests by part (Q3), each from its own branch off
 `main`, each lowering `rawButtons` to its measured count.
