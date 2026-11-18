@@ -3,7 +3,7 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { NO_VALUE, type Lane } from '../boardLanes';
 import { t } from '../i18n';
 import type { PropDef } from '../types';
-import { IconButton } from '../ui/IconButton';
+import { Button } from '../ui/Button';
 import { loadMembers, loadRelationOptions } from './PropertyValue';
 
 // A board lane's heading (spec 013, US4): its name, its card count and a
@@ -52,7 +52,7 @@ export default function BoardLaneHead({
   return (
     <div className="board-lane-head">
       {onFold && (
-        <IconButton
+        <Button emphasis="low"
           label={folded ? t('Unfold lane') : t('Fold lane')}
           icon={folded ? <ChevronRight size={14} /> : <ChevronDown size={14} />}
           size="sm"

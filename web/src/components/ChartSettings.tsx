@@ -221,10 +221,10 @@ export default function ChartSettings({
         <section className="chart-panel-section" aria-label={t('Groups')}>
           <div className="chart-panel-row">
             <h3 className="chart-panel-heading">{t('Groups')}</h3>
-            <Button size="sm" variant="ghost" onClick={() => setHidden(listed.map((g) => g.key))}>
+            <Button size="sm" emphasis="low" onClick={() => setHidden(listed.map((g) => g.key))}>
               {t('Hide all')}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => onChange({ hiddenGroups: [], showEmpty: undefined })}>
+            <Button size="sm" emphasis="low" onClick={() => onChange({ hiddenGroups: [], showEmpty: undefined })}>
               {t('Show all')}
             </Button>
           </div>
@@ -366,7 +366,7 @@ export function ChartSettingsButton(props: Parameters<typeof ChartSettings>[0]) 
       label={t('Chart settings')}
       closeLabel={t('Close')}
       trigger={
-        <Button size="sm" variant="ghost">
+        <Button size="sm" emphasis="low">
           <SlidersHorizontal size={14} aria-hidden="true" />
           {t('Chart settings')}
         </Button>

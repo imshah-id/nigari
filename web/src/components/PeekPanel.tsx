@@ -2,7 +2,7 @@ import { Maximize2, X } from 'lucide-react';
 import { SidePanel } from '../ui/SidePanel';
 import { CenterPanel } from '../ui/CenterPanel';
 import type { PeekMode } from '../peek';
-import { IconButton } from '../ui/IconButton';
+import { Button } from '../ui/Button';
 import { toast } from '../toast';
 import { t } from '../i18n';
 import Editor, { type EditorProps } from './Editor';
@@ -36,9 +36,9 @@ export default function PeekPanel({ peekId, mode, onClose, onOpenFullPage, onTra
         key={peekId}
         pageId={peekId}
         container="peek"
-        peekStart={<IconButton label={t('Close')} icon={<X size={18} />} onClick={onClose} />}
+        peekStart={<Button emphasis="low" label={t('Close')} icon={<X size={18} />} onClick={onClose} />}
         peekEnd={
-          <IconButton label={t('Open as full page')} icon={<Maximize2 size={16} />} onClick={() => onOpenFullPage(peekId)} />
+          <Button emphasis="low" label={t('Open as full page')} icon={<Maximize2 size={16} />} onClick={() => onOpenFullPage(peekId)} />
         }
         // Deleted, moved to the trash or no longer readable while open: the
         // panel would only show an error, so it closes and says why.

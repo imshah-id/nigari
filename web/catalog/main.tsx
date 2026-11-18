@@ -6,7 +6,6 @@ import '@fontsource-variable/jetbrains-mono';
 import '../src/tokens.css';
 import './catalog.css';
 import { Button } from '../src/ui/Button';
-import { IconButton } from '../src/ui/IconButton';
 import { Dialog, DialogClose } from '../src/ui/Dialog';
 import { AlertDialog } from '../src/ui/AlertDialog';
 import { Field, Input } from '../src/ui/Field';
@@ -56,6 +55,9 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 // reference, read from the token file so a new palette or step shows up here
 // without a change to this page. The catalogue may show palette steps; a
 // component may not (check-tokens.mjs counts --palette-* in web/src).
+const EMPHASES = ['high', 'medium', 'low', 'link'] as const;
+const TONES = ['neutral', 'primary', 'destructive'] as const;
+
 const PALETTES = Object.keys(primitives.palette).filter((k) => !k.startsWith('$'));
 const STEPS = Object.keys(primitives.palette.$extensions['io.github.neatlittlemacapps.nigari.steps']).sort((a, b) => Number(a) - Number(b));
 const ROLES: [string, string[]][] = [
@@ -149,10 +151,10 @@ function Catalog() {
       <header className="cat-head">
         <h1>nigari components</h1>
         <div className="cat-theme" role="group" aria-label="Theme">
-          <Button size="sm" variant={theme === 'light' ? 'primary' : 'secondary'} onClick={() => switchTheme('light')}>
+          <Button size="sm" pressed={theme === 'light'} onClick={() => switchTheme('light')}>
             Light
           </Button>
-          <Button size="sm" variant={theme === 'dark' ? 'primary' : 'secondary'} onClick={() => switchTheme('dark')}>
+          <Button size="sm" pressed={theme === 'dark'} onClick={() => switchTheme('dark')}>
             Dark
           </Button>
         </div>
@@ -179,30 +181,49 @@ function Catalog() {
       </Section>
 
       <Section id="button" title="Button">
-        {(['primary', 'secondary', 'ghost', 'danger'] as const).map((v) => (
-          <Row key={v} label={v}>
-            <Button variant={v} onClick={() => setLast(`button ${v}`)}>
-              Save
-            </Button>
-            <Button variant={v} size="sm">
-              Small
-            </Button>
-            <Button variant={v} disabled onClick={() => setLast(`disabled ${v}`)}>
-              Disabled
-            </Button>
-          </Row>
-        ))}
-      </Section>
-
-      <Section id="icon-button" title="IconButton">
-        <Row label="ghost">
-          <IconButton label="Add a page" icon={<Plus />} />
-          <IconButton label="Add a page" icon={<Plus />} size="sm" />
-          <IconButton label="Add a page" icon={<Plus />} disabled />
+        {EMPHASES.flatMap((e) =>
+          TONES.map((tone) => (
+            <Row key={`${e}-${tone}`} label={`${e} · ${tone}`}>
+              <Button emphasis={e} tone={tone} onClick={() => setLast(`button ${e} ${tone}`)}>
+                Save
+              </Button>
+              <Button emphasis={e} tone={tone} size="sm">
+                Small
+              </Button>
+              <Button emphasis={e} tone={tone} icon={<Plus />}>
+                Add a page
+              </Button>
+              {e !== 'link' && (
+                <>
+                  <Button emphasis={e} tone={tone} icon={tone === 'destructive' ? <Trash2 /> : <Plus />} label={tone === 'destructive' ? 'Delete' : 'Add a page'} />
+                  <Button emphasis={e} tone={tone} size="sm" icon={<Plus />} label="Add a page" />
+                </>
+              )}
+              <Button emphasis={e} tone={tone} disabled onClick={() => setLast(`disabled ${e} ${tone}`)}>
+                Disabled
+              </Button>
+            </Row>
+          )),
+        )}
+        {/* The label-centring check of web/tests/catalog.mjs measures these:
+            a word with no ascender above the capitals and no descender. */}
+        <Row label="label centring">
+          <Button emphasis="high" data-testid="centre-md">
+            Save
+          </Button>
+          <Button emphasis="high" size="sm" data-testid="centre-sm">
+            Save
+          </Button>
         </Row>
-        <Row label="secondary, danger">
-          <IconButton label="Add a page" icon={<Plus />} variant="secondary" />
-          <IconButton label="Delete" icon={<Trash2 />} variant="danger" />
+        <Row label="pressed">
+          <Button pressed onClick={() => setLast('pressed')}>
+            Board
+          </Button>
+          <Button pressed={false}>Table</Button>
+          <Button emphasis="low" size="sm" pressed>
+            Exact
+          </Button>
+          <Button emphasis="low" pressed icon={<Plus />} label="Add a page" />
         </Row>
       </Section>
 
@@ -255,7 +276,7 @@ function Catalog() {
       <Section id="dialog" title="Dialog and AlertDialog">
         <Row label="open">
           <Button onClick={() => setDialog(true)}>Open dialog</Button>
-          <Button variant="danger" onClick={() => setAlert(true)}>
+          <Button tone="destructive" onClick={() => setAlert(true)}>
             Delete…
           </Button>
         </Row>
@@ -270,7 +291,7 @@ function Catalog() {
       {panel && (
         <SidePanel label="Row preview" onClose={() => setPanel(false)}>
           <div className="cat-panel-bar">
-            <IconButton label="Close" icon={<X size={18} />} onClick={() => setPanel(false)} />
+            <Button emphasis="low" label="Close" icon={<X size={18} />} onClick={() => setPanel(false)} />
           </div>
           <div className="cat-panel-body">
             <h2>Quarterly review</h2>
@@ -412,7 +433,7 @@ function Catalog() {
       {center && (
         <CenterPanel label="Focused preview" onClose={() => setCenter(false)}>
           <div className="cat-panel-bar">
-            <IconButton label="Close" icon={<X size={18} />} onClick={() => setCenter(false)} />
+            <Button emphasis="low" label="Close" icon={<X size={18} />} onClick={() => setCenter(false)} />
           </div>
           <div className="cat-panel-body">
             <h2>Quarterly review</h2>
@@ -433,7 +454,7 @@ function Catalog() {
               <DialogClose>
                 <Button>Cancel</Button>
               </DialogClose>
-              <Button variant="primary" onClick={() => setDialog(false)}>
+              <Button emphasis="high" onClick={() => setDialog(false)}>
                 Save
               </Button>
             </>

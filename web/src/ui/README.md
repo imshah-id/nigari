@@ -30,8 +30,7 @@ positioning. The look comes only from the design tokens (`web/tokens/` →
 
 | Component | Use it for | Not for | Catalogue |
 | --- | --- | --- | --- |
-| `Button` | any action with a label | navigation (use a link) | `button` |
-| `IconButton` | an action shown only as an icon | anything that needs words to be understood | `icon-button` |
+| `Button` | any action: with a label, or only an icon (then it must have a `label`, shown as a tooltip) | navigation (use a link) | `button` |
 | `Dialog`, `DialogClose` | a task that takes over the screen until done or cancelled | a question with two answers (`AlertDialog`) | `dialog` |
 | `AlertDialog` | "Delete this?" and other yes/no questions | forms | `dialog` |
 | `Field`, `Input` | a labelled text field | a choice from a list (`Select`) | `field` |
@@ -45,18 +44,50 @@ positioning. The look comes only from the design tokens (`web/tokens/` →
 
 ## Button
 
-`variant`: `primary` (the ink pill, at most one per screen), `secondary` (the default, a
-hairline), `ghost` (no frame, for toolbars), `danger` (removes something).
-`size`: `md` (34px, today's `.btn`) or `sm` (today's `.btn-sm`). `shortcut`: an id from
-`keys.ts`; its live chord follows the label and disappears when unbound. Everything else
-is a `<button>` prop; `type` defaults to `button`.
-States: `data-disabled`, `:hover`, `:focus-visible`, `:active` (the pill drops back).
+One button, set by properties (spec 020). Never style a button with a class of its own:
+a look that is missing is a new property value with its tokens.
 
-## IconButton
+**Props**
+- `emphasis`: how much it stands out.
+  - `high`: filled. The main action, at most one per screen.
+  - `medium` (default): an outline.
+  - `low`: a background on hover only, for toolbars and rows.
+  - `link`: text only, no height.
+- `tone`: what it does.
+  - `neutral` (default).
+  - `primary`: the accent.
+  - `destructive`: deletes or removes something; a red outline at medium (owner, Q1).
+- `size`: `md` (default, `--button-height-md`, lines up with inputs) or `sm` (toolbars,
+  dense rows).
+- `icon?`: shown before the label. Without children the button is a square holding only
+  the icon, and `label` (translated) is required: its accessible name and its tooltip.
+- `pressed?`: a toggle that stays on. It sets `aria-pressed` and shows the faint primary
+  tint, whatever the tone (owner, Q2). Leave it undefined for a plain button.
+- `shortcut?`: an id from `keys.ts`. Its live chord follows the label and disappears when
+  unbound.
+- Everything else is a `<button>` prop; `type` defaults to `button`.
 
-`label` (required, translated): the accessible name, and the tooltip on hover and
-keyboard focus. `icon`: the icon node (lucide). `variant`: `ghost` (default),
-`secondary`, `danger`. `size`: `md` or `sm`.
+**Which to use**
+- **The screen's main action** (Save, Create): `high`.
+- **Its other actions** (Cancel, Export): the default.
+- **Toolbars and row actions**: `low`, usually `sm`, often icon-only.
+- **Delete**: `tone="destructive"`; in a confirm dialog the confirm button is that.
+
+**Look**
+- Every value is a token (`--button-*` in `component.tokens.json`) or a colour role of
+  spec 019; one radius for every button.
+- The label is centred by a fixed height and `text-box: trim-both cap alphabetic`.
+- States: `data-disabled`, `:hover`, `:focus-visible`, `:active`, `data-pressed`.
+
+**From the old props**
+
+| Old | New |
+|---|---|
+| `variant="primary"` (the ink pill) | `emphasis="high"` |
+| `variant="secondary"` | the default |
+| `variant="ghost"` | `emphasis="low"` |
+| `variant="danger"` | `tone="destructive"` |
+| `IconButton` | `Button` with `icon` and `label`, `emphasis="low"` |
 
 ## Dialog
 
@@ -156,7 +187,7 @@ content brings its own bar and close button).
 ## Popover
 
 **Props**
-- `trigger?`: the element that opens it (usually a `Button` or `IconButton`).
+- `trigger?`: the element that opens it (usually a `Button`).
 - `anchor?`, `returnFocus?`: for a panel another control opens (a menu item): what it is
   placed against and where focus goes on close. Use with `open`/`onOpenChange` and no
   `trigger` (spec 015: a property's Edit property panel beside its name).

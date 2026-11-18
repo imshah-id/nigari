@@ -35,33 +35,33 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 
 ## PR 1 — The part (US1, US2)
 
-- [ ] T001 [ui] `component.tokens.json`: the `button` group of R2 (heights,
+- [x] T001 [ui] `component.tokens.json`: the `button` group of R2 (heights,
   paddings, gap, radius, border width, font weight and sizes, icon sizes,
   disabled opacity); build `tokens.css`
-- [ ] T002 [US1] [ui] `ui/Button`:
+- [x] T002 [US1] [ui] `ui/Button`:
   - `emphasis`, `tone`, `size`, `icon`, `label`, `pressed` (R1); icon-only
     when there is no label text, with `label` required by type;
   - the tooltip and `aria-label` from `label`;
   - `aria-pressed` from `pressed`.
-- [ ] T003 [US1] [ui] `Button.css` from tokens and spec 019's roles only (R5),
+- [x] T003 [US1] [ui] `Button.css` from tokens and spec 019's roles only (R5),
   one radius (R3); no literal (`check-tokens.mjs` on `web/src/ui/`)
-- [ ] T004 [US2] [ui] Centring (R4): fixed height, flex, `text-box: trim-both
+- [x] T004 [US2] [ui] Centring (R4): fixed height, flex, `text-box: trim-both
   cap alphabetic`. Measure the fallback offset per font in the running app;
   add the `@supports not` nudge and its token only if it is 1px or more
-- [ ] T005 [ui] Move the 34 `Button` call sites to the properties (R1
+- [x] T005 [ui] Move the 34 `Button` call sites to the properties (R1
   mapping)
-- [ ] T006 [ui] Move the 8 `IconButton` call sites to icon-only `Button`;
+- [x] T006 [ui] Move the 8 `IconButton` call sites to icon-only `Button`;
   remove `ui/IconButton` and `ButtonVariant`
-- [ ] T007 [ui] Token build: a contrast pair for `primary` on
+- [x] T007 [ui] Token build: a contrast pair for `primary` on
   `primary-subtle` and `destructive` on `destructive-subtle`, both themes
   (R5)
-- [ ] T008 [test] Catalogue: rebuild the Button section with every emphasis
+- [x] T008 [test] Catalogue: rebuild the Button section with every emphasis
   × tone × size × icon, plus pressed, disabled and focus, light and dark. Axe
   and keyboard pass
-- [ ] T009 [US2] [test] Browser check: label centring within 1px per font ×
+- [x] T009 [US2] [test] Browser check: label centring within 1px per font ×
   size, measured from the rendered pixels in the built app with fonts loaded
   (R4); mutation-check it (remove `text-box` and the nudge)
-- [ ] T010 [ui] `ui/README.md`: the Button entry (properties, the mapping,
+- [x] T010 [ui] `ui/README.md`: the Button entry (properties, the mapping,
   when to use which); the registry's Design system entry gains the button
   rule (plan, New concepts)
 - [ ] T011 [wiki] Screenshots the PR makes stale retaken and compared; the

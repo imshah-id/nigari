@@ -6,7 +6,6 @@ import type { Comment, CommentVersion } from '../types';
 import { formatMoment, formatRelative } from '../format';
 import { t } from '../i18n';
 import { Button } from '../ui/Button';
-import { IconButton } from '../ui/IconButton';
 import { Popover } from '../ui/Popover';
 import { COMMENT_REACTIONS, reactionGlyph, reactionName } from '../commentReactions';
 import { initials, nameColor } from '../avatar';
@@ -123,7 +122,7 @@ export default function CommentItem({
             }}
             trigger={
               <Button
-                variant="ghost"
+                emphasis="low"
                 size="sm"
                 className="cp-edited"
                 title={t('Edited {time}', { time: formatMoment(c.editedAt, 'datetime') })}
@@ -184,10 +183,10 @@ export default function CommentItem({
           />
           <div className="cp-edit-foot">
             <span className="cp-hint">{t('⌘↵ to save')}</span>
-            <Button variant="ghost" size="sm" onClick={stopEdit}>
+            <Button emphasis="low" size="sm" onClick={stopEdit}>
               {t('Cancel')}
             </Button>
-            <Button variant="primary" size="sm" disabled={!draft.trim() || saving} onClick={() => void save()}>
+            <Button emphasis="high" size="sm" disabled={!draft.trim() || saving} onClick={() => void save()}>
               {t('Save')}
             </Button>
           </div>
@@ -204,10 +203,10 @@ export default function CommentItem({
             return (
               <Button
                 key={r.reaction}
-                variant="ghost"
+                emphasis="low"
                 size="sm"
                 className="cp-chip"
-                aria-pressed={r.mine}
+                pressed={r.mine}
                 aria-label={label}
                 title={label}
                 disabled={!canWrite}
@@ -226,7 +225,7 @@ export default function CommentItem({
               align="start"
               open={pickerOpen}
               onOpenChange={setPickerOpen}
-              trigger={<IconButton label={t('Add reaction')} icon={<SmilePlus size={14} />} size="sm" className="cp-react" />}
+              trigger={<Button emphasis="low" label={t('Add reaction')} icon={<SmilePlus size={14} />} size="sm" className="cp-react" />}
             >
               <div
                 className="cp-picker-grid"
@@ -252,10 +251,10 @@ export default function CommentItem({
                   return (
                     <Button
                       key={r.key}
-                      variant="ghost"
+                      emphasis="low"
                       size="sm"
                       className="cp-picker-item"
-                      aria-pressed={on}
+                      pressed={on}
                       aria-label={reactionName(r.key)}
                       title={reactionName(r.key)}
                       onClick={() => void react(r.key, !on)}
@@ -273,17 +272,17 @@ export default function CommentItem({
       {!editing && (canWrite || mine) && (
         <div className="cp-actions">
           {canWrite && (
-            <Button variant="ghost" size="sm" className="cp-act" title={c.resolvedAt ? t('Reopen') : t('Mark as resolved')} onClick={() => void toggleResolve()}>
+            <Button emphasis="low" size="sm" className="cp-act" title={c.resolvedAt ? t('Reopen') : t('Mark as resolved')} onClick={() => void toggleResolve()}>
               <Check size={13} /> {c.resolvedAt ? t('Reopen') : t('Resolved')}
             </Button>
           )}
           {mine && canWrite && (
-            <Button ref={editRef} variant="ghost" size="sm" className="cp-act" onClick={startEdit}>
+            <Button ref={editRef} emphasis="low" size="sm" className="cp-act" onClick={startEdit}>
               <Pencil size={13} /> {t('Edit')}
             </Button>
           )}
           {mine && (
-            <IconButton label={t('Delete')} icon={<Trash2 size={13} />} variant="danger" size="sm" className="cp-act" onClick={() => void remove()} />
+            <Button label={t('Delete')} icon={<Trash2 size={13} />} emphasis="low" tone="destructive" size="sm" className="cp-act" onClick={() => void remove()} />
           )}
         </div>
       )}

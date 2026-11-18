@@ -92,7 +92,7 @@ export function EditPropertyPanel({
       </div>
       <PropertyFields p={draft} schema={withDraft} targets={targets} targetSchemas={targetSchemas} onPatch={(patch) => setDraft((d) => ({ ...d, ...patch }))} />
       <Button
-        variant="danger"
+        tone="destructive"
         size="sm"
         className="row-prop-panel-delete"
         onClick={() => {

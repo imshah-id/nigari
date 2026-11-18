@@ -439,11 +439,11 @@ export default function ChartFigure(props: ChartFigureProps) {
           {drawn.map((g, i) => (
             <Button
               key={g.key}
-              variant="ghost"
+              emphasis="low"
               size="sm"
               className="chart-group"
               tabIndex={i === Math.min(focusIndex, drawn.length - 1) ? 0 : -1}
-              aria-pressed={selectedKey === g.key}
+              pressed={selectedKey === g.key}
               onFocus={() => {
                 setFocusIndex(i);
                 highlight(i);

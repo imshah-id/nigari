@@ -121,7 +121,7 @@ export function ColHead({
     <span className="th-inner">
       <Button
         ref={labelRef}
-        variant="ghost"
+        emphasis="low"
         size="sm"
         className="th-label"
         aria-haspopup="menu"

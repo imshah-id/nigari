@@ -99,21 +99,89 @@
     }
   },
   "button": {
+    "$description": "The one button (spec 020, R2). Every rule in ui/Button.css reads one of these or a colour role (spec 019); a new look is a new property value with its tokens, never a class.",
     "height": {
       "$type": "dimension",
       "sm": {
         "$value": {
-          "value": 26,
+          "value": 28,
           "unit": "px"
         },
-        "$description": "Today's .btn-sm: 5px padding, 12.5px text, hairline."
+        "$description": "Small: toolbars and dense rows. Today's .btn-sm was about 26px; 28 is still small and a better pointer target (Claude's default, spec 020 R2)."
       },
       "md": {
+        "$value": "{control.height}",
+        "$description": "Medium lines up with inputs and selects (control.height); today's .btn was 34px."
+      }
+    },
+    "padding": {
+      "x": {
+        "$type": "dimension",
+        "sm": {
+          "$value": "{space.200}"
+        },
+        "md": {
+          "$value": "{space.300}"
+        }
+      }
+    },
+    "gap": {
+      "$type": "dimension",
+      "$value": "{space.150}",
+      "$description": "Between an icon and the label."
+    },
+    "radius": {
+      "$type": "dimension",
+      "$value": "{radius.scale.md}",
+      "$description": "One radius for every button, every emphasis and size (owner, spec 020). 6px is Claude's default: between today's 4px small, 8px medium and the pill."
+    },
+    "border": {
+      "width": {
+        "$type": "dimension",
         "$value": {
-          "value": 32,
+          "value": 1,
           "unit": "px"
         },
-        "$description": "Today's .btn: 7px padding, 13.5px text, hairline."
+        "$description": "The hairline of medium emphasis; the other emphases keep it transparent so every button is the same size."
+      }
+    },
+    "font": {
+      "weight": {
+        "$type": "fontWeight",
+        "$value": 500,
+        "$description": "One weight for every emphasis; high stands out by its fill (Claude's default)."
+      },
+      "size": {
+        "$type": "dimension",
+        "sm": {
+          "$value": "{font.size.xs}"
+        },
+        "md": {
+          "$value": "{font.size.sm}"
+        }
+      }
+    },
+    "icon": {
+      "size": {
+        "$type": "dimension",
+        "sm": {
+          "$value": {
+            "value": 14,
+            "unit": "px"
+          }
+        },
+        "md": {
+          "$value": {
+            "value": 16,
+            "unit": "px"
+          }
+        }
+      }
+    },
+    "disabled": {
+      "opacity": {
+        "$type": "number",
+        "$value": 0.5
       }
     }
   },

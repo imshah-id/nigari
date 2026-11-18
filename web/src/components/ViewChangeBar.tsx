@@ -27,11 +27,11 @@ export default function ViewChangeBar({
     <div className="view-change-bar" role="status">
       <span className="view-change-bar-text">{t('Only you see these changes')}</span>
       <span className="view-change-bar-actions">
-        <Button variant="ghost" size="sm" onClick={onReset}>
+        <Button emphasis="low" size="sm" onClick={onReset}>
           <RotateCcw size={14} aria-hidden="true" /> {t('Reset')}
         </Button>
         {onSaveForEveryone && (
-          <Button variant="secondary" size="sm" onClick={onSaveForEveryone}>
+          <Button size="sm" onClick={onSaveForEveryone}>
             <Users size={14} aria-hidden="true" /> {t('Save for everyone')}
           </Button>
         )}

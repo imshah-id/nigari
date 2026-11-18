@@ -154,7 +154,7 @@ export default function ChartView(props: ChartViewProps) {
             <span>
               {name} · {plural(drill?.total ?? selected.rows, '{n} row', '{n} rows')}
             </span>
-            <Button size="sm" variant="ghost" onClick={() => setSelected(null)}>
+            <Button size="sm" emphasis="low" onClick={() => setSelected(null)}>
               {t('Close')}
             </Button>
           </div>

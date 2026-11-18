@@ -5,7 +5,6 @@ import type { Comment } from '../types';
 import { MessageSquareText, X } from 'lucide-react';
 import { t, plural } from '../i18n';
 import { Button } from '../ui/Button';
-import { IconButton } from '../ui/IconButton';
 import CommentItem, { grow } from './CommentItem';
 import { COMMENTS_CHANGED } from '../commentsPanelState';
 
@@ -102,7 +101,7 @@ export default function CommentsPanel({
           {t('Comments')}
           {openOnes.length > 0 && <span className="cp-count">{openOnes.length}</span>}
         </span>
-        <IconButton label={t('Close')} icon={<X size={15} />} onClick={onClose} />
+        <Button emphasis="low" label={t('Close')} icon={<X size={15} />} onClick={onClose} />
       </div>
 
       {resolved.length > 0 && (
@@ -149,7 +148,7 @@ export default function CommentsPanel({
         />
         <div className="cp-compose-foot">
           <span className="cp-hint">{t('⌘↵ to send')}</span>
-          <Button variant="primary" size="sm" type="submit" disabled={!body.trim()}>
+          <Button emphasis="high" size="sm" type="submit" disabled={!body.trim()}>
             {t('Send')}
           </Button>
         </div>
