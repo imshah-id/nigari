@@ -117,7 +117,7 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 - [x] T026 [test] Keyboard: arrow keys in every moved tab row and toggle
   group (browser tests); axe in the catalogue; lower `rawButtons`
 - [x] T027 [wiki] Screenshots retaken and compared
-- [ ] T028 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
+- [x] T028 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
   screens
 
 ---
