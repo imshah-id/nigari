@@ -1012,16 +1012,11 @@ body:has(.icon-picker) .bn-side-menu {
   gap: 4px;
 }
 .icon-picker-remove {
-  padding: 5px 11px;
-  border-radius: 7px;
-}
-.icon-picker-remove:hover {
-  background: var(--hover);
-}
-.icon-picker-remove {
   margin-left: auto;
   color: var(--muted);
-  padding: 5px;
+  /* The row's old `.icon-picker-tabs button` rule gave it 5px 11px over its
+     own 5px; that width is kept now the row's tabs are ui/Tabs. */
+  padding: 5px 11px;
   border-radius: 7px;
   display: inline-flex;
 }
@@ -7418,6 +7413,16 @@ a,
 /* ---- Theme choice: light / automatic / dark ------------------------------
    A ToggleGroup (spec 020): its look is the part's. Only where it floats on
    the sign-in screens is said here. */
+/* Touch: the theme's items take the medium button's height, as the old
+   switch grew for a finger (found by review). [data-size] outweighs
+   Button.css's small icon-only rule, which loads after this file. */
+@media (hover: none) {
+  .theme-switch > .ui-button[data-icon-only][data-size] {
+    width: var(--button-height-md);
+    height: var(--button-height-md);
+  }
+}
+
 /* The sign-in screens have no sidebar — the switch floats in the corner, kept
    clear of the safe area (notch and home indicator). */
 .auth-theme-switch {

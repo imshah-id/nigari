@@ -120,6 +120,20 @@ export default function App() {
   // the drawer, where the document tree would be; it used to simply vanish
   // there, so on a phone the setting did nothing at all.
   const [isDesktop, setIsDesktop] = useState(() => window.matchMedia('(min-width: 901px)').matches);
+  // The library, the icon picker and the template gallery load on demand,
+  // to keep the main chunk under its cap. Fetch them once the app is idle,
+  // so they still open offline and after a server upgrade has replaced their
+  // chunks: a failed lazy import would replace the whole app with the error
+  // screen (found by review).
+  useEffect(() => {
+    const go = () => {
+      for (const load of [() => import('./components/IndexView'), () => import('./components/IconPicker'), () => import('./components/TemplateGallery')])
+        load().catch(() => {});
+    };
+    const w = window as Window & { requestIdleCallback?: (cb: () => void) => number };
+    if (w.requestIdleCallback) w.requestIdleCallback(go);
+    else setTimeout(go, 2000);
+  }, []);
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 901px)');
     const onChange = () => setIsDesktop(mq.matches);

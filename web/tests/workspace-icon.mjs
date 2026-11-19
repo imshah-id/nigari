@@ -54,7 +54,8 @@ await withFixture(async ({ page, api, base, workspace }) => {
   const choose = async (tab) => {
     await pictureDialog.getByRole('button', { name: /Choose…/ }).click();
     await page.locator('.icon-picker').waitFor();
-    await page.locator('.icon-picker').getByRole('button', { name: tab, exact: true }).first().click();
+    // Emoji / Icons / Upload are tabs since spec 020 PR 3 (ui/Tabs).
+    await page.locator('.icon-picker').getByRole('tab', { name: tab, exact: true }).first().click();
   };
   // What the sidebar draws for the workspace: an <img>, an <svg> or its text.
   const avatar = () => page.locator('aside .ws-img, aside .ws-emoji svg, aside .ws-emoji img').first();

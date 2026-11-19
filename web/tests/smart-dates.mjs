@@ -95,7 +95,9 @@ await withFixture(async ({ page, context, api, base, workspace, path, read }) =>
   // to Exact: the mode is sticky, the unfinished condition simply stops
   // filtering until something is typed.
   await page.locator('.fs-date input[type="text"]').fill('');
-  assert.match(await page.getByRole('button', { name: 'Relative', exact: true }).getAttribute('class'), /on/);
+  // Pressed, not a class: "ui-button ui-toggle" contains "on" whatever the
+  // state, so a class match passed with Exact chosen (found by review).
+  assert.equal(await page.getByRole('button', { name: 'Relative', exact: true }).getAttribute('aria-pressed'), 'true', 'clearing the field flung the picker back to Exact');
   await eventually(async () => (await rows.count()) === 5);
   await page.locator('.fs-date input[type="text"]').fill('today-5d');
   await eventually(async () => (await rows.count()) === 1);
