@@ -1,0 +1,15 @@
+/* ui/ToggleGroup (spec 020, R6). The items are Buttons in look (Button.css:
+   low, neutral; a pressed item, data-pressed from Base UI, takes the tint).
+   The group draws the hairline frame around them, inset by one token, with
+   its radius the button's plus that inset so the corners stay concentric. */
+
+.ui-toggle-group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--button-group-inset);
+  padding: var(--button-group-inset);
+  border: var(--button-border-width) solid var(--color-border-default);
+  border-radius: calc(var(--button-radius) + var(--button-group-inset));
+  min-width: 0;
+}

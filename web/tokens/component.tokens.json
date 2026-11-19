@@ -130,6 +130,13 @@
       "$value": "{space.150}",
       "$description": "Between an icon and the label."
     },
+    "group": {
+      "inset": {
+        "$type": "dimension",
+        "$value": "{space.50}",
+        "$description": "The gap between a ToggleGroup's hairline frame and its items (spec 020, R6). The frame's radius is the button radius plus this, so the inner and outer corners stay concentric."
+      }
+    },
     "radius": {
       "$type": "dimension",
       "$value": "{radius.scale.md}",

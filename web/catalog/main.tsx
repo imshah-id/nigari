@@ -1,6 +1,6 @@
 import { StrictMode, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Plus, Trash2, X } from 'lucide-react';
+import { Monitor, Moon, Plus, Sun, Trash2, X } from 'lucide-react';
 import '@fontsource-variable/inter';
 import '@fontsource-variable/jetbrains-mono';
 import '../src/tokens.css';
@@ -12,6 +12,8 @@ import { Field, Input } from '../src/ui/Field';
 import { Checkbox } from '../src/ui/Checkbox';
 import { Select } from '../src/ui/Select';
 import { Switch } from '../src/ui/Switch';
+import { Tabs } from '../src/ui/Tabs';
+import { ToggleGroup } from '../src/ui/ToggleGroup';
 import { SidePanel } from '../src/ui/SidePanel';
 import { CenterPanel } from '../src/ui/CenterPanel';
 import { Popover } from '../src/ui/Popover';
@@ -137,6 +139,10 @@ function Catalog() {
   const [ctxPoint, setCtxPoint] = useState<{ x: number; y: number } | null>(null);
   const [checks, setChecks] = useState({ a: false, b: true });
   const [sw, setSw] = useState({ a: false, b: true });
+  const [tab, setTab] = useState<'general' | 'access' | 'email'>('general');
+  const [appearance, setAppearance] = useState<'light' | 'system' | 'dark'>('system');
+  const [role, setRole] = useState<'viewer' | 'member' | 'admin'>('member');
+  const [chips, setChips] = useState<string[]>(['red']);
   const [fruitValue, setFruitValue] = useState('banana');
   const [text, setText] = useState('Filled in');
   const [last, setLast] = useState('');
@@ -273,6 +279,72 @@ function Catalog() {
           <Switch label="Off" checked={sw.a} onCheckedChange={(a) => setSw({ ...sw, a })} />
           <Switch label="On" checked={sw.b} onCheckedChange={(b) => setSw({ ...sw, b })} />
           <Switch label="Disabled" checked={false} onCheckedChange={() => {}} disabled />
+        </Row>
+      </Section>
+
+      <Section id="tabs" title="Tabs">
+        <Row label="row">
+          <Tabs
+            label="Settings sections"
+            value={tab}
+            onValueChange={setTab}
+            items={[
+              { value: 'general', label: 'General' },
+              { value: 'access', label: 'Access' },
+              { value: 'email', label: 'Email', icon: <Plus size={14} /> },
+            ]}
+          />
+        </Row>
+        <Row label="disabled tab">
+          <Tabs
+            label="With a disabled tab"
+            value="one"
+            onValueChange={() => {}}
+            items={[
+              { value: 'one', label: 'One' },
+              { value: 'two', label: 'Two', disabled: true },
+            ]}
+          />
+        </Row>
+      </Section>
+
+      <Section id="toggle-group" title="ToggleGroup">
+        <Row label="icons">
+          <ToggleGroup
+            label="Appearance"
+            value={appearance}
+            onValueChange={setAppearance}
+            items={[
+              { value: 'light', label: 'Light', icon: <Sun size={14} />, iconOnly: true },
+              { value: 'system', label: 'System', icon: <Monitor size={14} />, iconOnly: true },
+              { value: 'dark', label: 'Dark', icon: <Moon size={14} />, iconOnly: true },
+            ]}
+          />
+        </Row>
+        <Row label="text">
+          <ToggleGroup
+            label="Role"
+            value={role}
+            onValueChange={setRole}
+            items={[
+              { value: 'viewer', label: 'Viewer' },
+              { value: 'member', label: 'Member' },
+              { value: 'admin', label: 'Admin', disabled: true, title: 'Only an admin can make admins' },
+            ]}
+          />
+        </Row>
+        <Row label="multiple">
+          <ToggleGroup
+            label="Colours"
+            multiple
+            value={chips}
+            onValueChange={setChips}
+            items={[
+              { value: 'red', label: 'Red' },
+              { value: 'green', label: 'Green' },
+              { value: 'blue', label: 'Blue' },
+            ]}
+          />
         </Row>
       </Section>
 

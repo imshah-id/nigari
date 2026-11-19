@@ -1,0 +1,16 @@
+/* ui/Tabs (spec 020, R6). The tabs are Buttons in look (Button.css: low,
+   neutral, small; the selected one, data-active, takes the pressed tint), so
+   this file only lays out the row. The root takes no box of its own: a tab row
+   sits where the hand-built one sat, in whatever flex row held it. */
+
+.ui-tabs {
+  display: contents;
+}
+
+.ui-tabs-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--button-group-inset);
+  min-width: 0;
+}

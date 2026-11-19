@@ -526,6 +526,7 @@
   --button-padding-x-sm: 8px;
   --button-padding-x-md: 12px;
   --button-gap: 6px;
+  --button-group-inset: 2px;
   --button-radius: 6px;
   --button-border-width: 1px;
   --button-font-weight: 500;

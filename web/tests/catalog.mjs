@@ -280,6 +280,43 @@ try {
   await page.keyboard.press('Space');
   assert.equal(await off.getAttribute('aria-checked'), 'true', 'Switch: Space did not turn it on');
 
+  // Tabs (spec 020, R6): a tab row is a tablist, the arrow keys move and
+  // select, and the selected tab is the one with aria-selected. The hand-built
+  // rows had no tab role and ignored the arrows.
+  const general = page.getByRole('tab', { name: 'General' });
+  await general.focus();
+  await page.keyboard.press('ArrowRight');
+  const access = page.getByRole('tab', { name: 'Access' });
+  await eventually(async () => (await access.getAttribute('aria-selected')) === 'true').catch(() => {
+    assert.fail('Tabs: ArrowRight did not select the next tab');
+  });
+  assert(await access.evaluate((el) => el === document.activeElement), 'Tabs: ArrowRight did not move focus');
+  assert.equal(await general.getAttribute('aria-selected'), 'false', 'Tabs: two tabs selected');
+  assert.equal(await page.getByRole('tablist', { name: 'Settings sections' }).count(), 1, 'Tabs: no named tablist');
+  assert.equal(await page.getByRole('tab', { name: 'Two' }).getAttribute('aria-disabled'), 'true', 'Tabs: a disabled tab is not marked');
+
+  // ToggleGroup: the arrows move between items, Space presses one, and choose
+  // one keeps a choice (pressing the pressed item again leaves it pressed).
+  const appearance = page.getByRole('group', { name: 'Appearance' });
+  const system = appearance.getByRole('button', { name: 'System' });
+  await system.focus();
+  await page.keyboard.press('ArrowRight');
+  const darkItem = appearance.getByRole('button', { name: 'Dark' });
+  assert(await darkItem.evaluate((el) => el === document.activeElement), 'ToggleGroup: ArrowRight did not move focus');
+  await page.keyboard.press('Space');
+  await eventually(async () => (await darkItem.getAttribute('aria-pressed')) === 'true').catch(() => {
+    assert.fail('ToggleGroup: Space did not press the item');
+  });
+  assert.equal(await system.getAttribute('aria-pressed'), 'false', 'ToggleGroup: choose one left two pressed');
+  await page.keyboard.press('Space');
+  await page.waitForTimeout(100);
+  assert.equal(await darkItem.getAttribute('aria-pressed'), 'true', 'ToggleGroup: choose one was emptied');
+  const colours = page.getByRole('group', { name: 'Colours' });
+  const green = colours.getByRole('button', { name: 'Green' });
+  await green.click();
+  await eventually(async () => (await green.getAttribute('aria-pressed')) === 'true');
+  assert.equal(await colours.getByRole('button', { name: 'Red' }).getAttribute('aria-pressed'), 'true', 'ToggleGroup: multiple dropped the first choice');
+
   // A disabled Button: marked for the look, and a click does nothing.
   const disabled = page.getByRole('button', { name: 'Disabled' }).first();
   assert.notEqual(await disabled.getAttribute('data-disabled'), null, 'Button: disabled has no data-disabled');
