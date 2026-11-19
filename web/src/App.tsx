@@ -7,7 +7,7 @@ import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
 import TabBar from './components/TabBar';
 import SearchModal from './components/SearchModal';
-import IndexView from './components/IndexView';
+const IndexView = lazy(() => import('./components/IndexView'));
 import NotesList from './components/NotesList';
 import Login from './components/Login';
 import Setup from './components/Setup';
@@ -1321,18 +1321,20 @@ export default function App() {
       )}
       <main className="main">
         {indexOpen ? (
-          <IndexView
-            pages={pages}
-            favorites={favorites}
-            workspaces={workspaces}
-            currentWs={currentWs}
-            onNavigate={(id) => {
-              setIndexOpen(false);
-              navigate(id);
-            }}
-            onOpenInNewTab={openInNewTab}
-            onClose={() => setIndexOpen(false)}
-          />
+          <Suspense fallback={null}>
+            <IndexView
+              pages={pages}
+              favorites={favorites}
+              workspaces={workspaces}
+              currentWs={currentWs}
+              onNavigate={(id) => {
+                setIndexOpen(false);
+                navigate(id);
+              }}
+              onOpenInNewTab={openInNewTab}
+              onClose={() => setIndexOpen(false)}
+            />
+          </Suspense>
         ) : currentId ? (
           <>
             <TabBar

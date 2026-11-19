@@ -16,7 +16,7 @@ import type { Backlink, Page, PageMeta, User } from '../types';
 import { NigariProvider } from '../collab';
 import { plural, t } from '../i18n';
 import { nigariSchema } from '../pageLink';
-import IconPicker from './IconPicker';
+const IconPicker = lazy(() => import('./IconPicker'));
 import { PageIcon } from '../pageIcon';
 import { BlockContext } from '../blockContext';
 import { exitsDown, exitsStart, focusedKey, focusItem, focusKey, navItem, nothingBefore, useNavRegion } from '../nav';
@@ -1252,20 +1252,22 @@ function PageHeader({
           </button>
         )}
         {iconPickerOpen && (
-          <IconPicker
-            pageId={pageId}
-            onPick={(e) => {
-              setIcon(e);
-              setIconPickerOpen(false);
-              saveMeta({ icon: e });
-            }}
-            onRemove={() => {
-              setIcon('');
-              setIconPickerOpen(false);
-              saveMeta({ icon: '' });
-            }}
-            onClose={() => setIconPickerOpen(false)}
-          />
+          <Suspense fallback={null}>
+            <IconPicker
+              pageId={pageId}
+              onPick={(e) => {
+                setIcon(e);
+                setIconPickerOpen(false);
+                saveMeta({ icon: e });
+              }}
+              onRemove={() => {
+                setIcon('');
+                setIconPickerOpen(false);
+                saveMeta({ icon: '' });
+              }}
+              onClose={() => setIconPickerOpen(false)}
+            />
+          </Suspense>
         )}
         {historyOpen && (
           <HistoryModal

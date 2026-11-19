@@ -36,7 +36,10 @@ export type TabsProps<V extends string> = {
 export function Tabs<V extends string>({ value, onValueChange, items, label, className, children }: TabsProps<V>) {
   return (
     <BaseTabs.Root value={value} onValueChange={(v) => onValueChange(v as V)} className={'ui-tabs' + (className ? ' ' + className : '')}>
-      <BaseTabs.List className="ui-tabs-list" aria-label={label} activateOnFocus>
+      {/* data-nav-skip: the arrows are the row's own. Without it nav.ts's way
+          in took ArrowRight first and moved focus out of the row, even out of
+          the dialog the row sat in (found by tab-rows.mjs). */}
+      <BaseTabs.List className="ui-tabs-list" aria-label={label} activateOnFocus data-nav-skip="">
         {items.map((it) => (
           <BaseTabs.Tab
             key={it.value}

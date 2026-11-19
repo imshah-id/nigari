@@ -12,7 +12,7 @@ import Portal from './Portal';
 import { RowActions, openRowMenu } from './SidebarMenus';
 import { Menu, MenuItem, MenuSeparator, MenuValueItem, MenuValues, type MenuPoint } from '../ui/Menu';
 import { Button } from '../ui/Button';
-import IconPicker from './IconPicker';
+const IconPicker = lazy(() => import('./IconPicker'));
 import { PageIcon } from '../pageIcon';
 import TrashSection from './TrashSection';
 import { compare } from '../format';
@@ -22,7 +22,7 @@ import { openPage, openPageAux } from '../pageOpen';
 // page (spec 010's lazy dialogs; #635: the main bundle is at its cap).
 const AgentConnectModal = lazy(() => import('./AgentConnect'));
 import BreakGlassLog from './BreakGlassLog';
-import TemplateGallery from './TemplateGallery';
+const TemplateGallery = lazy(() => import('./TemplateGallery'));
 import BlueprintLibrary from './BlueprintLibrary';
 import WorkspaceSettings from './WorkspaceSettings';
 import StrandedWorkspaces from './StrandedWorkspaces';
@@ -1455,13 +1455,15 @@ export default function Sidebar({
           </Suspense>
         )}
         {galleryOpen && (
-          <TemplateGallery
-            templates={templatePages}
-            onUse={instantiateTemplate}
-            onUnflag={unflagTemplate}
-            onTrash={onTrash}
-            onClose={() => setGalleryOpen(false)}
-          />
+          <Suspense fallback={null}>
+            <TemplateGallery
+              templates={templatePages}
+              onUse={instantiateTemplate}
+              onUnflag={unflagTemplate}
+              onTrash={onTrash}
+              onClose={() => setGalleryOpen(false)}
+            />
+          </Suspense>
         )}
         {wsImageOpen && activeWs && (
           <WorkspaceImageModal
@@ -1573,19 +1575,21 @@ function WorkspaceImageModal({
             />
             <Button emphasis="high" disabled={busy || !emoji.trim()} onClick={() => void saveEmoji()}>{t('Save')}</Button>
             {pickerOpen && (
-              <IconPicker
-                anchor={pickerBtnRef}
-                onPick={(e) => {
-                  setPickerOpen(false);
-                  setEmoji(e);
-                  void saveEmoji(e);
-                }}
-                onRemove={() => {
-                  setPickerOpen(false);
-                  setEmoji('');
-                }}
-                onClose={() => setPickerOpen(false)}
-              />
+              <Suspense fallback={null}>
+                <IconPicker
+                  anchor={pickerBtnRef}
+                  onPick={(e) => {
+                    setPickerOpen(false);
+                    setEmoji(e);
+                    void saveEmoji(e);
+                  }}
+                  onRemove={() => {
+                    setPickerOpen(false);
+                    setEmoji('');
+                  }}
+                  onClose={() => setPickerOpen(false)}
+                />
+              </Suspense>
             )}
           </div>
           <div className="menu-sep" style={{ margin: '12px 0' }} />

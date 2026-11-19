@@ -35,7 +35,7 @@ type Common<V extends string> = {
   className?: string;
 };
 
-export type ToggleGroupProps<V extends string> = Common<V> &
+export type ToggleGroupProps<V extends string> = Common<V> & // i18n-ok: a type expression, not text
   (
     | { multiple?: false; value: V; onValueChange: (value: V) => void }
     | { multiple: true; value: readonly V[]; onValueChange: (value: V[]) => void }
@@ -57,6 +57,8 @@ export function ToggleGroup<V extends string>(props: ToggleGroupProps<V>) {
       multiple={props.multiple}
       disabled={disabled}
       aria-label={label}
+      // The arrows are the group's own (see ui/Tabs).
+      data-nav-skip=""
       className={'ui-toggle-group' + (className ? ' ' + className : '')}
     >
       {items.map((it) => {
