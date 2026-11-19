@@ -70,7 +70,7 @@ export const calloutSpec = createReactBlockSpec(
       };
       return (
         <div className="bn-callout" data-tone={CALLOUT_TONES[emoji] ?? 'neutral'}>
-          <button
+          <button /* button-ok: the callout block's emoji, rendered inside BlockNote, which owns the block's events and selection */
             type="button"
             className="bn-callout-emoji"
             contentEditable={false}
@@ -142,7 +142,7 @@ export const tocSpec = createReactBlockSpec(
           <div className="bn-toc-title">{t('Contents')}</div>
           {entries.length === 0 && <div className="bn-toc-empty">{t('No headings.')}</div>}
           {entries.map((e) => (
-            <button
+            <button /* button-ok: a heading entry inside the contents block, rendered by BlockNote */
               key={e.id}
               type="button"
               className="bn-toc-entry"
@@ -184,7 +184,7 @@ export const subpagesSpec = createReactBlockSpec(
           <div className="bn-toc-title">{t('Sub-pages')}</div>
           {kids.length === 0 && <div className="bn-toc-empty">{t('No sub-pages')}</div>}
           {kids.map((p) => (
-            <button
+            <button /* button-ok: a sub-page entry inside the sub-pages block, rendered by BlockNote */
               key={p.id}
               type="button"
               className="bn-toc-entry"
@@ -401,7 +401,7 @@ export const databaseSpec = createReactBlockSpec(
             <div className="bn-db-picker-list">
               {dbs.length === 0 && <div className="bn-db-picker-empty">{t('No collection found')}</div>}
               {dbs.slice(0, 8).map((d) => (
-                <button
+                <button /* button-ok: a collection in the embed block's picker, rendered inside BlockNote */
                   key={d.id}
                   type="button"
                   onClick={() => (chartKind ? void pickForChart(d.id) : editor.updateBlock(block, { props: { collectionId: d.id } } as never))}
@@ -430,7 +430,7 @@ export const databaseSpec = createReactBlockSpec(
       }
       return (
         <div className="bn-db-embed" contentEditable={false}>
-          <button className="bn-db-title" type="button" onClick={() => onNavigate(collectionId)}>
+          <button /* button-ok: the embedded collection's title inside its BlockNote block */ className="bn-db-title" type="button" onClick={() => onNavigate(collectionId)}>
             <PageIcon icon={db.icon} size={16} fallback={<Table2 size={16} />} /> {db.title || t('Untitled')}
             <span className="bn-db-open">{t('Open as page ↗')}</span>
           </button>
@@ -630,7 +630,7 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
           {PRESETS.map((w) => {
             const on = w.length === count && sameWidths(w, stored ?? equalWidths(count));
             return (
-              <button
+              <button /* button-ok: a column-layout preset in the columns block's own bar, inside BlockNote */
                 key={w.join('-')}
                 type="button"
                 className={'bn-columns-n' + (on ? ' is-on' : '')}
@@ -799,7 +799,7 @@ export const mermaidSpec = createReactBlockSpec(
             // src attribute, which React owns and ProseMirror leaves alone.
             //
             // It is also safer: an SVG in an <img> cannot run anything.
-            <button
+            <button /* button-ok: the rendered diagram of a mermaid block; BlockNote owns the block */
               type="button"
               className="bn-mermaid-view"
               title={t('Click to edit the diagram')}
@@ -811,7 +811,7 @@ export const mermaidSpec = createReactBlockSpec(
               <img src={svgDataURI(svg)} alt="" style={diagramSize(svg)} />
             </button>
           ) : (
-            <button
+            <button /* button-ok: the mermaid block's empty state; BlockNote owns the block */
               type="button"
               className="bn-mermaid-view"
               title={t('Click to edit the diagram')}

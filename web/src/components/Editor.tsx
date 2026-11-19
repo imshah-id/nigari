@@ -1330,19 +1330,19 @@ function PageHeader({
               onChange={onCoverFile}
             />
             {!icon && (
-              <button className="add-btn" onClick={() => setIconPickerOpen((o) => !o)}>
-                <Smile size={14} /> {t('Emoji')}
-              </button>
+              <Button emphasis="low" size="sm" className="add-btn" icon={<Smile size={14} />} onClick={() => setIconPickerOpen((o) => !o)}>
+                {t('Emoji')}
+              </Button>
             )}
             {!cover && (
-              <button className="add-btn cover-trigger" onClick={() => setCoverMenuOpen((o) => !o)}>
-                <ImageIcon size={14} /> {t('Cover')}
-              </button>
+              <Button emphasis="low" size="sm" className="add-btn cover-trigger" icon={<ImageIcon size={14} />} onClick={() => setCoverMenuOpen((o) => !o)}>
+                {t('Cover')}
+              </Button>
             )}
             {!showDesc && !description && (
-              <button className="add-btn" onClick={() => setShowDesc(true)}>
-                <AlignLeft size={14} /> {t('Description')}
-              </button>
+              <Button emphasis="low" size="sm" className="add-btn" icon={<AlignLeft size={14} />} onClick={() => setShowDesc(true)}>
+                {t('Description')}
+              </Button>
             )}
             {/* Cover menu only here while NO cover exists — with one, the
                 "Change cover" button top right renders it (W32c: two instances
@@ -1514,9 +1514,9 @@ function CoverMenu({
   }, [onClose]);
   return (
     <div className="cover-menu" ref={ref}>
-      <button className="cover-upload" onClick={onUpload}>
-        <Upload size={15} /> {t('Upload image')}
-      </button>
+      <Button size="sm" className="cover-upload" icon={<Upload size={15} />} onClick={onUpload}>
+        {t('Upload image')}
+      </Button>
       <div className="cover-grid">
         {COVER_GRADIENTS.map((g) => (
           <button

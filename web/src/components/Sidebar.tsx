@@ -1208,9 +1208,9 @@ export default function Sidebar({
             <span>
               <Tag size={13} /> #{tagFilter}
             </span>
-            <button className="tag-filter-clear" onClick={() => setTagFilter(null)}>
+            <Button emphasis="low" size="sm" className="tag-filter-clear" onClick={() => setTagFilter(null)}>
               {t('Clear filter ×')}
-            </button>
+            </Button>
           </div>
           {taggedPages.length === 0 && <div className="section-label">{t('No pages.')}</div>}
           {taggedPages.map((p) => (

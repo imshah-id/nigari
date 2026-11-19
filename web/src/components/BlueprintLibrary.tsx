@@ -198,9 +198,7 @@ export default function BlueprintLibrary({
           ) : (
             <>
               <h2>
-                <button className="btn-icon lib-back" onClick={() => setChoice(null)} aria-label={t('Back')}>
-                  <ArrowLeft size={16} />
-                </button>
+                <Button emphasis="low" className="lib-back" icon={<ArrowLeft size={16} />} label={t('Back')} onClick={() => setChoice(null)} />
                 {choice.kind === 'blueprint'
                   ? t(choice.entry.title)
                   : choice.kind === 'workspace'

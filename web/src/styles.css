@@ -1011,18 +1011,10 @@ body:has(.icon-picker) .bn-side-menu {
   align-items: center;
   gap: 4px;
 }
+/* The trash button is a Button (low, destructive); the row only pushes it to
+   the end. */
 .icon-picker-remove {
   margin-left: auto;
-  color: var(--muted);
-  /* The row's old `.icon-picker-tabs button` rule gave it 5px 11px over its
-     own 5px; that width is kept now the row's tabs are ui/Tabs. */
-  padding: 5px 11px;
-  border-radius: 7px;
-  display: inline-flex;
-}
-.icon-picker-remove:hover {
-  background: var(--hover);
-  color: var(--danger);
 }
 
 .icon-search {
@@ -1113,20 +1105,6 @@ body:has(.icon-picker) .bn-side-menu {
 .icon-upload {
   padding: 22px 10px;
   text-align: center;
-}
-.icon-upload-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 9px 16px;
-  border-radius: 9px;
-  background: var(--accent);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 500;
-}
-.icon-upload-btn:disabled {
-  opacity: 0.6;
 }
 .icon-upload-hint {
   margin-top: 10px;
@@ -4462,16 +4440,9 @@ body.is-col-resizing {
   right: 0;
 }
 
+/* "Upload image" spans the cover menu; its look is the Button's (spec 020). */
 .cover-upload {
   width: 100%;
-  text-align: left;
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-size: 13px;
-}
-
-.cover-upload:hover {
-  background: var(--hover);
 }
 
 .cover-grid {
@@ -10179,8 +10150,8 @@ body:has(.live-down) .update-banner {
 
 .schema-options { position: relative; }
 .schema-option-editor .select-rename { display: flex; gap: 6px; padding: 4px 0 8px; }
-.schema-option-editor .select-rename button { padding: 4px 6px; border-radius: 6px; }
-.schema-option-editor .select-rename button:hover:not(:disabled) { background: var(--hover); }
+.schema-option-editor .select-rename button:not(.ui-button) { padding: 4px 6px; border-radius: 6px; }
+.schema-option-editor .select-rename button:not(.ui-button):hover:not(:disabled) { background: var(--hover); }
 .schema-option-backdrop { position: fixed; inset: 0; z-index: 900; }
 .schema-option-editor { position: fixed; z-index: 901; min-width: 0; overflow-y: auto; overscroll-behavior: contain; }
 .schema-option-editor .select-rename .prop-input { min-width: 0; width: 0; flex: 1; border: 1px solid var(--border); }
@@ -10191,8 +10162,6 @@ body:has(.live-down) .update-banner {
 .option-dragging { opacity: 0.4; }
 .option-drop-before { box-shadow: -3px 0 0 0 var(--accent); }
 .option-drop-after { box-shadow: 3px 0 0 0 var(--accent); }
-
-.schema-option-editor .select-rename .danger { color: var(--danger, #d44b40); }
 
 /* ---- The shortcut sheet (?) ----
  *

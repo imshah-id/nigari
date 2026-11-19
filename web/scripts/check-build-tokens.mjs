@@ -294,7 +294,7 @@ broken('a swap that fails contrast', 'primitives', (j) => {
   const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
   try {
     const budgets = join(dir, 'budgets.json');
-    writeFileSync(budgets, JSON.stringify({ literals: { color: 0, fontSize: 0, radius: 0, shadow: 0, zIndex: 0 }, rawButtons: 0, handDialogs: 0, paletteSteps: 0 }));
+    writeFileSync(budgets, JSON.stringify({ literals: { color: 0, fontSize: 0, radius: 0, shadow: 0, zIndex: 0 }, rawButtons: 0, markedButtons: 0, handDialogs: 0, paletteSteps: 0 }));
     const tokens = (css) => {
       writeFileSync(join(dir, 'x.css'), css);
       const r = spawnSync(process.execPath, [join(web, 'scripts/check-tokens.mjs'), '--src', dir, '--budgets', budgets], { encoding: 'utf8' });
@@ -304,6 +304,40 @@ broken('a swap that fails contrast', 'primitives', (j) => {
     if (step.code === 0 || !/paletteSteps: 2, over its budget of 0/.test(step.out)) failures.push(`a palette step in a component: not refused\n${step.out}`);
     const role = tokens('.x { color: var(--color-primary); }');
     if (role.code !== 0) failures.push(`a role in a component: refused\n${role.out}`);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+}
+
+// A raw button is allowed only with `button-ok: <reason>` (spec 020, R7):
+// the editor library's own controls. Marked ones are counted apart against a
+// budget of their own; a marker without a reason fails; an unmarked button is
+// a raw button. The three cases share one budget file, so each shows its own
+// rule: the same button passes marked and fails unmarked.
+{
+  const dir = mkdtempSync(join(tmpdir(), 'nigari-tokens-'));
+  try {
+    const budgets = join(dir, 'budgets.json');
+    writeFileSync(budgets, JSON.stringify({ literals: { color: 0, fontSize: 0, radius: 0, shadow: 0, zIndex: 0 }, rawButtons: 0, markedButtons: 1, handDialogs: 0, paletteSteps: 0 }));
+    const tokens = (tsx) => {
+      writeFileSync(join(dir, 'x.tsx'), tsx);
+      const r = spawnSync(process.execPath, [join(web, 'scripts/check-tokens.mjs'), '--src', dir, '--budgets', budgets], { encoding: 'utf8' });
+      return { code: r.status, out: (r.stdout ?? '') + (r.stderr ?? '') };
+    };
+    const marked = tokens('export const X = () => <button /* button-ok: BlockNote owns this block */ type="button" />;');
+    if (marked.code !== 0) failures.push(`a marked raw button: refused\n${marked.out}`);
+    const above = tokens('export const X = () => (\n  <>\n    {/* button-ok: BlockNote owns this block */}\n    <button type="button" />\n  </>\n);');
+    if (above.code !== 0) failures.push(`a raw button marked on the line above: refused\n${above.out}`);
+    const bare = tokens('export const X = () => <button /* button-ok: */ type="button" />;');
+    if (bare.code === 0 || !/a button-ok marker needs its reason/.test(bare.out)) failures.push(`a marker without a reason: not refused\n${bare.out}`);
+    const twice = tokens('export const X = () => (\n  <>\n    <button /* button-ok: BlockNote owns this block */ type="button" />\n    <button type="button" />\n  </>\n);');
+    if (twice.code === 0 || !/rawButtons: 1, over its budget of 0/.test(twice.out)) failures.push(`one marker excusing the next button too: not refused\n${twice.out}`);
+    const inString = tokens('const s = "button-ok: copied text";\nexport const X = () => <button type="button" />;');
+    if (inString.code === 0 || !/rawButtons: 1, over its budget of 0/.test(inString.out)) failures.push(`a marker in a string: counted as a marker\n${inString.out}`);
+    const tokenOk = tokens('export const X = () => <button type="button" />; // token-ok: trying');
+    if (tokenOk.code === 0 || !/rawButtons: 1, over its budget of 0/.test(tokenOk.out)) failures.push(`token-ok on a raw button: excused it\n${tokenOk.out}`);
+    const unmarked = tokens('export const X = () => <button type="button" />;');
+    if (unmarked.code === 0 || !/rawButtons: 1, over its budget of 0/.test(unmarked.out)) failures.push(`an unmarked raw button: not counted\n${unmarked.out}`);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

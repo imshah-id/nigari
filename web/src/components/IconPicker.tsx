@@ -8,6 +8,7 @@ import { toast } from '../toast';
 import { makeLucide, makeMdi } from '../pageIcon';
 import { mdiNames, mdiPath, useMdi } from '../mdiLoader';
 import { t } from '../i18n';
+import { Button } from '../ui/Button';
 import { Tabs } from '../ui/Tabs';
 import { ToggleGroup } from '../ui/ToggleGroup';
 
@@ -139,9 +140,7 @@ export default function IconPicker({ onPick, onRemove, onClose, pageId, anchor }
             { value: 'upload', label: t('Upload') },
           ]}
         />
-        <button type="button" className="icon-picker-remove" onClick={onRemove} title={t('Remove icon')}>
-          <Trash2 size={15} />
-        </button>
+        <Button emphasis="low" tone="destructive" className="icon-picker-remove" icon={<Trash2 size={15} />} label={t('Remove icon')} onClick={onRemove} />
       </div>
 
       {tab !== 'upload' && (
@@ -248,9 +247,9 @@ export default function IconPicker({ onPick, onRemove, onClose, pageId, anchor }
               style={{ display: 'none' }}
               onChange={(e) => doUpload(e.target.files?.[0])}
             />
-            <button type="button" className="icon-upload-btn" disabled={uploading} onClick={() => fileRef.current?.click()}>
-              <UploadIcon size={16} /> {uploading ? t('Loading…') : t('Upload picture')}
-            </button>
+            <Button emphasis="high" className="icon-upload-btn" disabled={uploading} icon={<UploadIcon size={16} />} onClick={() => fileRef.current?.click()}>
+              {uploading ? t('Loading…') : t('Upload picture')}
+            </Button>
             <p className="icon-upload-hint">{t('PNG, JPG, GIF or SVG. Shown square, as an icon.')}</p>
           </div>
         )}

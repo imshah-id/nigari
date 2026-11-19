@@ -9,7 +9,7 @@ import { OPTION_HEXES, optionPalette, optionSlug } from '../selectOptions';
 import { daysUntil, formatDay, formatMoment, formatNumber } from '../format';
 import { showActivityFor } from './ActivityLogHost';
 import { initials, nameColor } from '../avatar';
-import { Check, ExternalLink, Link2 as LinkIcon, Plus, Trash2 } from 'lucide-react';
+import { Check, ExternalLink, Link2 as LinkIcon, Plus, Trash2, ChevronLeft } from 'lucide-react';
 import { PageIcon } from '../pageIcon';
 import { t } from '../i18n';
 import { Button } from '../ui/Button';
@@ -266,9 +266,9 @@ function SelectCell({
             {editing ? (
               /* Colour / delete panel for a single option (keeps everything on-screen). */
               <>
-                <button className="select-back" onClick={() => setColorFor(null)}>
-                  ‹ {t('Back')}
-                </button>
+                <Button emphasis="low" size="sm" className="select-back" icon={<ChevronLeft size={14} />} onClick={() => setColorFor(null)}>
+                  {t('Back')}
+                </Button>
                 <div className="select-editing-name">
                   <span className="prop-chip" style={{ background: editing.color + '2e', color: editing.color }}>
                     {editing.name}
@@ -491,16 +491,16 @@ function ChecklistValue({ value, onChange, readOnly, compact }: Props) {
               }
             }}
           />
-          <button className="pcl-del" title={t('Delete')} onClick={() => remove(it.id)}>
-            <Trash2 size={12} />
-          </button>
+          <Button emphasis="low" tone="destructive" size="sm" className="pcl-del" icon={<Trash2 size={12} />} label={t('Delete')} onClick={() => remove(it.id)} />
         </div>
       ))}
       <div className="pcl-actions">
-        <button className="pcl-add" onClick={add}>
-          <Plus size={12} /> {t('Sub-task')}
-        </button>
-        <button
+        <Button emphasis="low" size="sm" className="pcl-add" icon={<Plus size={12} />} onClick={add}>
+          {t('Sub-task')}
+        </Button>
+        <Button
+          emphasis="low"
+          size="sm"
           className="pcl-add"
           onClick={() => {
             // Closing is where empty rows go — they exist so you can type in
@@ -511,7 +511,7 @@ function ChecklistValue({ value, onChange, readOnly, compact }: Props) {
           }}
         >
           {t('Done')}
-        </button>
+        </Button>
       </div>
     </div>
   );

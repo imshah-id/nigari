@@ -5,6 +5,7 @@ import { PageIcon } from '../pageIcon';
 import { tagColorClass } from '../tags';
 import { formatRelative } from '../format';
 import { t } from '../i18n';
+import { Button } from '../ui/Button';
 import { Tabs } from '../ui/Tabs';
 import { openPage, openPageAux } from '../pageOpen';
 
@@ -56,9 +57,7 @@ export default function NotesList({ pages, currentWs, activeId, tagColors, tagFi
         <span className="notes-title">{t('Notes')}</span>
         <span className="notes-count">{notes.length}</span>
         <div className="notes-head-actions">
-          <button className="notes-ic-btn" title={t('New note (⌥N)')} onClick={onCreate}>
-            <SquarePen size={16} />
-          </button>
+          <Button emphasis="low" size="sm" className="notes-ic-btn" icon={<SquarePen size={16} />} label={t('New note (⌥N)')} onClick={onCreate} />
         </div>
       </div>
       {tagFilter ? (
