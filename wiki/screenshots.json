@@ -88,8 +88,8 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Sidebar.tsx": "5d9937648eab",
-        "web/src/components/Editor.tsx": "142a2f7afd90",
+        "web/src/components/Sidebar.tsx": "f93ed29c4be7",
+        "web/src/components/Editor.tsx": "b5e8c8bb9ce7",
         "web/src/App.tsx": "d56154365df8",
         "web/src/tokens.css": "5181f29a0699",
         "web/src/theme.css": "16fd3013201a"
@@ -117,7 +117,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Sidebar.tsx": "5d9937648eab",
+        "web/src/components/Sidebar.tsx": "f93ed29c4be7",
         "web/src/treeMode.ts": "413de5b84cd9",
         "web/src/tokens.css": "5181f29a0699",
         "web/src/theme.css": "16fd3013201a"
@@ -154,7 +154,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/Editor.tsx": "142a2f7afd90",
+        "web/src/components/Editor.tsx": "b5e8c8bb9ce7",
         "web/src/tokens.css": "5181f29a0699",
         "web/src/theme.css": "16fd3013201a"
       }
@@ -247,7 +247,7 @@
         }
       ],
       "takenAt": {
-        "web/src/components/NoteTrail.tsx": "0b15a239b588",
+        "web/src/components/NoteTrail.tsx": "07af8aaaedb3",
         "server/notelog.go": "654fd6335e65",
         "web/src/tokens.css": "5181f29a0699",
         "web/src/theme.css": "16fd3013201a"
@@ -613,7 +613,7 @@
       ],
       "takenAt": {
         "server/public.go": "86b2a62a07d2",
-        "web/src/components/Editor.tsx": "142a2f7afd90",
+        "web/src/components/Editor.tsx": "b5e8c8bb9ce7",
         "web/src/tokens.css": "5181f29a0699",
         "web/src/theme.css": "16fd3013201a"
       }
