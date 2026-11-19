@@ -38,6 +38,7 @@ import ViewsLockMarker, { setViewsLocked } from './ViewsLockMarker';
 import { AddViewMenu, ViewActionItems } from './CollectionMenus';
 import { Menu, MenuItem, MenuLabel, MenuSeparator, MenuValues, MenuValueSubmenu, type MenuPoint } from '../ui/Menu';
 import { Button } from '../ui/Button';
+import { ToggleGroup } from '../ui/ToggleGroup';
 import { readViewId, readViewScroll, writeViewId, writeViewScroll } from '../pageUiState';
 import { AgentDot } from './AgentBadge';
 // Loaded when opened (spec 015: the main bundle's cap; the same as the lazy
@@ -1553,21 +1554,15 @@ export function formField(def: PropDef, value: unknown, onChange: (v: unknown) =
       const vals = idList(value);
       if (!def.options?.length) return <span className="form-hint">{t('No options defined')}</span>;
       return (
-        <div className="form-chips">
-          {def.options.map((o) => {
-            const on = vals.includes(o.id);
-            return (
-              <button
-                type="button"
-                key={o.id}
-                className={'form-chip' + (on ? ' on' : '')}
-                onClick={() => onChange(on ? vals.filter((x) => x !== o.id) : [...vals, o.id])}
-              >
-                {o.name}
-              </button>
-            );
-          })}
-        </div>
+        <ToggleGroup
+          className="form-chips"
+          label={def.name}
+          multiple
+          size="md"
+          value={vals}
+          onValueChange={onChange}
+          items={def.options.map((o) => ({ value: o.id, label: o.name }))}
+        />
       );
     }
     case 'text':
@@ -1613,34 +1608,27 @@ function DateFilterValue({ value, onChange }: { value: string; onChange: (v: str
   const picked = presets.some((p) => p.token === value) ? value : 'custom';
   return (
     <div className="fs-date">
-      <div className="fs-seg">
-        <button
-          type="button"
-          className={exact ? 'on' : ''}
-          onClick={() => {
-            // Baking the word in: switching to Exact keeps the day the word
-            // names today, or clears an already-empty field.
-            if (relative) {
-              setRelative(false);
-              onChange(resolved ?? '');
-            }
-          }}
-        >
-          {t('Exact')}
-        </button>
-        <button
-          type="button"
-          className={exact ? '' : 'on'}
-          onClick={() => {
-            if (exact) {
-              setRelative(true);
-              onChange('today');
-            }
-          }}
-        >
-          {t('Relative')}
-        </button>
-      </div>
+      {/* A ToggleGroup (spec 020, R6). Baking the word in: switching to
+          Exact keeps the day the word names today, or clears an
+          already-empty field; Relative starts at today. */}
+      <ToggleGroup
+        className="fs-seg"
+        label={t('Date')}
+        value={exact ? 'exact' : 'relative'}
+        onValueChange={(v) => {
+          if (v === 'exact' && relative) {
+            setRelative(false);
+            onChange(resolved ?? '');
+          } else if (v === 'relative' && exact) {
+            setRelative(true);
+            onChange('today');
+          }
+        }}
+        items={[
+          { value: 'exact', label: t('Exact') },
+          { value: 'relative', label: t('Relative') },
+        ]}
+      />
       {exact ? (
         <input
           className="prop-input"

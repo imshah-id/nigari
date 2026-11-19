@@ -10,6 +10,7 @@ import { Clock, FileText, Library, Lock, Share2, Star, Table2, Users, Workflow }
 import GraphView from './GraphView';
 import { openPage, openPageAux } from '../pageOpen';
 import { Button } from '../ui/Button';
+import { Tabs } from '../ui/Tabs';
 
 type SortKey = 'title' | 'in' | 'out' | 'updated';
 type Mode = 'recent' | 'favorites' | 'shared' | 'private' | 'all' | 'tree' | 'graph';
@@ -266,18 +267,26 @@ export default function IndexView({
       </div>
       <div className="index-controls">
         <div className="index-modes">
-          {tabs().map((tab) => (
-            <button
-              key={tab.id}
-              className={'index-mode' + (mode === tab.id ? ' active' : '')}
-              onClick={() => setMode(tab.id)}
-            >
-              {tab.icon} {tab.label}
-              {tab.id !== 'tree' && tab.id !== 'graph' && (
-                <span className="index-mode-count">{counts[tab.id]}</span>
-              )}
-            </button>
-          ))}
+          <Tabs
+            label={t('Library')}
+            value={mode}
+            onValueChange={setMode}
+            items={tabs().map((tab) => ({
+              value: tab.id,
+              icon: tab.icon,
+              // The count rides beside the name, so the label is not plain
+              // text: it carries its own label box (Button.css centring).
+              label:
+                tab.id !== 'tree' && tab.id !== 'graph' ? (
+                  <>
+                    <span className="ui-button-label">{tab.label}</span>
+                    <span className="index-mode-count">{counts[tab.id]}</span>
+                  </>
+                ) : (
+                  tab.label
+                ),
+            }))}
+          />
         </div>
         {/* Only when there is a choice to make. One workspace and this is a
             dropdown with a single entry, which is furniture. */}

@@ -9,6 +9,7 @@ import { plural, t } from '../i18n';
 import type { Webhook } from '../types';
 import { Dialog, DialogClose } from '../ui/Dialog';
 import { Button } from '../ui/Button';
+import { Tabs } from '../ui/Tabs';
 import { Field, Input } from '../ui/Field';
 import { Checkbox } from '../ui/Checkbox';
 
@@ -341,11 +342,7 @@ ingress:
           <div className="settings-tabs">
             {/* `tb`, not `t` — the tab object would shadow the translate
                 function and every label below it would break. */}
-            {TABS.map((tb) => (
-              <button key={tb.id} className={'view-tab' + (tab === tb.id ? ' active' : '')} onClick={() => setTab(tb.id)}>
-                {tb.label}
-              </button>
-            ))}
+            <Tabs label={t('Instance settings')} value={tab} onValueChange={setTab} items={TABS.map((tb) => ({ value: tb.id, label: tb.label }))} />
           </div>
           <div className="settings-grid settings-body">
             {tab === 'general' && (

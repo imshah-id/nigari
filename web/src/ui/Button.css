@@ -215,15 +215,17 @@ a.ui-button:not([data-emphasis='link']) {
    Q2): the choice is visible, and the one filled button on a screen stays
    the main action. [data-emphasis][data-tone] outweighs the emphasis × tone
    rules (three attributes and a class against two), and the hover rule below
-   outweighs their hover: source order alone does not (found by review). */
-.ui-button[data-pressed][data-emphasis][data-tone] {
+   outweighs their hover: source order alone does not (found by review). A
+   selected tab (ui/Tabs: Base UI marks it data-active, not data-pressed) is
+   the same "this one is on". */
+.ui-button:is([data-pressed], .ui-tab[data-active])[data-emphasis][data-tone] {
   background: var(--color-primary-subtle);
   border-color: transparent;
   color: var(--color-primary);
   box-shadow: none;
   transform: none;
 }
-.ui-button[data-pressed][data-emphasis][data-tone]:is(:hover, :active):not([data-disabled]) {
+.ui-button:is([data-pressed], .ui-tab[data-active])[data-emphasis][data-tone]:is(:hover, :active):not([data-disabled]) {
   background: var(--color-primary-subtle);
   border-color: transparent;
   color: var(--color-primary-hover);

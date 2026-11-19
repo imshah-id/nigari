@@ -742,25 +742,19 @@
   font-size: 11px;
 }
 
-/* "All / Untagged" is a choice of one, so it gets the theme switch's shape: a
-   track, and the chosen segment lifted out of it. */
+/* "All / Untagged" is ui/Tabs (spec 020); the row only places it. The tag
+   chip that replaces it while a tag is picked keeps the lifted look. */
 .notes-filters {
   align-self: flex-start;
-  gap: 2px;
   margin: 0 12px 10px;
-  padding: 2px;
-  border-radius: 999px;
-  background: var(--hover);
 }
 
-.notes-filters button {
-  padding: 3px 11px;
-}
-
-.notes-filters button.on {
+.notes-filters button.notes-tagfilter {
+  /* As specific as the old `.notes-filters button.on`, which kept the text in
+     ink over a dark theme's tag colour (found by review). */
+  color: var(--fg);
   background: var(--row-on);
   box-shadow: inset 0 0 0 1px var(--row-on-line);
-  font-weight: 560;
 }
 
 /* The note you are on is lifted like the page you are on, and marked by the

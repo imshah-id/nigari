@@ -14,7 +14,7 @@ await withFixture(async ({ page, api, base, workspace }) => {
   await page.goto(`${base}/p/${document.id}`);
   const callouts = page.locator('.bn-callout');
   await callouts.last().waitFor();
-  await page.getByRole('radio', { name: 'Light', exact: true }).click();
+  await page.getByRole('group', { name: 'Appearance' }).getByRole('button', { name: 'Light', exact: true }).click();
   assert.deepEqual(await callouts.evaluateAll(nodes => nodes.map(n => n.dataset.tone)), tones);
   const colors = await callouts.evaluateAll(nodes => nodes.map(n => getComputedStyle(n).backgroundColor));
   assert.equal(colors[0], colors[4]);
@@ -25,7 +25,7 @@ await withFixture(async ({ page, api, base, workspace }) => {
     assert.equal(await callouts.first().getAttribute('data-tone'), tones[i % icons.length]);
     assert.equal(await callouts.first().evaluate(n => getComputedStyle(n).backgroundColor), colors[i % icons.length]);
   }
-  await page.getByRole('radio', { name: 'Dark', exact: true }).click();
+  await page.getByRole('group', { name: 'Appearance' }).getByRole('button', { name: 'Dark', exact: true }).click();
   const dark = await callouts.evaluateAll(nodes => nodes.map(n => getComputedStyle(n).backgroundColor));
   assert.equal(dark[0], dark[4]);
   assert.equal(new Set(dark).size, 6);

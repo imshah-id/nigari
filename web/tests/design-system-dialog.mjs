@@ -29,7 +29,8 @@ await withFixture(async ({ page }) => {
   }
 
   // The webhook tab, by keyboard.
-  await dialog.getByRole('button', { name: 'Webhooks', exact: true }).focus();
+  // A tab since spec 020 PR 3 (ui/Tabs): Enter selects the focused tab.
+  await dialog.getByRole('tab', { name: 'Webhooks', exact: true }).focus();
   await page.keyboard.press('Enter');
   const trashed = dialog.getByRole('checkbox', { name: /a page is thrown away/ });
   await trashed.focus();

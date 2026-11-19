@@ -37,6 +37,8 @@ positioning. The look comes only from the design tokens (`web/tokens/` →
 | `Checkbox` | a choice that is saved later, alone or in a group | a setting that applies at once (`Switch`) | `checkbox` |
 | `Select` | one value from a short, fixed list | a long or searchable list (Combobox, later batch) | `select` |
 | `Switch` | an on/off setting that applies at once | a choice saved with a form (`Checkbox`) | `switch` |
+| `Tabs` | one of several views of the same place (a dialog's sections, a library's modes) | a choice that changes a value (`ToggleGroup`); going somewhere else (a link) | `tabs` |
+| `ToggleGroup` | a short row of choices, one or several, that applies at once (theme, role, chips) | a long list (`Select`); one on/off setting (`Switch`) | `toggle-group` |
 | `SidePanel` | content beside a screen that must stay usable (a row's peek) | a task that takes over the screen (`Dialog`) | `side-panel` |
 | `CenterPanel` | content over a dimmed screen that may open dialogs of its own (a row's centre peek) | a task with a footer of actions (`Dialog`) | `center-panel` |
 | `Popover` | settings that apply at once, anchored to the button that opened them, with the screen still in view (a chart's settings) | a task that takes over the screen (`Dialog`); a list of commands (`Menu`) | `popover` |
@@ -146,6 +148,28 @@ States: `data-popup-open` (trigger), `data-highlighted` and `data-selected` (ite
 
 `label`, `checked`, `onCheckedChange`, `disabled?`. Space toggles.
 States: `data-checked`, `data-disabled`.
+
+## Tabs
+
+`label` (the row's name), `value`, `onValueChange`, `items: { value, label, icon?, disabled? }[]`,
+`children?` (the selected tab's content; leave it out when the content lives elsewhere).
+Each tab is a Button in look (low, neutral, small); the selected one has the pressed
+tint (spec 020, R6). Base UI gives `role="tab"` and `aria-selected`; the arrow keys
+move and select, Home and End jump. States: `data-active`, `data-disabled`.
+
+## ToggleGroup
+
+`label` (the group's name), `items: { value, label, icon?, iconOnly?, disabled?, title?, rank? }[]`,
+`size?` (`sm` default), `disabled?`, and either `value` + `onValueChange` (choose one) or
+`multiple`, `value[]` + `onValueChange` (choose several). Choose one keeps a choice:
+pressing the chosen item again does nothing. The items are Buttons in look (low,
+neutral) inside a hairline frame, inset by `--button-group-inset`; a chosen item has
+the pressed tint and is announced as pressed. An `iconOnly` item takes `label` as
+its name and tooltip. A `rank` item (`none`, `viewer`, `member`, `admin`: a workspace role) is
+filled in its level's colour when chosen (`--color-rank-*`, white text), not the tint: the
+role choice shows how far the chosen role reaches (owner, spec 020). Arrow keys move
+between items, Space or Enter presses.
+States: `data-pressed`, `data-disabled`.
 
 ## SidePanel
 

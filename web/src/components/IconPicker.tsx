@@ -8,6 +8,8 @@ import { toast } from '../toast';
 import { makeLucide, makeMdi } from '../pageIcon';
 import { mdiNames, mdiPath, useMdi } from '../mdiLoader';
 import { t } from '../i18n';
+import { Tabs } from '../ui/Tabs';
+import { ToggleGroup } from '../ui/ToggleGroup';
 
 // Notion-style icon colours; '' = default (adapts to light/dark theme).
 const ICON_COLORS = [
@@ -127,15 +129,16 @@ export default function IconPicker({ onPick, onRemove, onClose, pageId, anchor }
       style={anchor && pos ? { left: pos.left, top: pos.top, bottom: pos.bottom, maxHeight: pos.maxHeight } : undefined}
     >
       <div className="icon-picker-tabs">
-        <button type="button" className={tab === 'emoji' ? 'on' : ''} onClick={() => { setTab('emoji'); setQ(''); }}>
-          {t('Emoji')}
-        </button>
-        <button type="button" className={tab === 'icon' ? 'on' : ''} onClick={() => { setTab('icon'); setQ(''); }}>
-          {t('Icons')}
-        </button>
-        <button type="button" className={tab === 'upload' ? 'on' : ''} onClick={() => { setTab('upload'); setQ(''); }}>
-          {t('Upload')}
-        </button>
+        <Tabs
+          label={t('Icon')}
+          value={tab}
+          onValueChange={(v) => { setTab(v); setQ(''); }}
+          items={[
+            { value: 'emoji', label: t('Emoji') },
+            { value: 'icon', label: t('Icons') },
+            { value: 'upload', label: t('Upload') },
+          ]}
+        />
         <button type="button" className="icon-picker-remove" onClick={onRemove} title={t('Remove icon')}>
           <Trash2 size={15} />
         </button>
@@ -166,14 +169,16 @@ export default function IconPicker({ onPick, onRemove, onClose, pageId, anchor }
               </button>
             ))}
           </div>
-          <div className="icon-style-toggle">
-            <button type="button" className={lib === 'lucide' ? 'on' : ''} onClick={() => setLib('lucide')}>
-              {t('Lucide')}
-            </button>
-            <button type="button" className={lib === 'mdi' ? 'on' : ''} onClick={() => setLib('mdi')}>
-              {t('Material')}
-            </button>
-          </div>
+          <ToggleGroup
+            className="icon-style-toggle"
+            label={t('Icon style')}
+            value={lib}
+            onValueChange={setLib}
+            items={[
+              { value: 'lucide', label: t('Lucide') },
+              { value: 'mdi', label: t('Material') },
+            ]}
+          />
         </div>
       )}
 
