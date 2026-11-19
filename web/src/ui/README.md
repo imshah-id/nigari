@@ -74,6 +74,10 @@ a look that is missing is a new property value with its tokens.
 - **Its other actions** (Cancel, Export): the default.
 - **Toolbars and row actions**: `low`, usually `sm`, often icon-only.
 - **Delete**: `tone="destructive"`; in a confirm dialog the confirm button is that.
+- **Never a raw `<button>`**, except a control BlockNote renders inside its own blocks: it
+  carries `{/* button-ok: <reason> */}` on its line or the one above, and `check-tokens.mjs`
+  counts it apart (`markedButtons`). A raw button inside a card, a row or a picker waits
+  for that component (#763).
 
 **Look**
 - Every value is a token (`--button-*` in `component.tokens.json`) or a colour role of

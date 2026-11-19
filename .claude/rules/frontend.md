@@ -26,7 +26,11 @@ paths:
   vite.catalog.config.ts`, then `/catalog.html`. A new component gets a README
   entry and a catalogue section (`web/tests/catalog.mjs` checks it).
   `check-tokens.mjs` counts raw `<button>`s and hand-built `role="dialog"`s
-  outside `web/src/ui/`, and those counts only go down. **Menus** are
+  outside `web/src/ui/`, and those counts only go down. A button is
+  `ui/Button`, a tab row `ui/Tabs`, a row of choices `ui/ToggleGroup`
+  (spec 020). The only raw buttons allowed are BlockNote's own controls,
+  each carrying `button-ok: <reason>` on its line (counted apart as
+  `markedButtons`); a marker without a reason fails. **Menus** are
   `ui/Menu` (spec 010): an item names its function (`fn="…"`) and takes its
   icon from `web/src/menuIcons.ts`; `check-menu-icons.mjs` refuses a
   hand-built menu or two functions on one icon. **What a menu offers** comes from its
