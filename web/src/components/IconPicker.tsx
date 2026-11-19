@@ -247,7 +247,7 @@ export default function IconPicker({ onPick, onRemove, onClose, pageId, anchor }
               style={{ display: 'none' }}
               onChange={(e) => doUpload(e.target.files?.[0])}
             />
-            <Button className="icon-upload-btn" disabled={uploading} icon={<UploadIcon size={16} />} onClick={() => fileRef.current?.click()}>
+            <Button emphasis="high" className="icon-upload-btn" disabled={uploading} icon={<UploadIcon size={16} />} onClick={() => fileRef.current?.click()}>
               {uploading ? t('Loading…') : t('Upload picture')}
             </Button>
             <p className="icon-upload-hint">{t('PNG, JPG, GIF or SVG. Shown square, as an icon.')}</p>

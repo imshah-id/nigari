@@ -83,8 +83,9 @@ function blankComments(text, isCss) {
 }
 
 const counts = Object.fromEntries([...KINDS, 'rawButtons', 'markedButtons', 'handDialogs', 'paletteSteps'].map((k) => [k, 0]));
-// `button-ok:` and what follows it on the line, up to a comment's end.
-const MARKER = /button-ok:([^\n]*?)(?:\*\/|$)/;
+// `button-ok:` inside a comment, and what follows it on the line up to the
+// comment's end. Only a comment counts: the text in a string marks nothing.
+const MARKER = /(?:\/\*|\/\/)\s*button-ok:([^\n]*?)(?:\*\/|$)/;
 const unexplained = [];
 const hits = Object.fromEntries(Object.keys(counts).map((k) => [k, []]));
 
@@ -101,9 +102,14 @@ for (const file of files(src)) {
     if (kind === 'handDialogs' && inUi) continue;
     for (const m of text.matchAll(re)) {
       const line = lineOf(m.index);
-      if (kind !== 'paletteSteps' && lines[line - 1].includes('token-ok:')) continue;
+      // token-ok does not excuse a raw button: its excuse is button-ok, with
+      // a reason (spec 020, R7), or a raw button could skip both counts.
+      if (kind !== 'paletteSteps' && kind !== 'rawButtons' && lines[line - 1].includes('token-ok:')) continue;
       if (kind === 'rawButtons') {
-        const marker = (lines[line - 1].match(MARKER) ?? lines[line - 2]?.match(MARKER))?.[1].replace(/[}\s]+$/, '').trim();
+        // The line above counts only when it holds no button of its own:
+        // otherwise one marker excused two buttons (found by review).
+        const above = lines[line - 2] !== undefined && !/<button\b/.test(lines[line - 2]) ? lines[line - 2] : '';
+        const marker = (lines[line - 1].match(MARKER) ?? above.match(MARKER))?.[1].replace(/[}\s]+$/, '').trim();
         if (marker !== undefined) {
           if (marker.length < 3) unexplained.push(`${rel}:${line}`);
           counts.markedButtons++;

@@ -330,6 +330,12 @@ broken('a swap that fails contrast', 'primitives', (j) => {
     if (above.code !== 0) failures.push(`a raw button marked on the line above: refused\n${above.out}`);
     const bare = tokens('export const X = () => <button /* button-ok: */ type="button" />;');
     if (bare.code === 0 || !/a button-ok marker needs its reason/.test(bare.out)) failures.push(`a marker without a reason: not refused\n${bare.out}`);
+    const twice = tokens('export const X = () => (\n  <>\n    <button /* button-ok: BlockNote owns this block */ type="button" />\n    <button type="button" />\n  </>\n);');
+    if (twice.code === 0 || !/rawButtons: 1, over its budget of 0/.test(twice.out)) failures.push(`one marker excusing the next button too: not refused\n${twice.out}`);
+    const inString = tokens('const s = "button-ok: copied text";\nexport const X = () => <button type="button" />;');
+    if (inString.code === 0 || !/rawButtons: 1, over its budget of 0/.test(inString.out)) failures.push(`a marker in a string: counted as a marker\n${inString.out}`);
+    const tokenOk = tokens('export const X = () => <button type="button" />; // token-ok: trying');
+    if (tokenOk.code === 0 || !/rawButtons: 1, over its budget of 0/.test(tokenOk.out)) failures.push(`token-ok on a raw button: excused it\n${tokenOk.out}`);
     const unmarked = tokens('export const X = () => <button type="button" />;');
     if (unmarked.code === 0 || !/rawButtons: 1, over its budget of 0/.test(unmarked.out)) failures.push(`an unmarked raw button: not counted\n${unmarked.out}`);
   } finally {

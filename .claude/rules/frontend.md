@@ -29,7 +29,8 @@ paths:
   outside `web/src/ui/`, and those counts only go down. A button is
   `ui/Button`, a tab row `ui/Tabs`, a row of choices `ui/ToggleGroup`
   (spec 020). The only raw buttons allowed are BlockNote's own controls,
-  each carrying `button-ok: <reason>` on its line (counted apart as
+  each carrying `button-ok: <reason>` in a comment on its line or the line
+  above (counted apart as
   `markedButtons`); a marker without a reason fails. **Menus** are
   `ui/Menu` (spec 010): an item names its function (`fn="…"`) and takes its
   icon from `web/src/menuIcons.ts`; `check-menu-icons.mjs` refuses a

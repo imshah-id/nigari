@@ -574,7 +574,8 @@
       "$value": 900
     },
     "tooltip": {
-      "$value": 1000
+      "$value": 1300,
+      "$description": "Above every other layer, top included: a tooltip names the control under the pointer, and the anchored icon picker (top, 1200) drew over its own trash button's tooltip at 1000 (spec 020, found by review)."
     },
     "top": {
       "$value": 1200
