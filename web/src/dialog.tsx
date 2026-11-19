@@ -1,3 +1,4 @@
+import { Button } from './ui/Button';
 import { useEffect, useRef, useState } from 'react';
 import Portal from './components/Portal';
 import { t } from './i18n';
@@ -127,10 +128,14 @@ export function DialogHost() {
             />
           )}
           <div className="dialog-buttons">
-            <button className="btn" onClick={cancel}>{t('Cancel')}</button>
-            <button className={'btn ' + (req.kind === 'confirm' && req.danger ? 'danger' : 'primary')} onClick={ok}>
+            <Button onClick={cancel}>{t('Cancel')}</Button>
+            <Button
+              emphasis={req.kind === 'confirm' && req.danger ? 'medium' : 'high'}
+              tone={req.kind === 'confirm' && req.danger ? 'destructive' : 'neutral'}
+              onClick={ok}
+            >
               {req.confirmText ?? (req.kind === 'prompt' ? t('OK') : t('Confirm'))}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

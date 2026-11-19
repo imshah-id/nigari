@@ -6,6 +6,7 @@ import { FilePreview, isPreviewable } from './FilePreview';
 import { formatBytes } from '../format';
 import { t } from '../i18n';
 import { CornerDownRight, FileText, Globe, Link2, PanelRightClose, Table2 } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 // What a document carries but never showed: the pages below it, the files
 // hanging off it, and who points at it. All three existed — parent_id has
@@ -142,9 +143,7 @@ export default function StructurePanel({
     <aside className="structure-panel" aria-label={t('Structure')}>
       <div className="structure-head">
         <span>{t('Structure')}</span>
-        <button className="icon-btn" title={t('Hide structure')} onClick={onClose}>
-          <PanelRightClose size={17} />
-        </button>
+        <Button emphasis="low" icon={<PanelRightClose size={17} />} label={t('Hide structure')} onClick={onClose} />
       </div>
 
       {/* The head holds still and only this scrolls — the same shape as the

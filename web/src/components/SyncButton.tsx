@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import { checkForNewVersion, isDesktopApp, isDesktopPointer, isStandalone, requestRefresh } from '../pwa';
 import { t } from '../i18n';
+import { Button } from '../ui/Button';
 
 /** The answer to the missing reload button, for the two windows that have none.
  *
@@ -29,10 +30,11 @@ export default function SyncButton() {
   if (!show) return null;
 
   return (
-    <button
-      className="icon-btn sync-btn"
-      title={t('Fetch the latest changes')}
-      aria-label={t('Fetch the latest changes')}
+    <Button
+      emphasis="low"
+      className="sync-btn"
+      icon={<RefreshCw size={16} className={busy ? 'ptr-spin' : ''} />}
+      label={t('Fetch the latest changes')}
       disabled={busy}
       onClick={() => {
         setBusy(true);
@@ -41,8 +43,6 @@ export default function SyncButton() {
         // Same reason as the pull gesture: long enough to be seen.
         window.setTimeout(() => setBusy(false), 650);
       }}
-    >
-      <RefreshCw size={16} className={busy ? 'ptr-spin' : ''} />
-    </button>
+    />
   );
 }

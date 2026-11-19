@@ -9,6 +9,7 @@ import { tagColorClass } from '../tags';
 import { Clock, FileText, Library, Lock, Share2, Star, Table2, Users, Workflow } from 'lucide-react';
 import GraphView from './GraphView';
 import { openPage, openPageAux } from '../pageOpen';
+import { Button } from '../ui/Button';
 
 type SortKey = 'title' | 'in' | 'out' | 'updated';
 type Mode = 'recent' | 'favorites' | 'shared' | 'private' | 'all' | 'tree' | 'graph';
@@ -261,7 +262,7 @@ export default function IndexView({
         <h1>
           <Library size={20} /> {t('Library')}
         </h1>
-        <button className="btn-sm" onClick={onClose}>{t('Close')}</button>
+        <Button size="sm" onClick={onClose}>{t('Close')}</Button>
       </div>
       <div className="index-controls">
         <div className="index-modes">

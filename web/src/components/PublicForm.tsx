@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { Check, Send } from 'lucide-react';
 import { api } from '../api';
@@ -77,8 +78,7 @@ export default function PublicForm({ token }: { token: string }) {
           </div>
           <h2>{t('Thank you!')}</h2>
           <p>{t('Your answer has been submitted.')}</p>
-          <button
-            className="btn-sm primary"
+          <Button size="sm" emphasis="high"
             onClick={() => {
               setDone(false);
               setTitle('');
@@ -86,7 +86,7 @@ export default function PublicForm({ token }: { token: string }) {
             }}
           >
             {t('Send another answer')}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -123,9 +123,9 @@ export default function PublicForm({ token }: { token: string }) {
           ))}
         </div>
         <div className="form-actions">
-          <button className="btn-sm primary form-submit" disabled={busy || !title.trim()} onClick={() => void submit()}>
+          <Button emphasis="high" className="form-submit" disabled={busy || !title.trim()} onClick={() => void submit()}>
             <Send size={14} /> {cfg.formSubmit?.trim() || t('Submit')}
-          </button>
+          </Button>
         </div>
         <div className="public-form-footer">
           {t('Made with')} <b>nigari</b>

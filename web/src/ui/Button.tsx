@@ -1,4 +1,4 @@
-import { forwardRef, type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import { forwardRef, type ComponentPropsWithoutRef, type ReactNode, type Ref } from 'react';
 import { Button as BaseButton } from '@base-ui/react/button';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { chordFor } from '../keys';
@@ -32,6 +32,12 @@ type Common = Omit<ComponentPropsWithoutRef<typeof BaseButton>, 'className' | 'c
    *  disappears when the shortcut is not bound here (FR-010). */
   shortcut?: string;
   className?: string;
+  /** A link that looks like a button (a sign-in page, a download, an
+   *  external sign-in): rendered as a real <a>, so it is announced and opened
+   *  as a link. Base UI's button would put role="button" on it. Disabled
+   *  drops the href, which leaves nothing to follow. */
+  href?: string;
+  download?: string | boolean;
 };
 
 /** With a label: `icon` is optional and shown before it. Without one, the
@@ -39,10 +45,10 @@ type Common = Omit<ComponentPropsWithoutRef<typeof BaseButton>, 'className' | 'c
  *  `label` is required, read by a screen reader and shown as a tooltip, and
  *  arrives already translated (spec 001, FR-008). */
 export type ButtonProps = Common &
-  ({ children: ReactNode; icon?: ReactNode; label?: never } | { children?: undefined; icon: ReactNode; label: string });
+  ({ children: ReactNode; icon?: ReactNode; label?: never } | { children?: undefined; icon: ReactNode; label: string; href?: never; download?: never });
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { emphasis = 'medium', tone = 'neutral', size = 'md', pressed, shortcut, className, children, icon, label, type = 'button', disabled, ...rest },
+  { emphasis = 'medium', tone = 'neutral', size = 'md', pressed, shortcut, className, children, icon, label, type = 'button', disabled, href, download, ...rest },
   ref,
 ) {
   // Icon only when there is a name and nothing else to show: '' or 0 as
@@ -98,11 +104,38 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   // callers that style them as the button's children (a chart legend lost its
   // colour dots).
   const text = typeof children === 'string' || typeof children === 'number';
-  return (
-    <BaseButton ref={ref} type={type} disabled={disabled} {...rest} {...look}>
+  const content = (
+    <>
       {glyph}
       {text ? <span className="ui-button-label">{children}</span> : children}
       {chord && <kbd className="ui-button-kbd">{chord}</kbd>}
+    </>
+  );
+  if (href !== undefined) {
+    // Base UI's own props mean nothing on an <a>, and React warns about them.
+    // A disabled link has no href and no click (found by review), and keeps
+    // role="link" by hand, since an <a> without href has no role for
+    // aria-disabled to qualify.
+    const { render: _render, nativeButton: _native, focusableWhenDisabled: _focusable, onClick, ...anchor } = rest;
+    return (
+      <a
+        ref={ref as unknown as Ref<HTMLAnchorElement>}
+        {...(anchor as ComponentPropsWithoutRef<'a'>)}
+        onClick={disabled ? undefined : (onClick as ComponentPropsWithoutRef<'a'>['onClick'])}
+        href={disabled ? undefined : href}
+        download={disabled ? undefined : download}
+        role={disabled ? 'link' : undefined}
+        aria-disabled={disabled || undefined}
+        data-disabled={disabled ? '' : undefined}
+        {...look}
+      >
+        {content}
+      </a>
+    );
+  }
+  return (
+    <BaseButton ref={ref} type={type} disabled={disabled} {...rest} {...look}>
+      {content}
     </BaseButton>
   );
 });

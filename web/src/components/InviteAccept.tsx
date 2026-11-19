@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import type { User } from '../types';
@@ -81,7 +82,7 @@ export default function InviteAccept({
           <div className="login-logo"><Logo size={56} /></div>
           <h1>{t('Invitation not valid')}</h1>
           <p>{t('This invitation link is not valid or has expired.')}</p>
-          <a className="btn" href="/">{t('To sign-in')}</a>
+          <Button href="/">{t('To sign-in')}</Button>
         </div>
       </div>
     );
@@ -109,7 +110,7 @@ export default function InviteAccept({
               <p>
                 {t('Signed in as')} <strong>{currentUser.email}</strong>.
               </p>
-              <a className="btn" href="/api/logout">{t('Sign out and sign in again')}</a>
+              <Button href="/api/logout">{t('Sign out and sign in again')}</Button>
             </>
           ) : (
             <>
@@ -118,10 +119,10 @@ export default function InviteAccept({
               </p>
               {error && <div className="login-error">{error}</div>}
               <div style={{ display: 'flex', gap: 8 }}>
-                <button className="btn primary" onClick={joinAsCurrent} disabled={busy}>
+                <Button emphasis="high" onClick={joinAsCurrent} disabled={busy}>
                   {t('Join')}
-                </button>
-                <a className="btn" href="/">{t('Cancel')}</a>
+                </Button>
+                <Button href="/">{t('Cancel')}</Button>
               </div>
             </>
           )}
@@ -169,9 +170,9 @@ export default function InviteAccept({
           />
         )}
         {error && <div className="login-error">{error}</div>}
-        <button className="btn primary" type="submit" disabled={busy}>
+        <Button emphasis="high" type="submit" disabled={busy}>
           {t('Join')}
-        </button>
+        </Button>
       </form>
     </div>
   );

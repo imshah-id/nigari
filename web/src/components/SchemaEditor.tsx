@@ -3,12 +3,13 @@ import { isOptionType, type CollectionConfig, type PropDef, type PropType, type 
 import Portal from './Portal';
 import { useExclusiveModal } from '../modal';
 import { confirm } from '../dialog';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, X } from 'lucide-react';
 import { t } from '../i18n';
 import { PropertyFields, PropertyTypeSelect, autoOptionColor, changePropertyType, slug, useTargetSchemas } from './PropertyFields';
 import { deletePropertyMessage, tidyViewsAfterSchema } from '../propertyDelete';
 import { optionId } from '../rowProperties';
 import { defaultStatusOptions } from '../statusGroups';
+import { Button } from '../ui/Button';
 
 
 export default function SchemaEditor({
@@ -187,9 +188,7 @@ export default function SchemaEditor({
                   onChange={(e) => updateProp(p.id, { name: e.target.value })}
                 />
                 <PropertyTypeSelect value={p.type} onChange={(type) => changeType(p.id, type)} label={t('Type')} />
-                <button className="icon-btn danger" title={t('Delete property')} onClick={() => void removeProp(p.id)}>
-                  ✕
-                </button>
+                <Button emphasis="low" tone="destructive" icon={<X size={14} />} label={t('Delete property')} onClick={() => void removeProp(p.id)} />
               </div>
               <PropertyFields
                 p={p}
@@ -210,11 +209,11 @@ export default function SchemaEditor({
             onKeyDown={(e) => e.key === 'Enter' && addProp()}
           />
           <PropertyTypeSelect value={newType} onChange={setNewType} className="prop-select" label={t('Type')} />
-          <button className="btn" onClick={addProp}>Add</button>
+          <Button onClick={addProp}>Add</Button>
         </div>
         <div className="dialog-buttons">
-          <button className="btn" onClick={onClose}>{t('Cancel')}</button>
-          <button className="btn primary" onClick={save}>{t('Save')}</button>
+          <Button onClick={onClose}>{t('Cancel')}</Button>
+          <Button emphasis="high" onClick={save}>{t('Save')}</Button>
         </div>
       </div>
     </div>

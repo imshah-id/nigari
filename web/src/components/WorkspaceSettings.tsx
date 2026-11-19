@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useState } from 'react';
 import { api } from '../api';
 import type { Workspace } from '../types';
@@ -198,9 +199,9 @@ export default function WorkspaceSettings({
           </div>
 
           <div className="dialog-actions">
-            <button className="btn-sm" onClick={onClose}>
+            <Button size="sm" onClick={onClose}>
               {t('Close')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

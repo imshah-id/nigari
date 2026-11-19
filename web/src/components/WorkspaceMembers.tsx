@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api, ApiError } from '../api';
 import Portal from './Portal';
@@ -5,6 +6,7 @@ import { confirm } from '../dialog';
 import { useExclusiveModal } from '../modal';
 import { toast } from '../toast';
 import { t } from '../i18n';
+import { X } from 'lucide-react';
 
 type Role = 'admin' | 'member' | 'viewer';
 interface Member {
@@ -135,13 +137,13 @@ export default function WorkspaceMembers({
                 <span className="token-scope write">{roleLabel(m.role)}</span>
               )}
               {(isAdmin || m.userId === myUserId) && (
-                <button
-                  className="icon-btn danger"
-                  title={m.userId === myUserId ? t('Leave') : t('Remove')}
+                <Button
+                  emphasis="low"
+                  tone="destructive"
+                  icon={<X size={14} />}
+                  label={m.userId === myUserId ? t('Leave') : t('Remove')}
                   onClick={() => void remove(m)}
-                >
-                  ✕
-                </button>
+                />
               )}
             </div>
           ))}
@@ -160,7 +162,7 @@ export default function WorkspaceMembers({
                 <option value="viewer">{t('Viewer')}</option>
                 <option value="admin">{t('Admin')}</option>
               </select>
-              <button className="btn primary" type="submit">{t('Invite')}</button>
+              <Button emphasis="high" type="submit">{t('Invite')}</Button>
             </form>
             {inviteLink && (
               <div className="invite-link">
@@ -170,7 +172,7 @@ export default function WorkspaceMembers({
             )}
           </>
         )}
-        <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+        <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
       </div>
     </div>
     </Portal>

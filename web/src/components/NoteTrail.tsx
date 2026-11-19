@@ -7,6 +7,7 @@ import { AgentMark } from './AgentBadge';
 import { confirm } from '../dialog';
 import { toast } from '../toast';
 import { t, plural } from '../i18n';
+import { Button } from '../ui/Button';
 
 // The raw trail at the foot of a page — see server/notelog.go for what it is
 // and why nothing here can edit an entry.
@@ -177,9 +178,9 @@ export default function NoteTrail({ pageId, canWrite }: { pageId: string; canWri
                   }
                 }}
               />
-              <button className="btn-sm" onClick={() => void add()} disabled={!body.trim()}>
+              <Button size="sm" onClick={() => void add()} disabled={!body.trim()}>
                 {t('Note')}
-              </button>
+              </Button>
             </div>
           )}
 

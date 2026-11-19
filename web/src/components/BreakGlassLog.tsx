@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import Portal from './Portal';
@@ -90,16 +91,16 @@ export default function BreakGlassLog({
                     <span className="bg-reason">{g.reason}</span>
                   </div>
                   {g.active && (
-                    <button className="btn-sm danger" onClick={() => void revoke(g)}>
+                    <Button size="sm" tone="destructive" onClick={() => void revoke(g)}>
                       {t('End it now')}
-                    </button>
+                    </Button>
                   )}
                 </div>
               ))}
             </div>
           )}
           <div className="dialog-actions">
-            <button className="btn" onClick={onClose}>{t('Close')}</button>
+            <Button onClick={onClose}>{t('Close')}</Button>
           </div>
         </div>
       </div>

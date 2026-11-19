@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useState } from 'react';
 import { api } from '../api';
 import type { User } from '../types';
@@ -58,9 +59,9 @@ export default function Setup({ onSuccess }: { onSuccess: (user: User) => void }
           onChange={(e) => setPassword(e.target.value)}
         />
         {error && <div className="login-error">{error}</div>}
-        <button className="btn primary" type="submit" disabled={busy}>
+        <Button emphasis="high" type="submit" disabled={busy}>
           {t('Create workspace')}
-        </button>
+        </Button>
       </form>
     </div>
   );

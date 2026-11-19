@@ -7,6 +7,40 @@ entries are not edited away.
 
 ---
 
+## 2026-11-18 — Spec 020 PR 2: where the class buttons' mapping did not say
+
+Plan R1 maps `btn`, `btn primary`, `btn danger` and `btn dialog-close` onto
+the Button's properties. Moving every class-built button turned up cases it
+did not cover. Claude's defaults, each one property value to change:
+
+- **A link that looks like a button** (sign-in, the OAuth providers, the
+  calendar link, a file download) uses a new `href` on `Button`, which
+  renders a real `<a>`. Turned down: Base UI's `render={<a/>}` with
+  `nativeButton={false}`, which puts `role="button"` on the link, so a screen
+  reader calls a link a button; and leaving the links on the old `.btn`
+  rules, which would have kept them alive.
+- **A toolbar button that shows something is set** (Filter, Sort, Group) is
+  medium in the primary tone. Turned down: `pressed`, which makes it a toggle
+  button for a screen reader while it opens a menu.
+- **The page's toggles** (comments, structure, favourite, private) are
+  `pressed`, with a name that does not change. Turned down: names that flip
+  with the state ("Remove from favorites") beside `aria-pressed`, which the
+  review found read as two opposite states. Favourite and private lose the
+  gold they had borrowed; the filled star and the closed lock still show the
+  state. Share opens a panel, so a live link is the primary tone, not pressed.
+- **New ▾** stays one shape: two Buttons whose group squares the inner corners
+  and draws the hairline. Turned down: a split-button property on `Button`
+  for one place.
+- **The Connect buttons of mail sign-in** lost their faded look while OAuth is
+  not set up: they are ordinary buttons whose click says what to set up first,
+  now reachable by keyboard. Turned down: `disabled`, which would swallow the
+  click that explains why.
+- **A class that hides a Button** (`.menu-btn`, `.topbar-wide-only`,
+  `.collapse-btn`) names `.ui-button` too, because `Button.css` loads after
+  `styles.css` and its `display` won otherwise (found by review).
+
+---
+
 ## 2026-11-17 — Spec 019: the palette step table, as built
 
 Building spec 019 changed its R1 table in three places, each measured

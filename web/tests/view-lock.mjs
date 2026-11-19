@@ -94,7 +94,7 @@ await withFixture(async ({ page, context, api, base, workspace, path }) => {
   const propItems = page.locator('.schema-item');
   const propNames = () => propItems.locator('.schema-row > .prop-input').evaluateAll((inputs) => inputs.map((i) => i.value));
   const removeProp = async (name) => {
-    await propItems.nth((await propNames()).indexOf(name)).locator('button[title="Delete property"]').click();
+    await propItems.nth((await propNames()).indexOf(name)).getByRole('button', { name: 'Delete property', exact: true }).click();
     await page.locator('.confirm-dialog').getByRole('button', { name: 'Delete property', exact: true }).click();
   };
   const heading = page.getByRole('heading', { name: 'Collection properties' });

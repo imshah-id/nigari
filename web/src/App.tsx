@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, ApiError } from './api';
 import { serverMessage } from './serverErrors';
-import { WifiOff } from 'lucide-react';
+import { WifiOff, Menu as MenuGlyph } from 'lucide-react';
 import type { Me, PageMeta, User, Workspace } from './types';
 import Sidebar from './components/Sidebar';
 import Editor from './components/Editor';
@@ -43,6 +43,7 @@ import { dropPeek, peekFromLocation, peekOfEntry, pushPeek, type Peek } from './
 import type { PeekMode } from './peek';
 import { guardDrops } from './dropFiles';
 import { fallbackPage } from './pageFallback';
+import { Button } from './ui/Button';
 
 /** Injected by the build; false everywhere except the website's framed demo. */
 declare const __NIGARI_DEMO__: boolean;
@@ -1169,9 +1170,9 @@ export default function App() {
         <div className="empty-emoji">🍂</div>
         <h2>{t('Cannot reach the server')}</h2>
         <p>{t('nigari could not load your workspace.')}</p>
-        <button className="btn primary" onClick={() => window.location.reload()}>
+        <Button emphasis="high" onClick={() => window.location.reload()}>
           {t('Retry')}
-        </button>
+        </Button>
       </div>
     );
   }
@@ -1397,9 +1398,7 @@ export default function App() {
           // if someone is left without one anyway (assignment revoked, creation
           // failed), at least say what is going on.
           <div className="empty-state">
-            <button className="menu-btn empty-menu-btn" onClick={openSidebar}>
-              ☰
-            </button>
+            <Button emphasis="low" className="menu-btn empty-menu-btn" icon={<MenuGlyph size={18} />} label={t('Menu')} onClick={openSidebar} />
             <div className="empty-emoji"><Logo size={52} /></div>
             <h2>{t('No workspace')}</h2>
             <p>
@@ -1409,8 +1408,8 @@ export default function App() {
             </p>
             {me?.allowUserWorkspaces && (
               <div className="empty-actions">
-                <button
-                  className="btn primary"
+                <Button
+                  emphasis="high"
                   onClick={() => {
                     void (async () => {
                       const name = await promptText(t('Name for the new workspace?'), {
@@ -1428,25 +1427,23 @@ export default function App() {
                   }}
                 >
                   {t('Create workspace')}
-                </button>
+                </Button>
               </div>
             )}
           </div>
         ) : (
           <div className="empty-state">
-            <button className="menu-btn empty-menu-btn" onClick={openSidebar}>
-              ☰
-            </button>
+            <Button emphasis="low" className="menu-btn empty-menu-btn" icon={<MenuGlyph size={18} />} label={t('Menu')} onClick={openSidebar} />
             <div className="empty-emoji"><Logo size={52} /></div>
             <h2>{t('No pages yet')}</h2>
             <p>{t('Create your first page, or import from Notion (.zip) / Markdown (.md).')}</p>
             <div className="empty-actions">
-              <button className="btn primary" onClick={() => void createPage(null)}>
+              <Button emphasis="high" onClick={() => void createPage(null)}>
                 {t('New page')}
-              </button>
-              <button className="btn" onClick={() => emptyImportRef.current?.click()}>
+              </Button>
+              <Button onClick={() => emptyImportRef.current?.click()}>
                 {t('Import (.md / .zip)')}
-              </button>
+              </Button>
             </div>
             <input
               ref={emptyImportRef}

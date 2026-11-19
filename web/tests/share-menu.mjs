@@ -12,7 +12,7 @@ await withFixture(async ({ page, api, base, workspace }) => {
   const status = async (url) => (await fetch(url)).status;
 
   await page.goto(`${base}/p/${doc.id}`);
-  const globe = page.locator('.share-wrap .icon-btn').first();
+  const globe = page.getByRole('button', { name: /^(Share to web|Shared)/ }).first();
   const menu = page.locator('.share-menu');
 
   // Opening the menu shows the state and publishes nothing.

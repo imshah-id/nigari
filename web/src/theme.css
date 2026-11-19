@@ -89,60 +89,6 @@
 
 /* --- buttons ---------------------------------------------------------------- */
 
-/* The primary action is INK, as on the site ("Install now"): a filled pill in
-   the text colour. Colour would make every dialog shout; ink is the loudest
-   thing on a page that is otherwise ink on paper anyway. */
-.btn.primary,
-.btn-sm.primary {
-  background: var(--pill-dark);
-  border: 1px solid transparent;
-  color: var(--bg);
-  box-shadow: none;
-}
-
-.btn.primary:hover,
-.btn-sm.primary:hover {
-  background: var(--pill-dark-hover);
-  box-shadow:
-    0 8px 22px -10px rgba(255, 45, 96, 0.45),
-    0 8px 22px -12px rgba(59, 130, 246, 0.4);
-}
-
-[data-theme='dark'] .btn.primary,
-[data-theme='dark'] .btn-sm.primary {
-  background: var(--pill-dark);
-  border-color: transparent;
-  color: #07070a;
-}
-
-[data-theme='dark'] .btn.primary:hover,
-[data-theme='dark'] .btn-sm.primary:hover {
-  background: var(--pill-dark-hover);
-}
-
-/* Secondary: the site's glass button — no fill, a hairline, ink text. */
-.btn,
-.btn-sm {
-  border-color: var(--border);
-}
-
-.btn:not(.primary):not(.danger),
-.btn-sm:not(.primary):not(.active) {
-  background: transparent;
-}
-
-.btn:not(.primary):hover,
-.btn-sm:not(.primary):not(.active):hover {
-  background: var(--hover);
-  border-color: var(--border-strong);
-}
-
-/* "On" state (an active filter): a wash of the accent, the label in it. */
-.btn-sm.active {
-  background: var(--accent-soft);
-  border-color: rgba(var(--accent-rgb), 0.35);
-  color: var(--accent);
-}
 
 /* --- view tabs: neutral, the type colour stays on the icon only ----------- */
 
@@ -238,15 +184,6 @@
 
 [data-theme='dark'] .board-card {
   background: rgba(255, 255, 255, 0.025);
-}
-
-/* --- reduced motion -------------------------------------------------------------- */
-
-@media (prefers-reduced-motion: reduce) {
-  .btn.primary:hover,
-  .btn-sm.primary:hover {
-    box-shadow: none;
-  }
 }
 
 /* =============================================================================
@@ -915,12 +852,6 @@
   }
 }
 
-/* The buttons that open them say "open" the way a pressed toolbar button
-   does. They used to borrow the favourite star's gold. */
-.icon-btn.is-on {
-  background: var(--active);
-  color: var(--fg);
-}
 
 /* The top bar's icons each lit up in a colour of their own on hover, chosen
    by POSITION: the panel button was green only because it happened to be

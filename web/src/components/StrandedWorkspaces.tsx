@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import Portal from './Portal';
@@ -100,10 +101,10 @@ export default function StrandedWorkspaces({ onClose, onChanged }: { onClose: ()
                     </span>
                   </div>
                   {w.adoptable && (
-                    <button className="btn-sm" onClick={() => void adopt(w)}>{t('Adopt')}</button>
+                    <Button size="sm" onClick={() => void adopt(w)}>{t('Adopt')}</Button>
                   )}
                   {w.deletable && (
-                    <button className="btn-sm danger" onClick={() => void remove(w)}>{t('Delete')}</button>
+                    <Button size="sm" tone="destructive" onClick={() => void remove(w)}>{t('Delete')}</Button>
                   )}
                   {!w.deletable && (
                     <span className="dialog-hint">{t('Still has members: make one of them an admin.')}</span>
@@ -116,7 +117,7 @@ export default function StrandedWorkspaces({ onClose, onChanged }: { onClose: ()
             </div>
           )}
           <div className="dialog-actions">
-            <button className="btn" onClick={onClose}>{t('Close')}</button>
+            <Button onClick={onClose}>{t('Close')}</Button>
           </div>
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
 import Portal from './Portal';
@@ -269,9 +270,9 @@ export default function AgentConnectModal({
                     <option value="current">{t('Only “{name}”', { name: wsName })}</option>
                     <option value="all">{t('All workspaces')}</option>
                   </select>
-                  <button className="btn primary" disabled={busy} onClick={() => void createToken()}>
+                  <Button emphasis="high" disabled={busy} onClick={() => void createToken()}>
                     {t('Create token')}
-                  </button>
+                  </Button>
                 </div>
                 <input
                   className="prop-input"
@@ -300,9 +301,9 @@ export default function AgentConnectModal({
           <div className="conf-block agent-snippet">
             <div className="conf-head">
               <span>{agent.name}: {agentHint(agent.id)}</span>
-              <button className="btn-sm" onClick={copy}>
+              <Button size="sm" onClick={copy}>
                 {copied ? <Check size={13} /> : <Copy size={13} />} {t('Copy')}
-              </button>
+              </Button>
             </div>
             <pre>
               <code>{snippet}</code>
@@ -345,15 +346,14 @@ export default function AgentConnectModal({
                 )}
               </span>
             </div>
-            <button
-              className="btn-sm"
+            <Button size="sm"
               onClick={() => api.download(`/api/skill?workspace=${encodeURIComponent(currentWs)}`)}
             >
               <Download size={13} /> {t('Download skill')}
-            </button>
+            </Button>
           </div>
 
-          <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+          <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
         </div>
       </div>
     </Portal>

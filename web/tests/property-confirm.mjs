@@ -10,7 +10,7 @@ await withFixture(async ({ page, api, base, workspace, path, open, read }) => {
   const names = () => items.locator('.schema-row > .prop-input').evaluateAll((inputs) => inputs.map((i) => i.value));
   // The ✕ is named by its text; its title says what it does. Found by the
   // property's place, since an input's value is not an attribute to match.
-  const cross = async (name) => items.nth((await names()).indexOf(name)).locator('button[title="Delete property"]');
+  const cross = async (name) => items.nth((await names()).indexOf(name)).getByRole('button', { name: 'Delete property', exact: true });
   const ask = page.locator('.confirm-dialog');
 
   // Cancel keeps the property, and the question names it and the database.

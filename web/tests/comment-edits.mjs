@@ -19,7 +19,7 @@ await withFixture(async ({ page, context, api, base, workspace, path }) => {
   const theirsId = (await theirs.json()).id;
 
   await page.goto(`${base}/p/${doc.id}`);
-  await page.getByRole('button', { name: 'Show comments' }).first().click();
+  await page.getByRole('button', { name: 'Comments', exact: true }).first().click();
   const panel = page.locator('.comments-panel');
   const item = (id) => panel.locator(`[data-comment-id="${id}"]`);
   await item(mine.id).waitFor();

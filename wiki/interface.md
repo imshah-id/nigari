@@ -79,7 +79,7 @@ workspace name rather than clicking Yes. See [Workspaces](workspaces.md) and
 
 ### Library and collapse
 
-Two round buttons top right:
+Two icon buttons top right:
 
 - **Library (every page)** opens the full-screen library over the page. It has
   its own tab strip (**Recently used**, **Favorites**, **Workspace**, **Private**,

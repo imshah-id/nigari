@@ -75,27 +75,27 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 
 ## PR 2 — The class-built buttons (US1, US3)
 
-- [ ] T013 [ui] Census of raw buttons with `btn`, `btn-sm`, `icon-btn`,
+- [x] T013 [ui] Census of raw buttons with `btn`, `btn-sm`, `icon-btn`,
   `menu-btn` and the other button classes, by file; split the PR's commits by
   area (settings and dialogs, then the big screens)
-- [ ] T014 [P] [ui] Settings and dialogs (`AdminSettings`, `UserMenu`,
+- [x] T014 [P] [ui] Settings and dialogs (`AdminSettings`, `UserMenu`,
   `AgentConnect`, `WorkspaceRules`, `WorkspaceMembers`, `WorkspaceSettings`,
   `BlueprintLibrary`, `TemplateGallery`, `dialog.tsx`, `ErrorBoundary`, the
   public and OAuth pages) to `Button`
-- [ ] T015 [P] [ui] The big screens (`CollectionView`, `Sidebar`,
+- [x] T015 [P] [ui] The big screens (`CollectionView`, `Sidebar`,
   `PropertyValue`, `IconPicker`, `TrashSection`, `IndexView`,
   `StructurePanel`, `NotesList`, `App.tsx` …): their class-built buttons to
   `Button`
-- [ ] T016 [US3] [i18n] Icon-only buttons that had no name get one through
+- [x] T016 [US3] [i18n] Icon-only buttons that had no name get one through
   `t()`, with de, es and nl
-- [ ] T017 [test] Browser tests that find a moved button by class switch to
+- [x] T017 [test] Browser tests that find a moved button by class switch to
   role and name; the touched screens' tests pass
-- [ ] T018 [ui] Remove the `btn`, `btn-sm`, `icon-btn` rules from
+- [x] T018 [ui] Remove the `btn`, `btn-sm`, `icon-btn` rules from
   `styles.css` and `theme.css` once no raw button uses them (Outside names);
   lower `rawButtons`
-- [ ] T019 [wiki] Screenshots retaken and compared; the wiki text checked for
+- [x] T019 [wiki] Screenshots retaken and compared; the wiki text checked for
   a button described by its old look
-- [ ] T020 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
+- [x] T020 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
   screens; `codegraph callers Button`
 
 ---

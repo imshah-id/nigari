@@ -1,3 +1,4 @@
+import { Button } from '../ui/Button';
 import { useState } from 'react';
 import { api } from '../api';
 import Portal from './Portal';
@@ -77,8 +78,8 @@ export default function WorkspaceRules({
               </div>
               <div className="ws-rules-view">{proposal}</div>
               <div className="dialog-buttons">
-                <button className="btn" onClick={() => void dismissProposal()}>{t('Dismiss proposal')}</button>
-                <button className="btn primary" onClick={() => setText(proposal)}>{t('Load into editor')}</button>
+                <Button onClick={() => void dismissProposal()}>{t('Dismiss proposal')}</Button>
+                <Button emphasis="high" onClick={() => setText(proposal)}>{t('Load into editor')}</Button>
               </div>
             </div>
           )}
@@ -93,14 +94,13 @@ export default function WorkspaceRules({
                 onChange={(e) => setText(e.target.value)}
               />
               <div className="dialog-buttons">
-                <button className="btn" onClick={onClose}>{t('Cancel')}</button>
-                <button
-                  className="btn primary"
+                <Button onClick={onClose}>{t('Cancel')}</Button>
+                <Button emphasis="high"
                   disabled={saving || text.trim() === initial.trim()}
                   onClick={() => void save()}
                 >
                   {t('Save')}
-                </button>
+                </Button>
               </div>
             </>
           ) : (
@@ -110,7 +110,7 @@ export default function WorkspaceRules({
               ) : (
                 <div className="dialog-hint">{t('No rules yet. A workspace admin can add them.')}</div>
               )}
-              <button className="btn dialog-close" onClick={onClose}>{t('Close')}</button>
+              <Button className="dialog-close" onClick={onClose}>{t('Close')}</Button>
             </>
           )}
         </div>

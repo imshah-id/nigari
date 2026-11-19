@@ -137,24 +137,6 @@ button {
   gap: 6px;
 }
 
-/* Round icon buttons in the header: clearly recognisable as an action of
-   their own and with a real finger area, without becoming visually heavy. */
-.sidebar-header .icon-btn {
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  color: var(--muted);
-  background: var(--hover);
-}
-
-.sidebar-header .icon-btn:hover {
-  background: var(--active);
-  color: var(--fg);
-}
 
 /* The drawer close button belongs on the phone only. The rule above is more
    specific than the global `.menu-btn { display: none }` and would otherwise
@@ -163,21 +145,16 @@ button {
   display: none;
 }
 
-/* Hamburger / drawer-close buttons: hidden on desktop, shown on mobile. */
-.menu-btn {
+/* Hamburger / drawer-close buttons: hidden on desktop, shown on mobile. The
+   hamburgers are Buttons (spec 020), so the rule names .ui-button to win over
+   its display. */
+.menu-btn,
+.ui-button.menu-btn {
   display: none;
 }
 
 .topbar-menu {
   flex-shrink: 0;
-  font-size: 18px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: var(--muted);
-}
-
-.topbar-menu:hover {
-  background: var(--hover);
 }
 
 .sidebar-backdrop {
@@ -188,15 +165,6 @@ button {
   letter-spacing: -0.01em;
 }
 
-.icon-btn {
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 14px;
-}
-
-.icon-btn:hover {
-  background: var(--hover);
-}
 
 .sidebar-search {
   display: flex;
@@ -1284,27 +1252,6 @@ body:has(.icon-picker) .bn-side-menu {
   margin: 6px 0 0;
 }
 
-.btn {
-  padding: 7px 14px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  font-size: 13.5px;
-  background: var(--card);
-}
-
-.btn:hover {
-  background: var(--hover);
-}
-
-.btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
-
-.btn.primary:hover {
-  filter: brightness(1.06);
-}
 
 /* ---------- Search modal ---------- */
 
@@ -2072,24 +2019,6 @@ body:has(.icon-picker) .bn-side-menu {
   gap: 6px;
 }
 
-.btn-sm {
-  padding: 5px 11px;
-  border-radius: 7px;
-  border: 1px solid var(--border);
-  font-size: 12.5px;
-  background: var(--card);
-  white-space: nowrap;
-}
-
-.btn-sm:hover {
-  background: var(--hover);
-}
-
-.btn-sm.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
 
 /* Board */
 
@@ -4081,9 +4010,7 @@ body.is-col-resizing {
   gap: 8px;
 }
 
-.icon-btn svg,
 .menu-btn svg,
-.btn-sm svg,
 .menu button svg {
   vertical-align: -2px;
   /* The buttons are flex rows; an svg is the only child that CAN shrink.
@@ -4102,9 +4029,7 @@ body.is-col-resizing {
   color: var(--muted);
 }
 
-.view-tab,
-.collection-actions .btn-sm,
-.fs-controls .btn-sm {
+.view-tab {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -4425,14 +4350,6 @@ body.is-col-resizing {
   margin-bottom: 4px;
 }
 
-.icon-btn.active-star {
-  color: #e0a91b;
-}
-
-/* The share button while the page carries a live public link. */
-.icon-btn.shared-active {
-  color: var(--accent);
-}
 
 /* ---------- Page cover ---------- */
 
@@ -4668,11 +4585,6 @@ body.is-col-resizing {
   gap: 6px;
 }
 
-.btn-sm.active {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 /* Filter/Sort popover is portaled to <body>; position comes from an inline
    fixed style (JS-measured), so it can never be clipped or trapped by an
@@ -4868,6 +4780,7 @@ body.is-col-resizing {
 
 @media (max-width: 768px) {
   .menu-btn,
+  .ui-button.menu-btn,
   .sidebar-header .menu-btn {
     display: inline-flex;
     align-items: center;
@@ -5029,14 +4942,6 @@ body.is-col-resizing {
     position: absolute;
     top: 12px;
     left: 12px;
-    font-size: 20px;
-    padding: 6px 10px;
-    border-radius: 8px;
-    color: var(--muted);
-  }
-
-  .empty-menu-btn:hover {
-    background: var(--hover);
   }
 
   /* Dialogs and modals fill more of the small screen. */
@@ -5550,7 +5455,9 @@ body.is-col-resizing {
 .sidebar-hotzone { display: none; }
 /* The collapse button is desktop-only (mobile uses the drawer's ✕). */
 @media (max-width: 768px) {
-  .collapse-btn { display: none; }
+  /* .ui-button too: Button.css loads after this file (spec 020). */
+  .collapse-btn,
+  .ui-button.collapse-btn { display: none; }
 }
 
 /* Tree section labels (Dokumente / Datenbanken split) */
@@ -5638,50 +5545,6 @@ body.is-col-resizing {
    ambient colour fields on login and empty state. Light + dark.
    ============================================================ */
 
-/* ---- Primary actions: gradient pill with a glow ---- */
-
-.btn,
-.btn-sm {
-  transition: box-shadow 0.18s ease, transform 0.12s ease, filter 0.15s ease,
-    background-color 0.15s ease;
-}
-
-.btn.primary,
-.btn-sm.primary {
-  background: var(--grad-accent);
-  border: 1px solid transparent;
-  color: #fff;
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
-    0 2px 10px rgba(var(--accent-rgb), 0.35),
-    0 0 0 1px rgba(var(--accent-rgb), 0.35);
-}
-
-.btn.primary:hover,
-.btn-sm.primary:hover {
-  filter: brightness(1.05);
-  transform: translateY(-1px);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.22),
-    0 4px 18px rgba(var(--accent-rgb), 0.5),
-    0 0 0 1px rgba(var(--accent-rgb), 0.45);
-}
-
-.btn.primary:active,
-.btn-sm.primary:active {
-  transform: translateY(0);
-  box-shadow:
-    inset 0 0 0 1px rgba(255, 255, 255, 0.15),
-    0 1px 6px rgba(var(--accent-rgb), 0.35);
-}
-
-.btn.danger {
-  transition: box-shadow 0.18s ease;
-}
-
-.btn.danger:hover {
-  box-shadow: 0 2px 12px rgba(196, 85, 77, 0.35);
-}
 
 /* ---- Login: ambient colour glow + a glowing card ---- */
 
@@ -5706,10 +5569,6 @@ body.is-col-resizing {
     0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
-.login-card .btn.primary {
-  border-radius: 999px;
-  padding: 9px 16px;
-}
 
 /* ---- Empty state: the same stage as the login ---- */
 
@@ -5721,9 +5580,6 @@ body.is-col-resizing {
     var(--bg);
 }
 
-.empty-actions .btn {
-  border-radius: 999px;
-}
 
 /* ---- Database view tabs: the active tab as a tinted glow pill ---- */
 
@@ -5858,64 +5714,6 @@ body.is-col-resizing {
   );
 }
 
-/* ---- Large CTAs: a clean black pill, rainbow only as a hover glow ---- */
-
-.btn.primary {
-  position: relative;
-  background: var(--pill-dark);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 999px;
-  color: #fff;
-  font-weight: 600;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 8px 24px rgba(26, 26, 26, 0.16);
-}
-
-.btn.primary:hover {
-  background: var(--pill-dark-hover);
-  transform: translateY(-1px);
-  filter: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 10px 28px rgba(26, 26, 26, 0.18),
-    0 6px 28px rgba(255, 45, 96, 0.14),
-    0 6px 28px rgba(59, 130, 246, 0.12),
-    0 6px 28px rgba(147, 51, 234, 0.12);
-}
-
-.btn.primary:active {
-  transform: translateY(0);
-}
-
-[data-theme='dark'] .btn.primary {
-  background: #0d0d10;
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-[data-theme='dark'] .btn.primary:hover {
-  background: #17171c;
-}
-
-/* ---- Kompakte CTAs (+ New): Pastell + farbiger Text + Ring ("Get Pro") ---- */
-
-.btn-sm.primary {
-  background: rgba(var(--accent-rgb), 0.13);
-  border: 1px solid transparent;
-  border-radius: 999px;
-  color: var(--accent);
-  font-weight: 600;
-  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.4);
-}
-
-.btn-sm.primary:hover {
-  background: rgba(var(--accent-rgb), 0.2);
-  transform: translateY(-1px);
-  filter: none;
-  box-shadow:
-    inset 0 0 0 1px rgba(var(--accent-rgb), 0.5),
-    0 4px 14px rgba(var(--accent-rgb), 0.22);
-}
 
 /* ---- View tabs: colour per type, but quietly — the icon carries it ---- */
 
@@ -6132,7 +5930,6 @@ body.is-col-resizing {
 }
 
 
-
 /* ---- Sidebar-Aktionen & Suche: einfarbig ruhig ---- */
 
 .new-page:hover {
@@ -6250,25 +6047,10 @@ body.is-col-resizing {
   background: var(--border);
 }
 
+/* A sign-in provider: a Button link (spec 020) that spans the card. Its look
+   is the Button's; only the width is the card's. */
 .oauth-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 8px 14px;
-}
-
-.oauth-btn,
-.oauth-btn:visited {
-  color: var(--fg);
-}
-
-.oauth-btn:hover {
-  border-color: rgba(var(--accent-rgb), 0.35);
-  box-shadow: 0 2px 12px rgba(var(--accent-rgb), 0.12);
+  width: 100%;
 }
 
 .pa-warn {
@@ -6279,21 +6061,6 @@ body.is-col-resizing {
   color: #f0a94b;
 }
 
-.btn-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-a.btn {
-  text-decoration: none;
-  display: inline-flex;
-  align-items: center;
-  /* color: an <a> without a colour of its own falls back to the browser's
-       default blue (#0000EE). On a light background that hardly shows; in dark
-       mode the blue sat almost unreadable on the dark card — it affected the two
-       SSO buttons, the only links that look like buttons. */
-  color: var(--fg);
-}
 
 /* ---- W43: Anlege-Zeile unter dem Titel (Emoji / Cover / Beschreibung) ---- */
 
@@ -6807,15 +6574,6 @@ a.btn {
 }
 .form-hint { font-size: 13px; color: var(--muted); }
 .form-actions { margin-top: 28px; }
-.form-submit {
-  font-size: 14.5px;
-  padding: 10px 22px;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .form-done { align-items: center; text-align: center; padding-top: 56px; }
 .form-done-ic {
   width: 62px; height: 62px; border-radius: 50%;
@@ -6890,11 +6648,7 @@ a.btn {
   flex-wrap: wrap;
   margin-bottom: 14px;
 }
-.form-share-bar .btn-sm {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
+
 .form-share-live {
   display: inline-flex;
   align-items: center;
@@ -7546,8 +7300,6 @@ a.btn {
 
   /* Decorative lifts and scales: with no pointer to leave the element
        again, they stay put after a tap. */
-  .btn.primary:hover,
-  .btn-sm.primary:hover,
   .gallery-card:hover,
   .agent-card:hover,
   .cover-swatch:hover {
@@ -7570,10 +7322,6 @@ a.btn {
   /* Full thumb height for the rows that are hit most often. */
   .tree-item {
     min-height: 44px;
-  }
-  .sidebar-header .icon-btn {
-    width: 38px;
-    height: 38px;
   }
   .idx-node,
   .idx-node-main,
@@ -8291,7 +8039,6 @@ a,
   color: var(--muted);
   margin-left: 3px;
 }
-.topbar-right .icon-btn.active-star .badge-count { color: inherit; }
 
 /* Who else is here right now — slightly overlapping, as in Notion. */
 .presence {
@@ -8867,8 +8614,6 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
    Explicitly NOT included: `.dialog-hint`. Those are whole sentences, and a
    sentence in monospace reads harder than the same sentence in a proportional
    face — mono belongs on labels, not on running text. */
-[data-font='brand'] .btn,
-[data-font='brand'] .btn-sm,
 [data-font='brand'] .users-section-title,
 [data-font='brand'] .token-scope,
 [data-font='brand'] .badge,
@@ -9040,7 +8785,9 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
    overflow menu stay; the rest come back as items inside that menu. Nothing
    becomes unreachable — it just stops competing for the same 40 pixels. */
 @media (max-width: 640px) {
-  .topbar-wide-only { display: none; }
+  /* .ui-button too: Button.css loads after this file (spec 020). */
+  .topbar-wide-only,
+  .ui-button.topbar-wide-only { display: none; }
 }
 
 /* An agent that says it is working here. Named .agent-work, not .agent-badge —
@@ -9848,12 +9595,7 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
   color: var(--muted);
   line-height: 1.45;
 }
-.agent-skill .btn-sm {
-  flex: none;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
+
 @media (max-width: 640px) {
   .agent-skill {
     flex-direction: column;
@@ -10587,9 +10329,9 @@ body:has(.live-down) .update-banner {
 }
 
 /* Only ever rendered in an installed desktop window — see SyncButton. */
-.sync-btn:disabled {
+.ui-button.sync-btn[data-disabled] {
   opacity: 1; /* it is working, not unavailable */
-  color: var(--accent);
+  color: var(--color-primary);
 }
 
 .schema-drag-handle {
@@ -10709,7 +10451,6 @@ body:has(.live-down) .update-banner {
 .share-link-row { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 7px; overflow: hidden; }
 .share-link-row .share-input { flex: 1; min-width: 0; border: 0; margin: 0; background: transparent; }
 .share-copy { flex: 0 0 32px; margin-right: 3px; }
-.share-copy:disabled { opacity: .4; }
 
 .share-copy-status { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 /* A URL cell edits in place; opening the destination is a separate target. */
@@ -10721,52 +10462,42 @@ body:has(.live-down) .update-banner {
 .prop-url-value :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* --- a database's own templates -------------------------------------------------
-   New and its arrow are ONE button. The shape (pill) belongs to the group, and
-   the two halves inside it are flat: each only tints on its own hover, and a
-   hairline between them says there are two things to press. The mechanic is a
-   button group: the container owns the radius and the fill, the children own
-   nothing but their hit area. (The dbt- prefix is because .tpl-* is the
+   New and its arrow are ONE control: two Buttons (high emphasis, small) side
+   by side. The group joins them: the inner corners are square, so the pair
+   reads as one shape with the button radius on its outer corners, and a
+   hairline between them says there are two things to press. Each half keeps
+   its own hover; the lift a high button makes on hover is dropped here, since
+   one half rising alone would tear the shape (spec 020: the look stays the
+   Button's, the group only joins). (The dbt- prefix is because .tpl-* is the
    template gallery's.) */
 .split-btn {
   align-items: stretch;
   gap: 0;
-  border-radius: 999px;
-  background: var(--pill-dark);
 }
-.split-btn > .btn-sm.primary {
-  background: transparent;
-  box-shadow: none;
-  border: 0;
-  border-radius: 0;
+.split-btn > .ui-button:hover:not([data-disabled]) {
   transform: none;
+  box-shadow: none;
+}
+.split-btn > .ui-button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.split-btn > .ui-button:last-child {
   position: relative;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
-.split-btn > .btn-sm.primary:hover {
-  background: var(--pill-dark-hover);
-  transform: none;
-  box-shadow: none;
-}
-.split-btn > .btn-sm.primary:first-child {
-  border-radius: 999px 0 0 999px;
-  padding-left: 13px;
-}
-.split-btn-arrow {
-  padding-left: 7px;
-  padding-right: 10px;
-  border-radius: 0 999px 999px 0 !important;
-}
-.split-btn-arrow::before {
+.split-btn > .ui-button:last-child::before {
   content: '';
   position: absolute;
   left: 0;
   top: 22%;
   bottom: 22%;
-  width: 1px;
+  width: var(--button-border-width);
   background: currentColor;
   opacity: 0.3;
 }
-.split-btn > .btn-sm.primary:focus-visible {
-  outline: 2px solid var(--accent);
+.split-btn > .ui-button:focus-visible {
   outline-offset: -2px;
 }
 .ui-menu.dbt-menu {
