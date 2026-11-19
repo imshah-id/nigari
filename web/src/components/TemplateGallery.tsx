@@ -1,4 +1,5 @@
 import { Button } from '../ui/Button';
+import { Tabs } from '../ui/Tabs';
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
 import type { PageMeta } from '../types';
@@ -139,21 +140,12 @@ export default function TemplateGallery({
             />
             {cats.length > 0 && (
               <div className="tpl-cats">
-                <button
-                  className={'tpl-cat' + (category === '' ? ' active' : '')}
-                  onClick={() => setCategory('')}
-                >
-                  {t('All')}
-                </button>
-                {cats.map((c) => (
-                  <button
-                    key={c}
-                    className={'tpl-cat' + (category === c ? ' active' : '')}
-                    onClick={() => setCategory(c)}
-                  >
-                    {c}
-                  </button>
-                ))}
+                <Tabs
+                  label={t('Templates')}
+                  value={category}
+                  onValueChange={setCategory}
+                  items={[{ value: '', label: t('All') }, ...cats.map((c) => ({ value: c, label: c }))]}
+                />
               </div>
             )}
           </div>

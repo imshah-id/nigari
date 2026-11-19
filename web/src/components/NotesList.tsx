@@ -5,6 +5,7 @@ import { PageIcon } from '../pageIcon';
 import { tagColorClass } from '../tags';
 import { formatRelative } from '../format';
 import { t } from '../i18n';
+import { Tabs } from '../ui/Tabs';
 import { openPage, openPageAux } from '../pageOpen';
 
 // Bear-style middle column: a flat, recency-sorted list of note cards with
@@ -68,12 +69,15 @@ export default function NotesList({ pages, currentWs, activeId, tagColors, tagFi
         </div>
       ) : (
         <div className="notes-filters">
-          <button className={list === 'all' ? 'on' : ''} onClick={() => setList('all')}>
-            {t('All')}
-          </button>
-          <button className={list === 'untagged' ? 'on' : ''} onClick={() => setList('untagged')}>
-            {t('Untagged')}
-          </button>
+          <Tabs
+            label={t('Notes')}
+            value={list}
+            onValueChange={setList}
+            items={[
+              { value: 'all', label: t('All') },
+              { value: 'untagged', label: t('Untagged') },
+            ]}
+          />
         </div>
       )}
       <div className="notes-scroll">

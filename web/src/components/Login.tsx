@@ -184,8 +184,9 @@ export default function Login({ onSuccess }: { onSuccess: (user: User) => void }
           </>
         )}
         {signupOpen && (
-          <button
-            type="button"
+          <Button
+            emphasis="link"
+            tone="primary"
             className="login-switch"
             onClick={() => {
               setMode((m) => (m === 'login' ? 'signup' : 'login'));
@@ -194,7 +195,7 @@ export default function Login({ onSuccess }: { onSuccess: (user: User) => void }
             }}
           >
             {mode === 'login' ? t('New here? Create an account') : t('Back to sign in')}
-          </button>
+          </Button>
         )}
       </form>
     </div>

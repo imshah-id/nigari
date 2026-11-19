@@ -13,6 +13,7 @@ import { renameSelectOption, moveSelectOption, reorderSelectOption } from '../re
 import { confirm } from '../dialog';
 import { Check, Trash2 } from 'lucide-react';
 import { t } from '../i18n';
+import { ToggleGroup } from '../ui/ToggleGroup';
 import { loadMembers, type Member } from './PropertyValue';
 export { TYPES, PropertyTypeSelect, changePropertyType } from './propertyTypes';
 
@@ -635,18 +636,21 @@ function WhereValue({
       }
     };
     return (
-      <div className="form-chips where-values">
-        {(def.options ?? []).map((o) => (
-          <button
-            type="button"
-            key={o.id}
-            className={'form-chip' + (picked.includes(o.id) ? ' on' : '')}
-            onClick={() => toggle(o.id)}
-          >
-            {o.name}
-          </button>
-        ))}
-      </div>
+      // The rollup condition's value picker. Several options may be ticked
+      // ("open" is neither done nor discarded), so it is chips rather than a
+      // dropdown, small enough to sit on the condition row.
+      <ToggleGroup
+        className="form-chips where-values"
+        label={def.name}
+        multiple
+        value={picked}
+        onValueChange={(next) => {
+          // One click is one item: hand the toggled id to the rule above.
+          const id = next.find((x) => !picked.includes(x)) ?? picked.find((x) => !next.includes(x));
+          if (id) toggle(id);
+        }}
+        items={(def.options ?? []).map((o) => ({ value: o.id, label: o.name }))}
+      />
     );
   }
   if (def && isOptionType(def.type)) {

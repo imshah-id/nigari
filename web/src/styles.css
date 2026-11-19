@@ -1011,19 +1011,12 @@ body:has(.icon-picker) .bn-side-menu {
   align-items: center;
   gap: 4px;
 }
-.icon-picker-tabs button {
+.icon-picker-remove {
   padding: 5px 11px;
   border-radius: 7px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--muted);
 }
-.icon-picker-tabs button:hover {
+.icon-picker-remove:hover {
   background: var(--hover);
-}
-.icon-picker-tabs button.on {
-  background: var(--active);
-  color: var(--fg);
 }
 .icon-picker-remove {
   margin-left: auto;
@@ -1080,21 +1073,7 @@ body:has(.icon-picker) .bn-side-menu {
   flex-wrap: wrap;
 }
 .icon-style-toggle {
-  display: inline-flex;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-  overflow: hidden;
   flex-shrink: 0;
-}
-.icon-style-toggle button {
-  padding: 4px 11px;
-  font-size: 12px;
-  color: var(--muted);
-}
-.icon-style-toggle button.on {
-  background: var(--active);
-  color: var(--fg);
-  font-weight: 500;
 }
 
 .icon-picker-body {
@@ -3986,12 +3965,9 @@ body.is-col-resizing {
   color: var(--fg);
 }
 
+/* "Create an account" / "Back to sign in": a link-emphasis Button (spec
+   020); only its place is said here. */
 .login-switch {
-  border: none;
-  background: none;
-  color: var(--accent);
-  cursor: pointer;
-  font-size: 13.5px;
   margin-top: 6px;
 }
 
@@ -4743,26 +4719,14 @@ body.is-col-resizing {
   min-width: 0;
 }
 
-.fs-seg {
+/* Exact / Relative: a ToggleGroup (spec 020) as wide as its column, half
+   each. Only the layout is said here; .ui-toggle-group is named because
+   ToggleGroup.css loads after this file. */
+.ui-toggle-group.fs-seg {
   display: flex;
-  gap: 4px;
 }
-
-.fs-seg button {
+.fs-seg > .ui-toggle {
   flex: 1;
-  font-size: 12px;
-  padding: 3px 0;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-}
-
-.fs-seg button.on {
-  border-color: var(--accent);
-  color: var(--accent);
-  background: var(--accent-soft);
 }
 
 /* Says why the table has not changed. An unfinished condition does nothing on
@@ -6254,25 +6218,6 @@ body.is-col-resizing {
 
 .index-modes {
   display: inline-flex;
-  gap: 2px;
-  background: var(--hover);
-  border-radius: 8px;
-  padding: 2px;
-}
-
-.index-mode {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 11px;
-  border-radius: 6px;
-  font-size: 13px;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.index-mode svg {
-  flex: none;
 }
 
 /* Seven shelves do not fit a narrow pane; the row scrolls instead of wrapping
@@ -6286,6 +6231,9 @@ body.is-col-resizing {
   overflow-x: auto;
   scrollbar-width: thin;
 }
+.index-modes .ui-tabs-list {
+  flex-wrap: nowrap;
+}
 
 .index-mode-count {
   font-size: 11px;
@@ -6296,7 +6244,7 @@ body.is-col-resizing {
   color: var(--muted);
 }
 
-.index-mode.active .index-mode-count {
+.index-modes .ui-tab[data-active] .index-mode-count {
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -6386,13 +6334,6 @@ body.is-col-resizing {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-}
-
-.index-mode.active {
-  background: var(--card);
-  color: var(--fg);
-  font-weight: 600;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .idx-tree-wrap {
@@ -6555,23 +6496,6 @@ body.is-col-resizing {
 }
 .form-select { cursor: pointer; }
 .form-checkbox { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; margin: 0; }
-.form-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-.form-chip {
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  padding: 6px 12px;
-  font-size: 13.5px;
-  background: var(--card);
-  color: var(--fg);
-  cursor: pointer;
-  transition: background 0.12s, border-color 0.12s, color 0.12s;
-}
-.form-chip:hover { background: var(--hover); }
-.form-chip.on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #fff;
-}
 .form-hint { font-size: 13px; color: var(--muted); }
 .form-actions { margin-top: 28px; }
 .form-done { align-items: center; text-align: center; padding-top: 56px; }
@@ -6728,20 +6652,6 @@ body.is-col-resizing {
   display: flex;
   gap: 4px;
   flex-wrap: wrap;
-}
-
-.tpl-cat {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12.5px;
-  color: var(--muted);
-  background: var(--hover);
-}
-
-.tpl-cat.active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
 }
 
 .tpl-body {
@@ -7073,11 +6983,11 @@ body.is-col-resizing {
 }
 .notes-ic-btn:hover { background: var(--hover); color: var(--fg); }
 .notes-filters { display: flex; gap: 4px; padding: 0 12px 10px; }
-.notes-filters button {
-  border: none; background: transparent; color: var(--muted);
-  font-size: 12px; padding: 3px 9px; border-radius: 999px; cursor: pointer;
+.notes-tagfilter {
+  border: none; color: var(--fg);
+  font-size: 12px; padding: 3px 11px; border-radius: 999px; cursor: pointer;
+  font-weight: 560;
 }
-.notes-filters button.on { background: var(--active); color: var(--fg); font-weight: 600; }
 .notes-scroll { flex: 1; overflow-y: auto; padding: 0 8px 20px; min-height: 0; }
 .note-card {
   position: relative;
@@ -7506,42 +7416,8 @@ a,
 }
 
 /* ---- Theme choice: light / automatic / dark ------------------------------
-   A segmented three-way choice rather than a toggle. The active state has to be
-   recognisable without a label — hence not colour alone but a raised surface
-   with a border. */
-.theme-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 999px;
-  background: var(--hover);
-}
-
-.theme-switch-opt {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  border-radius: 999px;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-}
-
-.theme-switch-opt:hover {
-  color: var(--fg);
-}
-
-.theme-switch-opt.on {
-  background: var(--card);
-  color: var(--fg);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
-}
-
+   A ToggleGroup (spec 020): its look is the part's. Only where it floats on
+   the sign-in screens is said here. */
 /* The sign-in screens have no sidebar — the switch floats in the corner, kept
    clear of the safe area (notch and home indicator). */
 .auth-theme-switch {
@@ -7549,14 +7425,6 @@ a,
   top: max(14px, env(safe-area-inset-top));
   right: max(14px, env(safe-area-inset-right));
   z-index: 20;
-}
-
-/* Touch: the same finger area as everywhere else. */
-@media (hover: none) {
-  .theme-switch-opt {
-    width: 34px;
-    height: 34px;
-  }
 }
 
 /* ---- Embedded database ---------------------------------------------------
@@ -8770,14 +8638,6 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
   .hook-status {
     white-space: normal;
   }
-}
-
-/* The rollup condition's value picker. Several options may be ticked — "open"
-   is neither done nor discarded — so it is chips rather than a dropdown, and
-   they have to stay small enough to sit on the condition row. */
-.where-values .form-chip {
-  padding: 3px 9px;
-  font-size: 12.5px;
 }
 
 /* The page topbar on a phone. Six icons side by side made the head of the page
