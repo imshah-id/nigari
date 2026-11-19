@@ -7,6 +7,35 @@ entries are not edited away.
 
 ---
 
+## 2026-11-19 — Spec 020 PR 3: Tabs, ToggleGroup, and the role choice's rank colours
+
+- **The role choice keeps its rank colours** (owner, option **1**, after a
+  picture of both). The workspace role row (No access / Viewer / Member /
+  Admin) fills the chosen role in its level's colour, grey to amber as the
+  role reaches further. It is a `ToggleGroup` whose items take `rank`, and
+  the colours are spec 019 roles (`color.rank.*` on the stone, blue, green
+  and orange palettes, white text checked by the token build). Turned down:
+  the one tint for every choice (2), which showed "No access" in raspberry,
+  the opposite of what it means; leaving the row hand-built for #763 (3).
+- **Tabs and ToggleGroup own their arrow keys** (`data-nav-skip`). nav.ts's
+  way in took ArrowRight from the settings tabs and moved focus behind the
+  dialog: it does not count a `ui/Dialog` as open. That wider problem is
+  #802; the parts opt out with the attribute nav.ts already reads.
+- **The library, the template gallery and the icon picker load on demand.**
+  The new parts put the main chunk 4.3 KB over its cap; loading three
+  screens that open on request brought it 12 KB under. Turned down: raising
+  the cap (the owner's call, rule 33).
+- **Not moved, with the reason in #763:** a database's view tabs (per-tab
+  double-click and right-click, and Add view in the same row: `ui/Tabs`
+  would need per-tab events and a trailing slot for one row) and how an
+  agent connects (two-line choice cards, not a row of buttons).
+- **Beyond the plan's list:** the notes list's All / Untagged (Tabs) and the
+  icon picker's Lucide / Material (ToggleGroup) are the same kinds of row and
+  moved too. The login switch was on the plan's Tabs list, but it is one
+  button: a link-emphasis `Button`.
+
+---
+
 ## 2026-11-18 — Spec 020 PR 2: where the class buttons' mapping did not say
 
 Plan R1 maps `btn`, `btn primary`, `btn danger` and `btn dialog-close` onto

@@ -102,21 +102,21 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 
 ## PR 3 — Tabs and ToggleGroup (US3)
 
-- [ ] T021 [ui] `ui/Tabs` on Base UI Tabs (R6): low · neutral · sm items,
+- [x] T021 [ui] `ui/Tabs` on Base UI Tabs (R6): low · neutral · sm items,
   the selected one pressed, arrow keys; README and catalogue section
-- [ ] T022 [ui] `ui/ToggleGroup` on Base UI ToggleGroup (R6): hairline frame
+- [x] T022 [ui] `ui/ToggleGroup` on Base UI ToggleGroup (R6): hairline frame
   at radius + inset, the chosen item pressed (tint) and announced; README
   and catalogue section
-- [ ] T023 [P] [ui] Tabs move: the settings dialog's tabs, the icon picker's
+- [x] T023 [P] [ui] Tabs move: the settings dialog's tabs, the icon picker's
   Emoji/Icons/Upload, the template categories, the index's modes, the login
   switch
-- [ ] T024 [P] [ui] ToggleGroups move: the theme switch, a member's role, a
+- [x] T024 [P] [ui] ToggleGroups move: the theme switch, a member's role, a
   filter's "exact", form chips, how an agent connects
-- [ ] T025 [ui] A database's view tabs: move them if Base UI Tabs keeps
+- [x] T025 [ui] A database's view tabs: move them if Base UI Tabs keeps
   their drag and menu; otherwise list them in #763 with the reason
-- [ ] T026 [test] Keyboard: arrow keys in every moved tab row and toggle
+- [x] T026 [test] Keyboard: arrow keys in every moved tab row and toggle
   group (browser tests); axe in the catalogue; lower `rawButtons`
-- [ ] T027 [wiki] Screenshots retaken and compared
+- [x] T027 [wiki] Screenshots retaken and compared
 - [ ] T028 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
   screens
 
