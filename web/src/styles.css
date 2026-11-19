@@ -8162,27 +8162,11 @@ a,
 }
 .ws-access-name { font-weight: 600; font-size: 13.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Rollenauswahl als Segment-Schalter — ein Klick setzt die Rolle. */
+/* The role choice: a ToggleGroup whose chosen level is filled in its rank
+   colour (spec 020; color.rank in the tokens). */
 .ws-role-seg {
-  display: inline-flex;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
   flex: 0 0 auto;
 }
-.ws-role-btn {
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  font-size: 11.5px;
-  padding: 5px 9px;
-  cursor: pointer;
-  border-left: 1px solid var(--border);
-  white-space: nowrap;
-}
-.ws-role-btn:first-child { border-left: none; }
-.ws-role-btn:hover { background: var(--hover); color: var(--fg); }
-.ws-role-btn.active { background: var(--accent); color: #fff; font-weight: 600; }
 
 .users-empty { margin-top: 40px; text-align: center; }
 .invite-avatar-placeholder {
@@ -8202,8 +8186,8 @@ a,
     padding-right: 0; padding-bottom: 10px; max-height: 30dvh;
   }
   .ws-access-row { flex-direction: column; align-items: stretch; gap: 8px; }
-  .ws-role-seg { width: 100%; }
-  .ws-role-btn { flex: 1; text-align: center; }
+  .ui-toggle-group.ws-role-seg { display: flex; width: 100%; }
+  .ws-role-seg > .ui-toggle { flex: 1; }
 }
 
 /* ---- W101: emergency access (break-glass) --------------------------------
@@ -8255,11 +8239,6 @@ a,
 /* Locked role segments: visibly present but recognisably unusable — better
    than hiding them, because otherwise the row looks different depending on
    permissions and the grid becomes unreadable. */
-.ws-role-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 /* ---- W102: markings in the workspace switcher ----------------------------
    "own area" / "open to everybody" — quiet but visible: which workspace
    belongs to me and which one stands open to every new account. */
@@ -8411,31 +8390,6 @@ body:has(.confirm-dialog) .dialog:not(.confirm-dialog) {
    and a second travelling light directly inside it pulls the eye to exactly
    where you are typing. The rule "one coloured element per screen" applies to
    one's own good ideas too. */
-
-/* ---- Rank ----------------------------------------------------------------
-   The role buttons carry their level as a colour: the further someone's
-   rights reach, the warmer the tone. That is not decoration — in a row of
-   four identical buttons the chosen level would otherwise show only as a
-   fill, and which level goes FURTHER than another would not show at all.
-
-   The colour rides on the FILL, never on the label. It used to be the other
-   way round: these rules set `color` and left `background` alone, so the rank
-   colour landed on top of the green fill that `.ws-role-btn.active` already
-   paints — blue text on green, unreadable. The label stays white throughout,
-   which is also the only way to keep contrast without checking four
-   foreground/background pairs by hand.
-
-   "No access" gets a neutral grey rather than the accent: a green chip
-   reading "no access" says the opposite of what it means. */
-.ws-role-btn[data-role='none'].active { background: #6b6a66; }
-.ws-role-btn[data-role='viewer'].active { background: #2563eb; }
-.ws-role-btn[data-role='member'].active { background: #15803d; }
-.ws-role-btn[data-role='admin'].active { background: #b45309; }
-
-[data-theme='dark'] .ws-role-btn[data-role='none'].active { background: #5c5b58; }
-[data-theme='dark'] .ws-role-btn[data-role='viewer'].active { background: #2f6fd0; }
-[data-theme='dark'] .ws-role-btn[data-role='member'].active { background: #1d7a45; }
-[data-theme='dark'] .ws-role-btn[data-role='admin'].active { background: #a1560c; }
 
 /* Motion sensitivity: the border stays, it simply stops turning. Removing it
    altogether would be a different screen — that is not what somebody means when

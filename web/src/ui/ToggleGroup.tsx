@@ -24,6 +24,10 @@ export type ToggleItem<V extends string> = {
   disabled?: boolean;
   /** Why an item is disabled, as a native tooltip. */
   title?: string;
+  /** A level the item stands for (a workspace role). Pressed, it is filled
+   *  in that level's colour (--color-rank-*) instead of the tint, so the
+   *  chosen level and how far it reaches both show (owner, spec 020). */
+  rank?: 'none' | 'viewer' | 'member' | 'admin';
 };
 
 type Common<V extends string> = {
@@ -68,6 +72,7 @@ export function ToggleGroup<V extends string>(props: ToggleGroupProps<V>) {
           'data-tone': 'neutral',
           'data-size': size,
           'data-icon-only': it.iconOnly ? '' : undefined,
+          'data-rank': it.rank,
         };
         const glyph = it.icon ? (
           <span aria-hidden="true" className="ui-button-icon">

@@ -13,3 +13,19 @@
   border-radius: calc(var(--button-radius) + var(--button-group-inset));
   min-width: 0;
 }
+
+/* A ranked item (a workspace role): pressed, it is filled in its level's
+   colour with white text, both roles of spec 019 (color.rank, color.on-rank;
+   the token build checks the pair). Each level names its colour once; the
+   one rule that paints it covers hover too, since Button.css's pressed hover
+   rule (seven selectors) would otherwise put the tint back under the
+   pointer. */
+.ui-toggle[data-rank='none'] { --rank-fill: var(--color-rank-none); }
+.ui-toggle[data-rank='viewer'] { --rank-fill: var(--color-rank-viewer); }
+.ui-toggle[data-rank='member'] { --rank-fill: var(--color-rank-member); }
+.ui-toggle[data-rank='admin'] { --rank-fill: var(--color-rank-admin); }
+.ui-button.ui-toggle[data-rank][data-pressed][data-emphasis][data-tone],
+.ui-button.ui-toggle[data-rank][data-pressed][data-emphasis][data-tone]:is(:hover, :active):not([data-disabled]) {
+  background: var(--rank-fill);
+  color: var(--color-on-rank);
+}

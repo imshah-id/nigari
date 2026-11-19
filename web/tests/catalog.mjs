@@ -311,6 +311,19 @@ try {
   await page.keyboard.press('Space');
   await page.waitForTimeout(100);
   assert.equal(await darkItem.getAttribute('aria-pressed'), 'true', 'ToggleGroup: choose one was emptied');
+  // A ranked item, pressed, is filled in its level's colour, not the tint
+  // (owner, spec 020: the role choice keeps its rank colours).
+  const member = page.getByRole('group', { name: 'Access' }).getByRole('button', { name: 'Member' });
+  const fill = await member.evaluate((el) => {
+    const probe = document.createElement('i');
+    probe.style.color = 'var(--color-rank-member)';
+    document.body.append(probe);
+    const want = getComputedStyle(probe).color;
+    probe.remove();
+    return { got: getComputedStyle(el).backgroundColor, want };
+  });
+  assert.equal(fill.got, fill.want, 'ToggleGroup: a pressed ranked item is not filled in its rank colour');
+
   const colours = page.getByRole('group', { name: 'Colours' });
   const green = colours.getByRole('button', { name: 'Green' });
   await green.click();

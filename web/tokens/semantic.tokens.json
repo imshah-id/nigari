@@ -170,6 +170,62 @@
       },
       "$description": "Text and icons on a destructive fill."
     },
+    "rank": {
+      "$description": "A workspace role's level as a fill (Manage users, the role ToggleGroup): the further a role reaches, the warmer the colour. Not decoration: in a row of four equal choices the chosen level would otherwise show only as a fill, and which level reaches further would not show at all. No access is grey, never the accent: a coloured chip reading \"no access\" says the opposite of what it means (owner, spec 020: keep the rank colours).",
+      "none": {
+        "$value": "{palette.stone.500}",
+        "$extensions": {
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.stone.600}"
+        },
+        "$description": "No access."
+      },
+      "viewer": {
+        "$value": "{palette.blue.600}",
+        "$extensions": {
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.blue.600}"
+        },
+        "$description": "Viewer."
+      },
+      "member": {
+        "$value": "{palette.green.600}",
+        "$extensions": {
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.green.700}"
+        },
+        "$description": "Member."
+      },
+      "admin": {
+        "$value": "{palette.orange.600}",
+        "$extensions": {
+          "io.github.neatlittlemacapps.nigari.dark": "{palette.orange.600}"
+        },
+        "$description": "Admin."
+      }
+    },
+    "on-rank": {
+      "$value": "{palette.stone.0}",
+      "$extensions": {
+        "io.github.neatlittlemacapps.nigari.dark": "{palette.stone.0}",
+        "io.github.neatlittlemacapps.nigari.contrast": [
+          {
+            "on": "{color.rank.none}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.rank.viewer}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.rank.member}",
+            "min": 4.5
+          },
+          {
+            "on": "{color.rank.admin}",
+            "min": 4.5
+          }
+        ]
+      },
+      "$description": "Text on a rank fill: white in both themes, checked against every rank."
+    },
     "surface": {
       "default": {
         "$value": "{palette.stone.50}",

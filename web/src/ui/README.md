@@ -159,13 +159,16 @@ move and select, Home and End jump. States: `data-active`, `data-disabled`.
 
 ## ToggleGroup
 
-`label` (the group's name), `items: { value, label, icon?, iconOnly?, disabled?, title? }[]`,
+`label` (the group's name), `items: { value, label, icon?, iconOnly?, disabled?, title?, rank? }[]`,
 `size?` (`sm` default), `disabled?`, and either `value` + `onValueChange` (choose one) or
 `multiple`, `value[]` + `onValueChange` (choose several). Choose one keeps a choice:
 pressing the chosen item again does nothing. The items are Buttons in look (low,
 neutral) inside a hairline frame, inset by `--button-group-inset`; a chosen item has
 the pressed tint and is announced as pressed. An `iconOnly` item takes `label` as
-its name and tooltip. Arrow keys move between items, Space or Enter presses.
+its name and tooltip. A `rank` item (`none`, `viewer`, `member`, `admin`: a workspace role) is
+filled in its level's colour when chosen (`--color-rank-*`, white text), not the tint: the
+role choice shows how far the chosen role reaches (owner, spec 020). Arrow keys move
+between items, Space or Enter presses.
 States: `data-pressed`, `data-disabled`.
 
 ## SidePanel

@@ -333,6 +333,18 @@ function Catalog() {
             ]}
           />
         </Row>
+        <Row label="ranked">
+          <ToggleGroup
+            label="Access"
+            value={role}
+            onValueChange={setRole}
+            items={[
+              { value: 'viewer', label: 'Viewer', rank: 'viewer' },
+              { value: 'member', label: 'Member', rank: 'member' },
+              { value: 'admin', label: 'Admin', rank: 'admin' },
+            ]}
+          />
+        </Row>
         <Row label="multiple">
           <ToggleGroup
             label="Colours"

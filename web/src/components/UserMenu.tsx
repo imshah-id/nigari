@@ -1,4 +1,5 @@
 import { Button } from '../ui/Button';
+import { ToggleGroup } from '../ui/ToggleGroup';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { api } from '../api';
 import type { FontPref } from '../App';
@@ -550,10 +551,10 @@ type Membership = { userId: string; workspaceId: string; role: string };
 // A function, not a constant: a constant resolves t() once at import time and
 // then holds that language for good.
 const roleOptions = () => [
-  { v: 'none', label: t('No access') },
-  { v: 'viewer', label: t('Viewer') },
-  { v: 'member', label: t('Member') },
-  { v: 'admin', label: t('Admin') },
+  { v: 'none' as const, label: t('No access') },
+  { v: 'viewer' as const, label: t('Viewer') },
+  { v: 'member' as const, label: t('Member') },
+  { v: 'admin' as const, label: t('Admin') },
 ];
 
 // Vollwertige Nutzerverwaltung (W98): links die Liste, rechts das Detail —
@@ -892,26 +893,23 @@ function UsersModal({ me, onClose }: { me: User; onClose: () => void }) {
                               {t('Emergency access')}
                             </Button>
                           )}
-                          <div className="ws-role-seg">
-                            {roleOptions().map((r) => (
-                              <button
-                                key={r.v}
-                                className={'ws-role-btn' + (role === r.v ? ' active' : '')}
-                                data-role={r.v}
-                                disabled={!mayEdit}
-                                title={
-                                  mayEdit
-                                    ? undefined
-                                    : sel.id === me.id
-                                      ? t('You cannot grant yourself access here.')
-                                      : t('Only the owner or an admin of this workspace can change this.')
-                                }
-                                onClick={() => void setRole(sel.id, ws.id, r.v)}
-                              >
-                                {r.label}
-                              </button>
-                            ))}
-                          </div>
+                          <ToggleGroup
+                            className="ws-role-seg"
+                            label={ws.name}
+                            value={role}
+                            disabled={!mayEdit}
+                            onValueChange={(v) => void setRole(sel.id, ws.id, v)}
+                            items={roleOptions().map((r) => ({
+                              value: r.v,
+                              label: r.label,
+                              rank: r.v,
+                              title: mayEdit
+                                ? undefined
+                                : sel.id === me.id
+                                  ? t('You cannot grant yourself access here.')
+                                  : t('Only the owner or an admin of this workspace can change this.'),
+                            }))}
+                          />
                         </div>
                       );
                     })}
@@ -997,19 +995,13 @@ function InvitePanel({
           return (
             <div key={ws.id} className={'ws-access-row' + (role !== 'none' ? ' has-access' : '')}>
               <span className="ws-access-name">{ws.name}</span>
-              <div className="ws-role-seg">
-                {roleOptions().map((r) => (
-                  <button
-                    type="button"
-                    key={r.v}
-                    className={'ws-role-btn' + (role === r.v ? ' active' : '')}
-                    data-role={r.v}
-                    onClick={() => setRoles((m) => ({ ...m, [ws.id]: r.v }))}
-                  >
-                    {r.label}
-                  </button>
-                ))}
-              </div>
+              <ToggleGroup
+                className="ws-role-seg"
+                label={ws.name}
+                value={role}
+                onValueChange={(v) => setRoles((m) => ({ ...m, [ws.id]: v }))}
+                items={roleOptions().map((r) => ({ value: r.v, label: r.label, rank: r.v }))}
+              />
             </div>
           );
         })}
