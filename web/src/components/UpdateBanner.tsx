@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { t } from '../i18n';
+import { Button } from '../ui/Button';
 import type { UpdateInfo } from '../types';
 import { ArrowUpCircle, X } from 'lucide-react';
 
@@ -70,9 +71,7 @@ export default function UpdateBanner() {
       >
         {t("What's new")}
       </a>
-      <button className="update-banner__x" onClick={hide} title={t('Dismiss')} aria-label={t('Dismiss')}>
-        <X size={13} />
-      </button>
+      <Button emphasis="low" size="sm" className="update-banner__x" icon={<X size={13} />} label={t('Dismiss')} onClick={hide} />
     </div>
   );
 }

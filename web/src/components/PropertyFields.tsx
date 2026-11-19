@@ -220,13 +220,13 @@ export function PropertyFields({
                                       const options = renameSelectOption(p.options ?? [], o.id, draft);
                                       if (options) onPatch({ options });
                                     }} />
-                                  <button type="button" className="danger" aria-label={t('Delete option')} title={t('Delete option')} onClick={async () => {
+                                  <Button emphasis="low" tone="destructive" size="sm" icon={<Trash2 size={16} />} label={t('Delete option')} onClick={async () => {
                                     setColorPick(null);
                                     if (isStatus && o.group && lastOfGroup(o.id, o.group)) { toast(EACH_GROUP); return; }
                                     const ok = await confirm(t('Delete option “{name}”?', { name: o.name }) + '\n' + t('Existing selections are not cleared.'), { confirmText: t('Delete option'), danger: true });
                                     if (!ok) return;
                                     onPatch({ options: (p.options ?? []).filter((item) => item.id !== o.id) });
-                                  }}><Trash2 size={16} /></button>
+                                  }} />
                                 </div>
                                 {!renameSelectOption(p.options ?? [], o.id, optionName) && <span className="form-hint" role="alert">{t('Enter a unique, non-empty name.')}</span>}
                                 {isStatus && (

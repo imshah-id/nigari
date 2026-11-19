@@ -20,7 +20,12 @@
 //   radius    border-*-radius / borderRadius with a number
 //   shadow    box-shadow / boxShadow not built from var(), none or inherit
 //   zIndex    z-index / zIndex with a number
-//   rawButtons   <button in .tsx outside web/src/ui/
+//   rawButtons   <button in .tsx outside web/src/ui/, unmarked
+//   markedButtons <button carrying `button-ok: <reason>` on its line or the
+//                line above: the editor library's own controls, which
+//                nigari cannot rebuild from outside (spec 020, R7). Counted
+//                apart, with a budget of its own; a marker with no reason
+//                fails, so the marker cannot become a way to skip the count.
 //   handDialogs  role="dialog" outside web/src/ui/
 //   paletteSteps --palette-* anywhere (spec 019, R4): a component names a role
 //                (--color-primary), never a palette step, or swapping a
@@ -77,7 +82,10 @@ function blankComments(text, isCss) {
   return text.replace(re, (m) => m.replace(/[^\n]/g, ' '));
 }
 
-const counts = Object.fromEntries([...KINDS, 'rawButtons', 'handDialogs', 'paletteSteps'].map((k) => [k, 0]));
+const counts = Object.fromEntries([...KINDS, 'rawButtons', 'markedButtons', 'handDialogs', 'paletteSteps'].map((k) => [k, 0]));
+// `button-ok:` and what follows it on the line, up to a comment's end.
+const MARKER = /button-ok:([^\n]*?)(?:\*\/|$)/;
+const unexplained = [];
 const hits = Object.fromEntries(Object.keys(counts).map((k) => [k, []]));
 
 for (const file of files(src)) {
@@ -94,6 +102,15 @@ for (const file of files(src)) {
     for (const m of text.matchAll(re)) {
       const line = lineOf(m.index);
       if (kind !== 'paletteSteps' && lines[line - 1].includes('token-ok:')) continue;
+      if (kind === 'rawButtons') {
+        const marker = (lines[line - 1].match(MARKER) ?? lines[line - 2]?.match(MARKER))?.[1].replace(/[}\s]+$/, '').trim();
+        if (marker !== undefined) {
+          if (marker.length < 3) unexplained.push(`${rel}:${line}`);
+          counts.markedButtons++;
+          hits.markedButtons.push(`${rel}:${line}`);
+          continue;
+        }
+      }
       counts[kind]++;
       hits[kind].push(`${rel}:${line}`);
     }
@@ -103,6 +120,7 @@ for (const file of files(src)) {
 const now = {
   literals: Object.fromEntries(KINDS.map((k) => [k, counts[k]])),
   rawButtons: counts.rawButtons,
+  markedButtons: counts.markedButtons,
   handDialogs: counts.handDialogs,
   paletteSteps: counts.paletteSteps,
 };
@@ -156,6 +174,8 @@ const check = (label, kind, have, budget) => {
 };
 for (const k of KINDS) check(`literals.${k}`, k, now.literals[k], budgets.literals?.[k]);
 check('rawButtons', 'rawButtons', now.rawButtons, budgets.rawButtons);
+check('markedButtons', 'markedButtons', now.markedButtons, budgets.markedButtons);
+for (const at of unexplained) errors.push(`${at}: a button-ok marker needs its reason (button-ok: <why this button cannot be ui/Button>)`);
 check('handDialogs', 'handDialogs', now.handDialogs, budgets.handDialogs);
 check('paletteSteps', 'paletteSteps', now.paletteSteps, budgets.paletteSteps);
 
@@ -166,5 +186,5 @@ if (errors.length || lower.length) {
   process.exit(1);
 }
 console.log(
-  `  tokens: literals ${KINDS.map((k) => `${k} ${now.literals[k]}`).join(', ')}; ${now.rawButtons} raw buttons, ${now.handDialogs} hand-built dialogs, ${now.paletteSteps} palette steps, all within budget`,
+  `  tokens: literals ${KINDS.map((k) => `${k} ${now.literals[k]}`).join(', ')}; ${now.rawButtons} raw buttons, ${now.markedButtons} marked, ${now.handDialogs} hand-built dialogs, ${now.paletteSteps} palette steps, all within budget`,
 );
