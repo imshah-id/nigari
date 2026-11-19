@@ -7,6 +7,30 @@ entries are not edited away.
 
 ---
 
+## 2026-11-19 — Spec 020 PR 4: what stays a raw button, and how the check knows
+
+- **Only BlockNote's own controls are marked.** The 8 buttons `blocks.tsx`
+  renders inside BlockNote blocks carry `button-ok: <reason>`. The marker
+  goes in a comment on the button's line or the line above, and
+  `check-tokens.mjs` counts it apart (`markedButtons`, budget 8). A marker
+  without a reason fails. A marker in a string, a marker that would also
+  excuse the next button, and `token-ok` on a button do not count (found
+  by review). Turned down: marking the leftovers inside cards and rows
+  (the owner's Q4, "A").
+- **The other 80 wait for #763**, listed there by file and line and
+  grouped by kind: cards, tree and list rows, result rows, pickers and
+  property cells, chips, tabs and bars, controls on an image. Four more
+  are invisible to the check because of #805 (`accept="image/*"` read as a
+  comment). Fixing that raises the measured count, so it is the owner's
+  call on a check.
+- **Tooltips go above every layer** (`layer.tooltip` 1000 → 1300): the
+  anchored icon picker sits on `top` (1200) and hid its own trash
+  button's tooltip.
+- **The page's Emoji / Cover / Description** are low, small Buttons in the
+  button typeface. Before, they were soft grey chips; Claude's default.
+
+---
+
 ## 2026-11-19 — Spec 020 PR 3: Tabs, ToggleGroup, and the role choice's rank colours
 
 - **The role choice keeps its rank colours** (owner, option **1**, after a

@@ -124,17 +124,17 @@ description: "Tasks for one button with properties, Tabs and ToggleGroup, in fou
 
 ## PR 4 — The rest, and the marker (US4)
 
-- [ ] T029 [ui] Every raw button left that is a plain button moves to
+- [x] T029 [ui] Every raw button left that is a plain button moves to
   `Button` (re-count first)
-- [ ] T030 [US4] [test] `check-tokens.mjs`: a raw button it allows needs
+- [x] T030 [US4] [test] `check-tokens.mjs`: a raw button it allows needs
   `button-ok: <reason>` (a marker without a reason fails), counted
   separately; self-test cases in the style of spec 019's (mutation-checked)
-- [ ] T031 [US4] [ui] The editor library's own controls (`blocks.tsx`, the
+- [x] T031 [US4] [ui] The editor library's own controls (`blocks.tsx`, the
   `bn-*` controls in `Editor.tsx`) carry the marker
-- [ ] T032 [ui] List every remaining raw button (cards, tree rows, result
+- [x] T032 [ui] List every remaining raw button (cards, tree rows, result
   rows) in #763 by file and line; lower `rawButtons` to the measured count
-- [ ] T033 [wiki] Screenshots retaken and compared
-- [ ] T034 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
+- [x] T033 [wiki] Screenshots retaken and compared
+- [x] T034 [test] Reviews: `/code-review`; `ux-ui-audit` on the touched
   screens
 
 ---
