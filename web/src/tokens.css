@@ -555,6 +555,10 @@
   --editor-disabled-text: var(--color-text-muted);
   --editor-border: var(--color-border-default);
   --editor-radius: 10px;
+  --editor-side-menu-icon: var(--color-text-muted);
+  --editor-side-menu-button-width: 20px;
+  --editor-side-menu-icon-size: 18px;
+  --editor-drop-line-width: 2px;
   --chart-height-small: 200px;
   --chart-height-medium: 320px;
   --chart-height-large: 440px;
@@ -732,4 +736,5 @@
   --bn-colors-disabled-text: var(--editor-disabled-text);
   --bn-colors-border: var(--editor-border);
   --bn-border-radius: var(--editor-radius);
+  --bn-colors-side-menu: var(--editor-side-menu-icon);
 }

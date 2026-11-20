@@ -6,8 +6,10 @@ import {
   SideMenuController,
   getDefaultReactSlashMenuItems,
 } from '@blocknote/react';
-import { filterSuggestionItems, insertOrUpdateBlockForSlashMenu, SuggestionMenu } from '@blocknote/core';
+import { filterSuggestionItems, insertOrUpdateBlockForSlashMenu, SideMenuExtension, SuggestionMenu } from '@blocknote/core';
 import { columnEnter } from '../columnEnter';
+import { dropLineWidth } from '../dropLine';
+import { holdSideMenuWhileHovered } from '../sideMenuHold';
 import { en as coreEn } from '@blocknote/core/locales';
 import { BlockNoteView } from '@blocknote/mantine';
 import { api, ApiError, materializeQuery } from '../api';
@@ -1693,7 +1695,12 @@ function BlockContent({
     // both, while the same PDF added by an agent did not — the MCP path has
     // always passed a page id.
     uploadFile: (file: File) => api.upload(file, pageId),
-    // Column layout: edge-drop cursor + its dictionary entries.
+    // The line that shows where a dragged block will land (#809). BlockNote's
+    // own is a fixed #ddeeff, 1.13:1 on the light page: always there and never
+    // seen, so a drag gave no feedback and felt stuck. The focus colour is a
+    // CSS variable, so it follows the theme (the line's colour is set inline).
+    // BlockNote reads the width as a number of pixels, hence the token parsed.
+    dropCursor: { color: 'var(--color-focus)', width: dropLineWidth() },
     dictionary: coreEn,
   });
 
@@ -1729,6 +1736,9 @@ function BlockContent({
       if (!touched) return false;
     },
   });
+
+  // The block handle holds still under the pointer (#808, sideMenuHold.ts).
+  useEffect(() => holdSideMenuWhileHovered(editor.getExtension(SideMenuExtension)), [editor]);
 
   // Enter inside a column stays in that column (#317, columnEnter.ts). No
   // label: it is what Enter already means, not a shortcut to list. Ahead of

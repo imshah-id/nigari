@@ -180,10 +180,18 @@ fresh paragraph below it), and **Open block menu** (the grip), which is also the
 drag handle. The menu holds **Delete** and **Colors** (text and background, nine
 named colours plus *Auto*).
 
-Drag the grip to move a block. Dropping it against the **left or right edge** of
-another block puts the two side by side as columns; dropping it on a column's
-edge adds a column beside that one. Drag the gap between two columns to change
-their widths.
+The handles hold still while the pointer is on them, also beside a block in a
+column, so they can be reached from the text.
+
+Drag the grip to move a block. While you drag, a line in the accent colour shows
+where it will land. Dragging moves a block between other blocks, into a column
+or out of one; it does not make new columns (use **Columns** from the slash
+menu). Drag the gap between two columns to change their widths.
+
+Not right yet: dropping a block on a column's first line makes an extra column
+([#824](https://github.com/neatlittlemacapps/nigari/issues/824)), and near the
+end of a column the line can show a spot one line off from where the block
+lands ([#809](https://github.com/neatlittlemacapps/nigari/issues/809)).
 
 ### Editing shortcuts
 
