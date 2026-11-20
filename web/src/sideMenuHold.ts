@@ -2,7 +2,7 @@
 //
 // BlockNote decides which block the + and drag handle belong to on every
 // mousemove, from what lies under the pointer, and it looks THROUGH its own
-// side menu to do so (the menu is a floating layer outside the editor's DOM).
+// side menu to do so (the menu is a floating layer outside the editor's text).
 // Next to a plain block that is harmless: under the handle there is the same
 // block. In a columns layout the handle sits in the gap before a column, where
 // what lies underneath is the columns block itself or the column to the left,
@@ -18,7 +18,12 @@
 // fire during a drag), which is right: the handle belongs to the dragged block
 // until the drop, and the next move after the drop releases it.
 //
-// Turned down, both tried:
+// Each editor holds only its OWN side menu: a page can have two editors (the
+// page and a peek panel, a database and the template dialog), and freezing the
+// other one's menu made it show a handle out of nowhere, or threw when that
+// editor had never shown one (review of the first version).
+//
+// Turned down, all three tried:
 // - Widening each column's hover area over its handle (padding plus a negative
 //   margin). BlockNote double-checks the block at its right edge, and with the
 //   columns overlapping that check landed in the next column.
@@ -37,43 +42,75 @@ export interface SideMenuFreeze {
   unfreezeMenu(): void;
 }
 
-const inMenu = (node: EventTarget | null): boolean =>
-  node instanceof Element && node.closest(SIDE_MENU_SELECTOR) !== null;
+export interface HoldInput {
+  /** Whether this hold has frozen the side menu. */
+  held: boolean;
+  /** The pointer is on this editor's own side menu. */
+  onOwnMenu: boolean;
+  /** The block menu behind the handle is open. */
+  blockMenuOpen: boolean;
+  /** PointerEvent.pointerType. */
+  pointerType: string;
+}
 
-/** The block menu behind the handle is open: BlockNote froze the side menu
- *  itself and unfreezes it when the menu closes, so the hold leaves it be. */
-const blockMenuOpen = (doc: Document): boolean =>
-  doc.querySelector(`${SIDE_MENU_SELECTOR} [aria-expanded="true"]`) !== null;
-
-/** What a pointer move onto `target` does to the hold, given whether it is
- *  held now. Decided on every move, not on enter and leave: around a drag the
- *  browser sends a stray pointerover for where the pointer was when the drag
- *  began (measured: it re-froze the handle after every drop). */
-export function holdDecision(held: boolean, target: EventTarget | null): 'hold' | 'release' | null {
-  const isIn = inMenu(target);
-  if (isIn && !held) return 'hold';
-  if (!isIn && held) return 'release';
+/**
+ * What one pointer move does to the hold. Decided on every move, not on
+ * enter and leave: around a drag the browser sends a stray pointerover for
+ * where the drag began (measured: it re-froze the handle after every drop).
+ *
+ * - 'hold': freeze the side menu where it is.
+ * - 'release': unfreeze it.
+ * - 'yield': the block menu is open, so BlockNote froze the side menu itself
+ *   and unfreezes it when the menu closes. The hold lets go without touching
+ *   it, so that after the menu closes the next move onto the handle holds it
+ *   again (a hold that kept believing it held never did, and #808 was back).
+ * - null: nothing changes.
+ *
+ * A finger is left alone: a touch is captured to where it began, so its moves
+ * all report the handle, and a lifted finger sends no move to release it.
+ */
+export function holdDecision({ held, onOwnMenu, blockMenuOpen, pointerType }: HoldInput): 'hold' | 'release' | 'yield' | null {
+  if (pointerType === 'touch') return null;
+  if (blockMenuOpen) return held ? 'yield' : null;
+  if (onOwnMenu && !held) return 'hold';
+  if (!onOwnMenu && held) return 'release';
   return null;
 }
 
-/** Installs the hold on a document; returns the function that removes it. */
-export function holdSideMenuWhileHovered(menu: SideMenuFreeze | undefined, doc: Document = document): () => void {
+/**
+ * Installs the hold for one editor; returns the function that removes it.
+ * `container` finds that editor's .bn-container, where BlockNote puts its side
+ * menu; it is asked on each move because the editor mounts after this runs.
+ */
+export function holdSideMenuWhileHovered(
+  menu: SideMenuFreeze | undefined,
+  container: () => Element | null | undefined,
+  doc: Document = document,
+): () => void {
   if (!menu) return () => {};
   let held = false;
-  const release = () => {
-    if (!held) return;
-    held = false;
-    if (!blockMenuOpen(doc)) menu.unfreezeMenu();
-  };
-  // pointermove comes before the mousemove BlockNote listens to, so the
-  // freeze is in place by the time BlockNote looks.
   const onMove = (e: PointerEvent) => {
-    const decision = holdDecision(held, e.target);
+    const root = container();
+    if (!root) return;
+    const target = e.target instanceof Element ? e.target.closest(SIDE_MENU_SELECTOR) : null;
+    const decision = holdDecision({
+      held,
+      onOwnMenu: target !== null && root.contains(target),
+      blockMenuOpen: root.querySelector(`${SIDE_MENU_SELECTOR} [aria-expanded="true"]`) !== null,
+      pointerType: e.pointerType,
+    });
     if (decision === 'hold') {
       held = true;
       menu.freezeMenu();
-    } else if (decision === 'release') release();
+    } else if (decision === 'release') {
+      held = false;
+      menu.unfreezeMenu();
+    } else if (decision === 'yield') {
+      held = false;
+    }
   };
+  // pointermove comes before the mousemove BlockNote listens to, so the
+  // freeze is in place by the time BlockNote looks.
   doc.addEventListener('pointermove', onMove, true);
   return () => doc.removeEventListener('pointermove', onMove, true);
 }

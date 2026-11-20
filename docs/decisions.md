@@ -21,9 +21,17 @@ Research in #812 (measured, with the causes). What this part decides:
   any other listener, no longer saw a drag start); holding on
   pointerover/pointerout (a stray pointerover after every drop froze the
   handle again). Bringing back `xl-multi-column` stays rejected.
+  After `/code-review`: each editor holds only its own handle (a peek beside
+  a document is a second editor, and freezing its menu threw); while the
+  block menu is open the hold lets BlockNote own the freeze and picks it up
+  again afterwards; a finger is left alone (a touch sends no move to release
+  it). The decision is a pure function with `check-sidemenuhold.mjs`.
 - **Handle size B** (owner, from a picture of A/B/C): 20×24 buttons, an
   18px icon, in the muted text colour (4.88:1 light, 4.99:1 dark;
-  BlockNote's was 1.49:1 light). Tokens `editor.side-menu.*`.
+  BlockNote's was 1.49:1 light). Tokens `editor.side-menu.*`. The colour
+  is set on the two icons only, not through BlockNote's
+  `--bn-colors-side-menu`, which also colours the empty-line placeholder,
+  the nesting guides and the table handles (found by review).
 - **The drop line is the focus colour, 2px** (owner: "All ok" to the
   picture). BlockNote's `#ddeeff` was 1.13:1 on the light page. The colour is
   `var(--color-focus)` passed to BlockNote directly, because a component

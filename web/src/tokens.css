@@ -736,5 +736,4 @@
   --bn-colors-disabled-text: var(--editor-disabled-text);
   --bn-colors-border: var(--editor-border);
   --bn-border-radius: var(--editor-radius);
-  --bn-colors-side-menu: var(--editor-side-menu-icon);
 }

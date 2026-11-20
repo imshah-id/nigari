@@ -136,4 +136,48 @@ await withFixture(async ({ page, api, base, workspace }) => {
   const c3 = await text('c3');
   await page.mouse.move(c3.x + 15, c3.y + c3.height / 2, { steps: 8 });
   await eventually(() => besides('c3')).catch(() => assert.fail('after the block menu closed the handle stayed put'));
+
+  // ---- only the handle's icons changed colour ----
+  // BlockNote's --bn-colors-side-menu also colours the empty-line placeholder
+  // and the nesting guides; setting it darkened those too (found by review).
+  const guide = await page.evaluate(() => getComputedStyle(document.querySelector('.bn-container')).getPropertyValue('--bn-colors-side-menu').trim());
+  assert.notEqual(guide, '', 'BlockNote no longer sets its side-menu colour');
+  assert(!/var\(--editor-side-menu-icon\)|text-muted/.test(guide), `--bn-colors-side-menu was changed (${guide})`);
+});
+
+// ---- a second editor on the page keeps its own handle ----
+// A document with a database in it, and one of the database's rows open in a
+// side peek, is two editors on one page. Each holds only its own handle:
+// holding the document's froze the peek's too, which threw (BlockNote's
+// freezeMenu reads a menu that editor had never shown; found by review). The
+// peek's own blocks show no handle at all, on main too (#826).
+await withFixture(async ({ page, api, base, workspace, path }) => {
+  page.setDefaultTimeout(15000);
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  const collectionId = path.split('/').pop();
+  await api('POST', '/api/pages', { parentId: collectionId, title: 'Peeked row', props: { status: 'todo' } });
+  const config = await api('GET', path);
+  for (const view of config.views) view.openIn = 'side_peek';
+  await api('PUT', path, { views: config.views });
+  const para = (id, text) => ({ id, type: 'paragraph', props: {}, content: [{ type: 'text', text, styles: {} }], children: [] });
+  const doc = await api('POST', '/api/pages', { title: 'With a database', workspaceId: workspace.id });
+  await api('PATCH', `/api/pages/${doc.id}`, { content: [para('line', 'A line in the document'), { id: 'emb', type: 'database', props: { collectionId }, children: [] }] });
+  await page.goto(`${base}/p/${doc.id}`);
+  await page.getByText('Peeked row', { exact: true }).first().click();
+  const panel = page.getByRole('complementary', { name: 'Page preview' });
+  await panel.locator('.bn-container').waitFor();
+  assert.equal(await page.locator('.bn-container').count(), 2, 'the page does not hold two editors');
+  const box = await page.locator('[data-id="line"] .bn-inline-content').first().boundingBox();
+  await page.mouse.move(box.x + 10, box.y + box.height / 2);
+  for (let x = box.x + 8; x >= box.x - 10; x -= 2) await page.mouse.move(x, box.y + box.height / 2);
+  await page.waitForTimeout(150);
+  assert.equal(await page.locator('.bn-side-menu').count(), 1, 'holding the document\'s handle showed a second one');
+  assert.equal(await panel.locator('.bn-side-menu').count(), 0, 'holding the document\'s handle showed one in the peek');
+  await page.mouse.move(box.x + 40, box.y + box.height / 2, { steps: 4 });
+  await page.waitForTimeout(150);
+  // Moving over the database's table throws in BlockNote's table handles,
+  // on main too (#825); that one is left to its own fix.
+  const ours = errors.filter((m) => !m.includes("reading 'rows'"));
+  assert.deepEqual(ours, [], `errors while holding a handle: ${ours.join('; ')}`);
 });

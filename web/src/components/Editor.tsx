@@ -1738,7 +1738,10 @@ function BlockContent({
   });
 
   // The block handle holds still under the pointer (#808, sideMenuHold.ts).
-  useEffect(() => holdSideMenuWhileHovered(editor.getExtension(SideMenuExtension)), [editor]);
+  useEffect(
+    () => holdSideMenuWhileHovered(editor.getExtension(SideMenuExtension), () => editor.domElement?.closest('.bn-container')),
+    [editor],
+  );
 
   // Enter inside a column stays in that column (#317, columnEnter.ts). No
   // label: it is what Enter already means, not a shortcut to list. Ahead of

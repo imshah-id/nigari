@@ -331,10 +331,7 @@
       "icon": {
         "$type": "color",
         "$value": "{color.text.muted}",
-        "$extensions": {
-          "io.github.neatlittlemacapps.nigari.css": "--bn-colors-side-menu",
-          "io.github.neatlittlemacapps.nigari.selector": "[data-theme] .bn-container, [data-theme] .bn-root"
-        }
+        "$description": "Set on the two icons only (styles.css), not as BlockNote's --bn-colors-side-menu, which also colours the empty-line placeholder, the nesting guides and the table handles."
       },
       "button-width": {
         "$type": "dimension",
