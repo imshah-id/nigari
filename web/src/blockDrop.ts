@@ -213,7 +213,7 @@ const forgetDragSource = (v: View, e: DragEvent) => {
   }
   // A BlockNote upgrade that renames the plugin or moves the reset would
   // bring #861 back without an error (block-drop-ids.mjs guards it too).
-  if (!found && import.meta.env?.DEV) console.warn("blockDrop: BlockNote's UniqueID drop handler was not found (#861)");
+  if (!found && import.meta.env?.DEV) console.warn("blockDrop: BlockNote's UniqueID drop handler was not found (issue 861)");
 };
 
 /** Below this editor width there is no room for a new column (FR-010):
