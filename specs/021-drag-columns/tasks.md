@@ -75,11 +75,11 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 ### Phase 5: Foundational (widths and four columns)
 
-- [ ] T012 [ui] `dropTarget.ts`: the `newColumn` branch. A column's left or right edge in a row of 2, only the far right edge in a row of 3, none in a row of 4 (Q1); an ordinary top-level block's edges (Q2); no sideways target inside a list or a nested block, on a block's own column, or where columns stack (FR-010)
-- [ ] T013 [P] [ui] `web/src/columnWidths.ts`: `insertColumnWidths(widths, at)` (R4: the largest group of equal columns, within 1%, splits its room with the new column; others keep theirs; no two equal shrinks all in proportion; the 15% floor `MIN_PCT`; whole percent summing to 100) and `removeColumnWidths(widths, at)` (its room goes to its neighbours in proportion)
-- [ ] T014 [P] [test] `check-droptarget.mjs`: the `newColumn` cases, Q1 and FR-010. `check-columnwidths.mjs`: 40/30/30 → 40/20/20/20, 50/50 → 33/33/34, 50/30/20 in proportion, the floor, removal. Mutation-check both
-- [ ] T015 [P] [backend] Four columns in every server reader: `renderPublicBlock` (`server/public_blocks.go`), the print view in `renderBlockHTML` (`server/export_html.go`) and its CSS; `server/columns_test.go` with 4 columns in print, public and the Markdown round trip
-- [ ] T016 [P] [mcp] `columnsFromSections` (`server/mdimport.go`) keeps up to 4 sections and folds from the 5th; the `write_content` spelling text says up to four; tests for 4 kept and a 5th folded. `wiki/mcp-tools.md`: columns up to 4
+- [x] T012 [ui] `dropTarget.ts`: the `newColumn` branch. A column's left or right edge in a row of 2, only the far right edge in a row of 3, none in a row of 4 (Q1); an ordinary top-level block's edges (Q2); no sideways target inside a list or a nested block, on a block's own column, or where columns stack (FR-010)
+- [x] T013 [P] [ui] `web/src/columnWidths.ts`: `insertColumnWidths(widths, at)` (R4: the largest group of equal columns, within 1%, splits its room with the new column; others keep theirs; no two equal shrinks all in proportion; the 15% floor `MIN_PCT`; whole percent summing to 100) and `removeColumnWidths(widths, at)` (its room goes to its neighbours in proportion)
+- [x] T014 [P] [test] `check-droptarget.mjs`: the `newColumn` cases, Q1 and FR-010. `check-columnwidths.mjs`: 40/30/30 → 40/20/20/20, 50/50 → 33/33/34, 50/30/20 in proportion, the floor, removal. Mutation-check both
+- [x] T015 [P] [backend] Four columns in every server reader: `renderPublicBlock` (`server/public_blocks.go`), the print view in `renderBlockHTML` (`server/export_html.go`) and its CSS; `server/columns_test.go` with 4 columns in print, public and the Markdown round trip
+- [x] T016 [P] [mcp] `columnsFromSections` (`server/mdimport.go`) keeps up to 4 sections and folds from the 5th; the `write_content` spelling text says up to four; tests for 4 kept and a 5th folded. `wiki/mcp-tools.md`: columns up to 4
 
 **Checkpoint**: 4 columns read and write everywhere; the drag can now make them.
 
@@ -89,13 +89,13 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drag to each edge of a 2-column layout, watch the line and the opening, move away, drop, check the saved document.
 
-- [ ] T017 [US2] [ui] `blocks.tsx` `ColumnsBlock`: `count` from 2 to 4 (was `count === 3 ? 3 : 2`); a "4 equal" preset in `PRESETS` (the block menu's layout submenu); editor CSS for `data-count='4'`
-- [ ] T018 [US2] [ui] The vertical line at the target edge in `--color-focus` and `--editor-drop-line-width`, through `computeDropPosition`'s vertical positions
-- [ ] T019 [US2] [ui] The opening (R3): while a `newColumn` target is active, `ColumnsBlock`'s own `<style>` adds an empty track where the new column goes, with a transition on `--motion-duration-base` and `--motion-easing-out`; none under `prefers-reduced-motion` (FR-007). The style changes only when the target changes (SC-003)
-- [ ] T020 [US2] [ui] `blockDrop.ts`: a drop on a `newColumn` target inserts the block as a new column at that place, raises `count` by one and sets the widths with `insertColumnWidths`, in one document change
-- [ ] T021 [US2] [ui] FR-008: a column left empty after a drag goes, with `removeColumnWidths`; a layout left with one column turns back into plain blocks
-- [ ] T022 [P] [US2] [i18n] The screen-reader announcement when a new column will be made, and the "4 equal" preset label: `t()` with de, es and nl
-- [ ] T023 [US2] [test] `block-drop.mjs`: the opening and its reverse, a drop making a column with the Q3 widths, the 3-column far-right case, an emptied middle column going, reduced motion, phone width offering no vertical line; WebKit run. Mutation-check it
+- [x] T017 [US2] [ui] `blocks.tsx` `ColumnsBlock`: `count` from 2 to 4 (was `count === 3 ? 3 : 2`); a "4 equal" preset in `PRESETS` (the block menu's layout submenu); editor CSS for `data-count='4'`
+- [x] T018 [US2] [ui] The vertical line at the target edge in `--color-focus` and `--editor-drop-line-width`, drawn by nigari (`lineFor` in `dropTarget.ts`), as in PR 1
+- [x] T019 [US2] [ui] The opening (R3): while a `newColumn` target is active, `ColumnsBlock`'s own `<style>` adds an empty track where the new column goes, with a transition on `--motion-duration-base` and `--motion-easing-out`; none under `prefers-reduced-motion` (FR-007). The style changes only when the target changes (SC-003)
+- [x] T020 [US2] [ui] `blockDrop.ts`: a drop on a `newColumn` target inserts the block as a new column at that place, raises `count` by one and sets the widths with `insertColumnWidths`, in one document change
+- [x] T021 [US2] [ui] FR-008: a column left empty after a drag goes, with `removeColumnWidths`; a layout left with one column turns back into plain blocks
+- [x] T022 [P] [US2] [i18n] The screen-reader announcement when a new column will be made, and the "4 equal" preset label: `t()` with de, es and nl
+- [x] T023 [US2] [test] `block-drop.mjs`: the opening and its reverse, a drop making a column with the Q3 widths, the 3-column far-right case, an emptied middle column going, reduced motion, phone width offering no vertical line. WebKit not run: this environment has Chromium only (said in the PR). Mutation-check it
 
 ### Phase 7: User Story 3, a sideways drop beside an ordinary block (P2)
 
@@ -103,14 +103,14 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drop a paragraph at another's right edge; the saved document holds a columns block of two, in that order.
 
-- [ ] T024 [US3] [ui] `blockDrop.ts`: a drop at an ordinary top-level block's edge wraps the two in a new columns block of two equal columns, the dropped block left or right by edge; the vertical line only, no opening (R3)
-- [ ] T025 [US3] [test] `block-drop.mjs`: the left and right edge cases, and no line inside a list or a nested block. Mutation-check it
+- [x] T024 [US3] [ui] `blockDrop.ts`: a drop at an ordinary top-level block's edge wraps the two in a new columns block of two equal columns, the dropped block left or right by edge; the vertical line only, no opening (R3)
+- [x] T025 [US3] [test] `block-drop.mjs`: the left and right edge cases, and no line inside a list or a nested block. Mutation-check it
 
 ### Phase 8: PR 2 polish, release and Umbrel
 
-- [ ] T026 [wiki] `wiki/editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, the widths rule). Retake the screenshots that list the touched files and look at each
-- [ ] T027 [perf] SC-003 again with the opening on: the #810 probe, Chromium and WebKit, under 4 ms per step
-- [ ] T028 [test] Reviews: `/code-review` (fresh agent), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added or moved. `docs/decisions.md` entry. The PR says a page with 4 columns shows as 2 in an older version (release notes). `scripts/agent-gate.sh` green
+- [x] T026 [wiki] `wiki/editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, the widths rule). Retake the screenshots that list the touched files and look at each
+- [x] T027 [perf] SC-003 again with the opening on: the #810 probe, Chromium, under 4 ms per step (measured 0.47 ms script at most); WebKit not run here
+- [x] T028 [test] Reviews: `/code-review` (fresh agent), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added or moved. `docs/decisions.md` entry. The PR says a page with 4 columns shows as 2 in an older version (release notes). `scripts/agent-gate.sh` green
 - [ ] T029 [backend] After PR 2 merges (owner, 2026-11-21: "after this big change to update the nigari umbrel version"): check the release and its `umbrel-store` job, which opens the store pull request on `neatlittlemacapps/yokogaki-umbrel` (rule 32), and give the owner its link to merge; then confirm the Umbrel runs the new version. Nigari's own `umbrel/` pin stays as it is (rule 32)
 
 ---

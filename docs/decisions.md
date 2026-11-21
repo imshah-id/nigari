@@ -7,6 +7,38 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — Spec 021 PR 2: a block dragged sideways makes a column, up to four
+
+- **Where a sideways drop is offered** (owner, Q1 and Q2). At the left or right
+  edge of a column a dragged block opens a new column there. A row of two opens
+  one at any edge; a row of three only at the right edge of its last column;
+  a row of four takes no more. At the left or right edge of an ordinary
+  top-level block the two go side by side in a new two-column layout, as in
+  Notion. Not beside a list item (its edge belongs to the bullet), not beside
+  a block inside a column, and not with a whole layout dragged.
+- **Not under 480px of editor width** (FR-010). The editor keeps columns side
+  by side on a phone, so a column there would be a few letters wide; only
+  print and the shared page stack them. Turned down: offering it and stacking
+  the result, which would show something other than what was drawn.
+- **The opening is drawn through the layout's own `<style>`** (R3): an empty
+  grid track grows from 0 to the new column's width in 150 ms, and not at all
+  under reduced motion. The drop line stands in the empty track.
+- **Widths** (owner, Q3, plus two defaults). The largest group of columns
+  within 1% of each other shares its room with the new one; the others keep
+  theirs (40/30/30 → 40/20/20/20, 50/50 → 33/33/34). With no two alike, all
+  shrink in proportion. A column under 15% after either is not drawn that way:
+  everything shrinks in proportion, and if one is still under 15%, the columns
+  become equal. Whole percents summing to 100, leftover points to the largest
+  remainders. A column emptied by a drag closes, and its room goes to its
+  neighbours in proportion; a layout left with one column unwraps back into
+  plain blocks, so no one-column layout is left behind.
+- **Four columns everywhere, not only in the editor** (R5): the shared page,
+  the HTML export, Markdown import (a fifth section joins the fourth) and the
+  MCP tools read 2 to 4. An older version reads a count of 4 as 2 and wraps the
+  extra columns below, losing nothing: that goes in the release notes.
+- **Safari was not tried.** Grid track transitions are supported there from
+  18; the browser tests run in Chromium only.
+
 ## 2026-11-21 — Spec 021 PR 1: nigari decides where a dragged block lands, and draws the line itself; the column layouts move to the block menu
 
 - **One decision for the line and the drop** (`dropTarget.ts`, spec 021 R1/R2;
