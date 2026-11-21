@@ -17,7 +17,7 @@ A drop on a new column inserts the block as a column. The widths follow the owne
 Columns go up to 4 everywhere: the editor, the print view, the shared page, and Markdown in both directions, so agents get 4 through `write_content` too.
 
 The work comes as two pull requests:
-1. The landing spot (Story 1), and the layout bar floating over the block's top edge (Story 4).
+1. The landing spot (Story 1), and the layout presets moving from a bar into the block menu (Story 4; the owner's change, 2026-11-21).
 2. Sideways columns, the opening and 4 columns (Stories 2 and 3).
 
 ## Technical Context
@@ -78,11 +78,11 @@ The work comes as two pull requests:
 | REST routes (`server/server.go`, middleware) | No change: no route. | backend |
 | MCP tools (`server/mcp*.go`, descriptions, `wrapUntrusted`, read-scope refusal) | `columnsFromSections` (`mdimport.go`) keeps up to 4 sections and folds only past 4. The `write_content` spelling text (`mdimport.go`, "columns …") says up to four. `get_page` already writes every column. | mcp |
 | Closed-to-agents list (`not_available_via_mcp`) | No change: nothing closed. Dragging is a pointer gesture; its result is open. | mcp |
-| UI components (`web/src/…`, light + dark, keyboard) | New `dropTarget.ts` (the decision) and `blockDrop.ts` (installs `computeDropPosition` and `handleDrop` with the editor). `ColumnsBlock` takes 2–4 columns, renders the opening (a gap where the new column goes) through its own `<style>`, and removes an emptied column (FR-008). The layout bar (`.bn-columns-bar`) floats: the strip `.bn-columns` that holds it takes no height, and the bar sits absolutely at its top right, over the block's top edge (FR-012). It shows on hover, on `:focus-within` of the columns block (caret in a column) and on its own keyboard focus. Editor CSS for `data-count='4'`; the vertical line in the focus colour. Light and dark. Keyboard: no new key; block moves by keyboard stay BlockNote's. | ui |
-| Translations (`t()`, `de.json` and `nl.json` required, `es.json`) | The announcement for screen readers when a new column will be made, and the "4 columns" preset label on the layout bar: de, es, nl. | i18n |
+| UI components (`web/src/…`, light + dark, keyboard) | New `dropTarget.ts` (the decision) and `blockDrop.ts` (installs `computeDropPosition` and `handleDrop` with the editor). `ColumnsBlock` takes 2–4 columns, renders the opening (a gap where the new column goes) through its own `<style>`, and removes an emptied column (FR-008). The layout bar (`.bn-columns-bar`) is removed and the strip `.bn-columns` takes no height (FR-012); the presets are a "Column layout" submenu of the block menu (`slashIcons.tsx`, `columnLayout.ts`). Editor CSS for `data-count='4'`; the vertical line in the focus colour. Light and dark. Keyboard: no new key; block moves by keyboard stay BlockNote's. | ui |
+| Translations (`t()`, `de.json` and `nl.json` required, `es.json`) | The announcement for screen readers when a new column will be made, and the "4 columns" preset label in the layout submenu: de, es, nl. | i18n |
 | Server error codes (`web/src/serverErrors.ts`) | No change: no new error. | i18n |
 | Wiki (`wiki/*.md`, `mcp-tools.md`, stale screenshots) | `editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, widths) and the "Not right yet" note from PR #827 removed. `mcp-tools.md`: columns spelling up to 4. Screenshots that list the touched files are retaken. | wiki |
-| Tests (Go incl. refusal paths, Playwright spec, check scripts) | `check-droptarget.mjs`: every target kind, plus Q1 and FR-010. `check-columnwidths.mjs`: the Q3 rule with the spec's three examples and the 15% floor. Go: `columns_test.go` with 4 columns in print, public and the Markdown round trip; `mdimport` keeps 4 and folds a 5th. Playwright `block-drop.mjs`: SC-005 (paragraph-to-columns gap equals paragraph-to-paragraph; bar shown moves nothing), SC-001/SC-002 on a test page, the opening and its reverse, Q2, reduced motion, WebKit run. No refusal path: no gate (above). | test |
+| Tests (Go incl. refusal paths, Playwright spec, check scripts) | `check-droptarget.mjs`: every target kind, plus Q1 and FR-010. `check-columnwidths.mjs`: the Q3 rule with the spec's three examples and the 15% floor. Go: `columns_test.go` with 4 columns in print, public and the Markdown round trip; `mdimport` keeps 4 and folds a 5th. Playwright `block-drop.mjs`: SC-005 (paragraph-to-columns gap equals paragraph-to-paragraph; the layouts in the block menu), SC-001/SC-002 on a test page, the opening and its reverse, Q2, reduced motion, WebKit run. No refusal path: no gate (above). | test |
 | Performance (query plans, payload size, per-request work) | Per drag step: one target computation from cached column boxes, and a style change only when the target changes. Measured against SC-003 with the #810 probe. | perf |
 | Manifest (`capabilities.json`, `gapBudget`, parity acts) | No change: no route or tool. | mcp |
 | Design system (`web/src/ui/`, tokens, `check-tokens.mjs` budgets, catalogue) | The vertical line and the opening use `--color-focus`, `--editor-drop-line-width` and `--motion-duration-base` / `--motion-easing-out`. No new literal; budgets unchanged. | ui |
@@ -91,7 +91,7 @@ The work comes as two pull requests:
 | Aggregation | No change: no property type. | backend |
 | Stored data | No upgrade step: no table, column or JSON shape changes. A `count` of 4 is a new value in an existing prop, and older binaries read it as 2 (the old clamp) without losing a block, so no migration. The release notes say a page with 4 columns shows as 2 in an older version. | backend |
 | Outside names | No change: no name outside the code. | backend |
-| Menu icons | The layout bar is not a menu. Its new "4 columns" button follows the existing presets. No menu changes. | ui |
+| Menu icons | The block menu gains "Column layout" (function `columnLayout`, its own icon in `menuIcons.ts`), a submenu of presets; the "4 columns" preset joins it in PR 2. | ui |
 | View lock | No change: no database view is written. | backend |
 | Cross-origin requests | No change: no route or socket. | backend |
 | Embedded views | No change: the drop is about document blocks; an embed block moves as one block like any other. | ui |

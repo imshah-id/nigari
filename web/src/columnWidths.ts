@@ -14,7 +14,7 @@
  *  still a readable ~130px; below it a column is a sliver you cannot grab back. */
 export const MIN_PCT = 15;
 
-/** The layouts offered on the block's bar. Two or three columns, because count
+/** The layouts offered in the column layout menus (columnLayout.ts). Two or three columns, because count
  *  is 2 or 3 everywhere (the editor, the print view, the Markdown spelling). */
 export const PRESETS: readonly (readonly number[])[] = [
   [50, 50],

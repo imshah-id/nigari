@@ -7,6 +7,48 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — Spec 021 PR 1: nigari decides where a dragged block lands, and draws the line itself; the column layouts move to the block menu
+
+- **One decision for the line and the drop** (`dropTarget.ts`, spec 021 R1/R2;
+  #809, #824). Both come from the boxes of the lines on the page: before the
+  first line whose middle is below the pointer, or after the last one; over a
+  columns layout, inside the nearest column. A drop on a column's first line
+  makes the block that column's new first line instead of a new column.
+- **The line is nigari's, not BlockNote's, for a block from the handle.**
+  Turned down: handing the decision to BlockNote through `computeDropPosition`
+  (the plan's first idea). BlockNote draws its line from a ProseMirror position,
+  and the position before a column's first block reads as "after the previous
+  column", so the line still showed in the column to the left however right
+  the position was. BlockNote's line stays for text dragged inside a line and
+  for files.
+- **The drop is taken over in a capture listener**, not ProseMirror's
+  `handleDrop` prop: ProseMirror asks `handleDrop` only when the pointer is over
+  a text position and gives up silently elsewhere (the gap between two
+  columns), where the line had shown a spot. The block moves through
+  BlockNote's block calls, so its id, comments and children go with it. A copy
+  (Alt, or Ctrl off a Mac) and a block from another editor stay ProseMirror's:
+  only the editor the drag started in takes it over, because BlockNote hands
+  the dragged blocks to every editor on the page (found by review). A layout
+  inside a column is one line to the decision, and a layout is never dropped
+  into another layout's column; both would make a column by accident (#824).
+- **The layout bar goes; the layouts move to the block menu.** The bar took
+  a line of its own above every columns block, 23px measured, empty unless
+  hovered. The owner asked to "make it overlap … instead of having it take up
+  space", so it was first built floating over the block's top right corner.
+  Shown, it covered the end of the line above, and a tap there hit a preset
+  (found by review). The owner's answer: "Perhaps just remove it and add the
+  functions in the options menu for the columns block". So the bar is
+  removed, and the five layouts are a "Column layout" submenu of the block
+  menu (built like BlockNote's own Colour item, with its own icon). A columns
+  block has no handle of its own (BlockNote's side menu picks the column's
+  first block), so the item shows in the menu of every block inside a layout
+  and changes the nearest layout. The block menu opens only under a pointer
+  or a tap, so the layouts are also / menu entries while the caret is in a
+  layout: the keyboard reached the bar with Tab (found by review). A tap on a
+  phone shows the handle (tested). Turned down: the floating bar; a bar in
+  the page's right margin (a phone has none).
+---
+
 ## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted
 
 - **Starter page icon** (#815, owner: "replace the salt icon on the default
