@@ -169,6 +169,15 @@ try {
   check('beside a list item: a line', dropTarget([{ line: { ...line('li', 100, 700, 0), type: 'bulletListItem' } }], 695, 5, ['x'], side), before('li'));
   check('beside a nested block: a line', dropTarget([{ line: line('p', 100, 700, 0) }, { line: line('p1', 120, 700, 32, ['p']) }], 695, 40, ['x'], side), before('p1'));
   check('beside a plain block, no sideways: a line', dropTarget(duo, 695, 5, ['x']), before('top'));
+  // #863's review: a block carrying a layout among its children is a layout.
+  const carrier = [{ line: line('top', 100, 700, 0) }, { line: { id: 'kid', box: box(120, 700, 32), path: ['top'], columns: true } }, pair];
+  check('a block carrying a layout: no new column', dropTarget(carrier, 695, 100, ['top'], side), null);
+  check('a block carrying a layout: not into a column', dropTarget(carrier, 250, 100, ['top'], side), null);
+  check('a block carrying a layout: not beside another block', dropTarget([...carrier, { line: line('low', 100, 700, 300) }], 695, 305, ['top'], side).kind, 'before');
+  check('a column head carrying a layout: no new column', dropTarget([{ layout: { ...pair.layout, columns: [{ ...pair.layout.columns[0], lines: [...pair.layout.columns[0].lines, { id: 'deep', box: box(100, 390, 200), path: ['duo', 'd'], columns: true }] }, pair.layout.columns[1]] } }], 695, 100, ['d'], side), null);
+  // #863's review: a count that disagrees with the columns opens no edge.
+  check('count disagrees with the columns: no new column', dropTarget([{ layout: { ...pair.layout, count: 3 } }], 695, 100, ['top'], side).kind, 'before');
+  check('count agrees: a new column', dropTarget([{ layout: { ...pair.layout, count: 2 } }], 695, 100, ['top'], side), col('duo', 2, null));
   check('the line for a new column is in the opened gap', Math.round(openingCentre(pair.layout, 2)), 605);
   check('the line for a new column is vertical', (() => { const b = lineFor(duo, col('duo', 2, null), 2); return [b.right - b.left, b.top, b.bottom]; })(), [2, 64, 184]);
   check('the line beside a block is at its edge', (() => { const b = lineFor(duo, { kind: 'beside', id: 'top', edge: 'left' }, 2); return [b.left, b.right, b.top, b.bottom]; })(), [95, 97, 0, 24]);

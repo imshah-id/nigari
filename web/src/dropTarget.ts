@@ -29,7 +29,10 @@
 //      right edge of an ordinary top-level block the target is "beside" it: the
 //      two become a layout of two (Q2). Never where columns stack, on a narrow
 //      page, beside a list item or a nested block, or for a dragged layout
-//      (FR-010: no columns inside columns).
+//      (FR-010: no columns inside columns). A block that carries a layout
+//      among its children counts as a dragged layout for 4 and 5 (#863's
+//      review). A layout whose `count` disagrees with its columns (written
+//      by hand or an old version) opens no edge: it draws no opening.
 
 import { insertColumnWidths, MAX_COLUMNS } from './columnWidths';
 
@@ -60,6 +63,9 @@ export interface Layout {
   box: Box;
   /** Each column's lines, its first block first. */
   columns: { box: Box; lines: Line[] }[];
+  /** The column count it is drawn with (its `count`, as ColumnsBlock reads
+   *  it), when that is known. */
+  count?: number;
 }
 
 export type Item = { line: Line } | { layout: Layout };
@@ -119,6 +125,9 @@ function columnEdge(layout: Layout, x: number, dragged: readonly string[]): Targ
   const cols = layout.columns;
   const n = cols.length;
   if (n < 2 || !sideBySide(layout)) return null;
+  // Its count disagrees with its columns: ColumnsBlock draws no opening there,
+  // so no edge is offered that would show only a line (#863's review).
+  if (layout.count !== undefined && layout.count !== n) return null;
   for (const at of openEdges(n)) {
     let hit: boolean;
     // From the first column's own left edge in, not the margin left of it:
@@ -161,7 +170,7 @@ function inLayout(layout: Layout, x: number, y: number): Target | null {
  */
 export function dropTarget(items: Item[], x: number, y: number, dragged: readonly string[] = [], options: Options = {}): Target | null {
   let target: Target | null = null;
-  const draggingLayout = dragged.some((id) => isLayout(items, id));
+  const draggingLayout = dragged.some((id) => isLayout(items, id) || carriesLayout(items, id));
   const sideways = !!options.sideways && !draggingLayout && dragged.length > 0;
   for (const item of items) {
     if ('layout' in item) {
@@ -204,6 +213,15 @@ function isLayout(items: Item[], id: string): boolean {
       if (item.layout.id === id) return true;
       for (const c of item.layout.columns) for (const l of c.lines) if (l.id === id) return !!l.columns;
     } else if (item.line.id === id) return !!item.line.columns;
+  }
+  return false;
+}
+
+/** A layout sits somewhere among the block's children: it travels with it. */
+function carriesLayout(items: Item[], id: string): boolean {
+  for (const item of items) {
+    const lines = 'line' in item ? [item.line] : item.layout.columns.flatMap((c) => c.lines);
+    if (lines.some((l) => l.columns && l.path.includes(id))) return true;
   }
   return false;
 }
