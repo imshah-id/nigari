@@ -48,7 +48,7 @@ The owner's example and the two defaults are the check's cases. Removing a colum
 
 ## R5: Up to four columns
 
-**Decision**: `count` is 2–4 in every reader. The layout bar gains a "4 equal" preset, so a 4-column layout shows which layout it is. Going back to 3 or 2 removes only empty last columns, as today.
+**Decision**: `count` is 2–4 in every reader. The layout submenu gains a "4 equal" preset, so a 4-column layout shows which layout it is. Going back to 3 or 2 removes only empty last columns, as today.
 
 Markdown import keeps 4 sections and folds only from the 5th, the same way it now folds from the 4th. An older binary reads 4 as 2 and draws the extra columns wrapped below, losing nothing. That goes in the release notes.
 
@@ -56,10 +56,10 @@ Markdown import keeps 4 sections and folds only from the 5th, the same way it no
 
 **Turned down**: allowing 4 in the editor only.
 
-## R6: The layout bar floats
+## R6: The layout presets move into the block menu
 
-**Decision**: keep the bar and float it. The strip `.bn-columns` that holds it (non-editable, rendered by `ColumnsBlock`) takes no height; the bar is placed absolutely at the strip's top right and lifted over the block's top edge. It shows on hover of the columns block, when the caret is inside it (`:focus-within`, which is how a phone shows it, having no hover), and on its own keyboard focus. Showing it changes only opacity, so no line moves. The bar stays in the same strip, so it keeps out of the editor's DOM like the widths' `<style>` does (R3).
+**First decision** (built, then changed): keep the bar and float it over the block's top edge, shown on hover, with the caret in a column, or with keyboard focus.
 
-**Why**: the owner asked for it to overlap rather than take space ("better yet"). Removing it would leave no way to pick a layout preset except dragging each divider, and the "4 equal" preset (R5) lives there.
+**Changed** (owner, 2026-11-21, after seeing it: "Perhaps just remove it and add the functions in the options menu for the columns block"): the floating bar covered the end of the line above while shown, so a tap there hit a preset. The bar is removed. The presets are a "Column layout" submenu of BlockNote's block menu (`slashIcons.tsx`, built like BlockNote's own Colour item), with its own icon in `menuIcons.ts`. The columns block has no handle of its own (BlockNote's side menu picks the column's first block), so the item shows in the menu of every block inside a layout and acts on the nearest layout. The strip `.bn-columns` keeps no height, so the layout still takes no line.
 
-**Turned down**: removing the bar (the owner's first option; the presets would go); moving the presets into the block's menu (one more step, and the menu is BlockNote's).
+**Turned down**: the floating bar (above); a bar in the page's right margin (a phone has none).

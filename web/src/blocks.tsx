@@ -12,7 +12,6 @@ import { toast } from './toast';
 import { plural, t } from './i18n';
 import {
   MIN_PCT,
-  PRESETS,
   equalWidths,
   formatWidths,
   gridTemplate,
@@ -491,10 +490,6 @@ type ColumnsEditor = {
   removeBlocks: (blocks: unknown[]) => void;
   getBlock: (id: string) => ColumnsBlockData | undefined;
   isEditable: boolean;
-  onSelectionChange?: (cb: () => void) => () => void;
-  getTextCursorPosition?: () => { block: { id: string } };
-  getParentBlock?: (id: string) => { id: string } | undefined;
-  isFocused?: () => boolean;
 };
 type ColumnsBlockData = {
   id: string;
@@ -523,45 +518,6 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
   const strip = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<Geometry | null>(null);
 
-  // The caret in one of this layout's columns shows the layout bar (spec 021,
-  // FR-012): a phone has no hover. Kept in our own strip's state, never as a
-  // mark on editor DOM (see the note further down).
-  const [caret, setCaret] = useState(false);
-  useEffect(() => {
-    if (!editor.onSelectionChange || !editor.getTextCursorPosition) return;
-    const check = () => {
-      let b: { id: string } | undefined;
-      try {
-        b = editor.getTextCursorPosition!().block;
-      } catch {
-        return setCaret(false);
-      }
-      let inside = false;
-      for (let i = 0; b && i < 64; i++) {
-        if (b.id === block.id) {
-          inside = true;
-          break;
-        }
-        b = editor.getParentBlock?.(b.id);
-      }
-      setCaret(inside && editor.isFocused?.() !== false);
-    };
-    const off = editor.onSelectionChange(check);
-    // Leaving the editor changes no selection, so focus moving anywhere is
-    // checked too (a click outside would otherwise leave the bar shown and
-    // clickable). Asked at the time, because the strip mounts after this.
-    const moved = (e: FocusEvent) => {
-      const root = strip.current?.closest('.ProseMirror');
-      if (root && e.target instanceof Node && root.contains(e.target)) check();
-      else setCaret(false);
-    };
-    document.addEventListener('focusin', moved);
-    return () => {
-      off();
-      document.removeEventListener('focusin', moved);
-    };
-  }, [editor, block.id]);
-
   useEffect(() => {
     const row = strip.current?.closest('.bn-block')?.querySelector(':scope > .bn-block-group');
     if (!(row instanceof HTMLElement) || !strip.current) return setGeo(null);
@@ -573,8 +529,7 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
     };
     measure();
     // The strip too: the row can stay the same size while the strip above it
-    // grows or shrinks (the bar wrapping on a narrow screen), and the row's top
-    // is measured from the strip.
+    // moves, and the row's top is measured from the strip.
     const ro = new ResizeObserver(measure);
     ro.observe(row);
     ro.observe(strip.current);
@@ -583,28 +538,6 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
 
   const commit = (w: number[]) => {
     editor.updateBlock(block, { props: { count, widths: formatWidths(w) } });
-  };
-
-  // A layout from the bar. Changing the count changes the number of columns, so
-  // the blocks have to follow: three columns with two children would be a third
-  // track with nothing in it and no way to type there.
-  const apply = (w: readonly number[]) => {
-    const n = w.length;
-    const live = editor.getBlock(block.id) ?? block;
-    editor.updateBlock(block, { props: { count: n, widths: formatWidths(w) } });
-    const kids = live.children;
-    if (n > kids.length) {
-      const fresh = Array.from({ length: n - kids.length }, () => ({ type: 'paragraph' }));
-      if (kids.length) editor.insertBlocks(fresh, kids[kids.length - 1], 'after');
-      else editor.updateBlock(block, { children: fresh });
-    } else if (n < kids.length) {
-      // Only an empty last column goes. One with something in it stays, and
-      // wraps below, rather than a click on a layout deleting someone's text.
-      const last = kids[kids.length - 1];
-      if (last.type === 'paragraph' && !last.content?.length && !last.children.length) {
-        editor.removeBlocks([last]);
-      }
-    }
   };
 
   const startDrag = (i: number) => (e: React.PointerEvent<HTMLDivElement>) => {
@@ -667,30 +600,6 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
     <div className="bn-columns" data-count={count} contentEditable={false} ref={strip}>
       {custom && (
         <style>{`.bn-block-outer${row} > .bn-block > .bn-block-group{grid-template-columns:${gridTemplate(custom)}}`}</style>
-      )}
-      {editable && (
-        <div className={'bn-columns-bar' + (caret ? ' is-caret' : '')} role="group" aria-label={t('Column layout')}>
-          {PRESETS.map((w) => {
-            const on = w.length === count && sameWidths(w, stored ?? equalWidths(count));
-            return (
-              <button /* button-ok: a column-layout preset in the columns block's own bar, inside BlockNote */
-                key={w.join('-')}
-                type="button"
-                className={'bn-columns-n' + (on ? ' is-on' : '')}
-                aria-pressed={on}
-                onClick={() => apply(w)}
-                title={w.join(' / ')}
-              >
-                <span className="bn-columns-glyph" aria-hidden="true">
-                  {w.map((n, i) => (
-                    <i key={i} style={{ flex: n }} />
-                  ))}
-                </span>
-                <span className="bn-columns-sr">{w.join(' / ')}</span>
-              </button>
-            );
-          })}
-        </div>
       )}
       {tracks &&
         widths.slice(0, -1).map((w, i) => {

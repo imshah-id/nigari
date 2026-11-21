@@ -10,7 +10,8 @@ import { eventually, withFixture } from './fixture.mjs';
 // extra column.
 // SC-002: no drop changes how many columns a layout has (the vertical line
 // that would offer a new column comes with PR 2).
-// SC-005: the layout bar takes no room, and showing it moves nothing.
+// SC-005: a layout takes no room above it, and its presets are in the block
+// menu of its lines (owner, 2026-11-21), not on a bar over the page.
 await withFixture(async ({ page, api, base, workspace }) => {
   page.setDefaultTimeout(15000);
   const para = (id, text, children = []) => ({ id, type: 'paragraph', props: {}, content: [{ type: 'text', text, styles: {} }], children });
@@ -146,7 +147,7 @@ await withFixture(async ({ page, api, base, workspace }) => {
     assert.equal(ys.size, 1, `the line moved between ${ys.size} spots in one gap: ${[...ys].join(', ')}`);
   }
 
-  // ---- SC-005: the layout bar takes no room, and showing it moves nothing ----
+  // ---- SC-005: a layout takes no room above its first line ----
   await open();
   const toColumns = await page.evaluate(() => {
     const top = document.querySelector('[data-id="top"] .bn-block-content').getBoundingClientRect();
@@ -156,35 +157,37 @@ await withFixture(async ({ page, api, base, workspace }) => {
     return { columns: Math.round(first.top - top.bottom), plain: Math.round(after.top - next.bottom) };
   });
   assert.equal(toColumns.columns, toColumns.plain, `a paragraph to the columns' first line is ${toColumns.columns}px, between two paragraphs ${toColumns.plain}px`);
-  const lines = () => page.evaluate(() => [...document.querySelectorAll('.bn-block-content')].map((e) => Math.round(e.getBoundingClientRect().top)).join(','));
-  const before = await lines();
-  const bar = page.locator('.bn-columns-bar');
-  assert.equal(await bar.evaluate((e) => getComputedStyle(e).opacity), '0', 'the layout bar shows with nothing hovered');
-  const b2 = await text('b2');
-  await page.mouse.move(b2.x + 20, b2.y + 5, { steps: 4 });
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1');
-  assert.equal(await lines(), before, 'showing the layout bar moved a line');
-  // Over the end of the line above when hidden, it takes no click there.
+  // Nothing of the layout sits over the line above it: its presets are in the
+  // block menu now (owner, 2026-11-21), not on a bar over the block.
+  assert.equal(await page.locator('.bn-columns-bar').count(), 0, 'the layout bar is still drawn over the page');
+
+  // ---- the layouts are in the block menu of a line in the layout ----
+  const blockMenu = async (id) => {
+    const box = await text(id);
+    await page.mouse.move(box.x + 20, box.y + box.height / 2, { steps: 4 });
+    for (let px = box.x + 8; px >= box.x - 10; px -= 2) await page.mouse.move(px, box.y + box.height / 2);
+    const handle = page.locator('.bn-side-menu [draggable="true"]').first();
+    await handle.click();
+    return page.locator('.bn-menu-dropdown').first();
+  };
+  let menu = await blockMenu('b2');
+  const item = menu.getByRole('menuitem', { name: 'Column layout' });
+  await item.hover();
+  const presets = page.locator('.bn-columns-layouts [role="menuitem"]');
+  await presets.first().waitFor();
+  assert.deepEqual(await presets.allInnerTexts().then((x) => x.map((s) => s.trim())), ['50 / 50', '70 / 30', '30 / 70', '33 / 33 / 34', '25 / 50 / 25'], 'the layout submenu offers other presets');
+  await presets.filter({ hasText: '25 / 50 / 25' }).click();
+  await eventually(async () => {
+    const cols = (await api('GET', `/api/pages/${doc.id}`)).content.find((b) => b.id === 'cols');
+    return cols.props.widths === '25,50,25' && cols.children.length === 3;
+  }).catch(() => assert.fail('choosing 25 / 50 / 25 in the block menu did not set the layout'));
+  await page.keyboard.press('Escape');
   await page.mouse.move(1, 1);
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '0');
-  assert.equal(await bar.evaluate((e) => getComputedStyle(e).pointerEvents), 'none', 'the hidden layout bar still takes clicks');
-  // The caret in a column shows it (a phone has no hover).
-  await page.locator('[data-id="b2"] .bn-inline-content').click();
-  await page.mouse.move(1, 1);
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1');
-  await page.locator('[data-id="last"] .bn-inline-content').click();
-  await page.mouse.move(1, 1);
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '0');
-  // Leaving the editor hides it again: a click outside changes no selection
-  // (found by review: the bar stayed shown and clickable).
-  await page.locator('[data-id="b2"] .bn-inline-content').click();
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1');
-  await page.locator('textarea.page-title').click();
-  await page.mouse.move(1, 1);
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '0').catch(() => assert.fail('the layout bar stays shown after the caret left the editor'));
-  // And keyboard focus.
-  await bar.locator('button').first().focus();
-  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1').catch(() => assert.fail('the layout bar does not show with keyboard focus'));
+  // A block outside a layout has no layout item.
+  menu = await blockMenu('last');
+  await menu.getByRole('menuitem', { name: 'Delete' }).waitFor();
+  assert.equal(await menu.getByRole('menuitem', { name: 'Column layout' }).count(), 0, 'a plain block offers a column layout');
+  await page.keyboard.press('Escape');
 
   // ---- a layout inside a column: a drop beside its first line is above or
   // below the inner layout, and makes no column (found by review; #824) ----

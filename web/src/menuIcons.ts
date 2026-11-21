@@ -35,6 +35,7 @@ import {
   CircleMinus,
   CodeXml,
   Columns2,
+  Columns3Cog,
   CopyPlus,
   CornerLeftUp,
   CornerUpRight,
@@ -258,6 +259,8 @@ export const MENU_ICONS = {
   // The editor's / menu: nigari's own blocks
   diagram: Workflow,
   columns: Columns2,
+  // The block menu of a columns block: its layout presets (spec 021)
+  columnLayout: Columns3Cog,
   callout: Lightbulb,
   bookmark: Bookmark,
   embedCollection: TableProperties,

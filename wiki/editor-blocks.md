@@ -100,10 +100,10 @@ it is embedded as it is, without a new chart, and a message says why. See
 [Views](views.md#chart).
 
 **Columns** is a block that holds nothing itself. Inserting it gives you two
-empty blocks side by side. Hover the columns, or put the cursor in one, and a
-small bar appears over the block's top right corner, without pushing anything
-down, with five layouts: two equal columns, **70 / 30**, **30 / 70**, three equal
-columns, and **25 / 50 / 25**. Picking a three-column layout adds the third
+empty blocks side by side. To change the layout, open the block menu of any
+line in the columns (the handle at its left, then **Column layout**) and pick
+one of five: two equal columns, **70 / 30**, **30 / 70**, three equal columns,
+and **25 / 50 / 25**. Picking a three-column layout adds the third
 column; going back to two removes the last column only if it is empty, so
 nothing you wrote is deleted by a click. A column is one block, and a block can
 be indented into it, so a column can hold more than one thing.
@@ -307,7 +307,7 @@ want it inside this document, embed it (below).
 
 ### Columns
 
-**Columns** inserts two empty columns; the bar on the block switches layout.
+**Columns** inserts two empty columns; **Column layout** in the block menu of a line in them switches layout.
 Blocks are dragged in and out; column widths are dragged. Columns are a layout, not
 content: a Markdown export flattens them back into one sequence.
 
