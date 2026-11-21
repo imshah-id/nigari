@@ -14,7 +14,7 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 - Playwright `block-drop.mjs` (new): SC-001, SC-002, SC-005, the opening and its reverse, Q2, reduced motion, a WebKit run.
 - Every new test is mutation-checked (it fails with its fix taken out).
 
-**Issues**: parent and task issues are created by `/speckit-taskstoissues` and listed here.
+**Issues**: parent #830 (part of epic #812); tasks T001–T029 are #831–#859
 
 **Delivery**: two pull requests, each from its own branch off `main`.
 - PR 1: the landing spot (US1) and the floating layout bar (US4).

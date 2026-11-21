@@ -1,6 +1,6 @@
 # Implementation Plan: Dragging a block makes columns, and shows where it lands
 
-**Branch**: `claude/spec-021-drag-columns` | **Date**: 2026-11-21 | **Spec**: [spec.md](spec.md) | **Issue**: epic #812 (#824, the rest of #809); a feature issue is created with the tasks
+**Branch**: `claude/spec-021-drag-columns` | **Date**: 2026-11-21 | **Spec**: [spec.md](spec.md) | **Issue**: epic #812 (#824, the rest of #809); feature issue #830
 
 **Input**: Feature specification from `/specs/021-drag-columns/spec.md`
 
