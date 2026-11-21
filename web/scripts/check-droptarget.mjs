@@ -174,9 +174,15 @@ try {
   check('a block carrying a layout: no new column', dropTarget(carrier, 695, 100, ['top'], side), null);
   check('a block carrying a layout: not into a column', dropTarget(carrier, 250, 100, ['top'], side), null);
   check('a block carrying a layout: not beside another block', dropTarget([...carrier, { line: line('low', 100, 700, 300) }], 695, 305, ['top'], side).kind, 'before');
-  check('a column head carrying a layout: no new column', dropTarget([{ layout: { ...pair.layout, columns: [{ ...pair.layout.columns[0], lines: [...pair.layout.columns[0].lines, { id: 'deep', box: box(100, 390, 200), path: ['duo', 'd'], columns: true }] }, pair.layout.columns[1]] } }], 695, 100, ['d'], side), null);
+  // The column helper's lines sit in 'cols': the three-column layout of `page`.
+  const three = page.find((it) => 'layout' in it).layout;
+  const holder = [{ layout: { ...three, columns: [{ ...three.columns[0], lines: [...three.columns[0].lines, { id: 'deep', box: box(100, 290, 200), path: ['cols', 'a', 'a3'], columns: true }] }, ...three.columns.slice(1)] } }];
+  check('a block in a column carrying a layout: moves within its layout', dropTarget(holder, 400, 100, ['a3'], side), before('b1'));
+  check('a block in a column carrying a layout: no new column', dropTarget(holder, 695, 130, ['a3'], side).kind, 'before');
+  check('a column head carrying a layout: no new column', dropTarget(holder, 695, 130, ['a'], side).kind, 'before');
   // #863's review: a count that disagrees with the columns opens no edge.
   check('count disagrees with the columns: no new column', dropTarget([{ layout: { ...pair.layout, count: 3 } }], 695, 100, ['top'], side).kind, 'before');
+  check('count disagrees: a whole column at its own edge is still refused', dropTarget([{ layout: { ...pair.layout, count: 3 } }], 400, 100, ['e'], side), null);
   check('count agrees: a new column', dropTarget([{ layout: { ...pair.layout, count: 2 } }], 695, 100, ['top'], side), col('duo', 2, null));
   check('the line for a new column is in the opened gap', Math.round(openingCentre(pair.layout, 2)), 605);
   check('the line for a new column is vertical', (() => { const b = lineFor(duo, col('duo', 2, null), 2); return [b.right - b.left, b.top, b.bottom]; })(), [2, 64, 184]);

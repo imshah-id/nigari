@@ -204,9 +204,16 @@ const sayBeside = () => t('Drop to put the two blocks side by side');
  * plugins' handlers included.
  */
 const forgetDragSource = (v: View, e: DragEvent) => {
+  let found = false;
   for (const plugin of v.state.plugins) {
-    if (typeof plugin.key === 'string' && plugin.key.startsWith('uniqueID$')) plugin.props.handleDOMEvents?.drop?.(v, e);
+    const drop = typeof plugin.key === 'string' && plugin.key.startsWith('uniqueID$') ? plugin.props.handleDOMEvents?.drop : undefined;
+    if (!drop) continue;
+    found = true;
+    drop(v, e);
   }
+  // A BlockNote upgrade that renames the plugin or moves the reset would
+  // bring #861 back without an error (block-drop-ids.mjs guards it too).
+  if (!found && import.meta.env?.DEV) console.warn("blockDrop: BlockNote's UniqueID drop handler was not found (#861)");
 };
 
 /** Below this editor width there is no room for a new column (FR-010):
@@ -328,7 +335,13 @@ export function blockDrop(editor: Editor): () => void {
     origin = !!container && e.target instanceof Node && container.contains(e.target);
     if (origin) listen();
   };
-  const onEnd = () => {
+  // A drag that ends anywhere else (Escape, outside the editor, another
+  // editor on the page) never reaches a drop here: UniqueID's state is reset
+  // on its end as well (found by review). Its drop handler, which already ran
+  // for any drop ProseMirror handled here, only clears it again.
+  const onEnd = (e: DragEvent) => {
+    const v = view();
+    if (v) forgetDragSource(v, e);
     origin = false;
     items = null;
     hide();

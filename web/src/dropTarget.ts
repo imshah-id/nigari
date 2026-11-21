@@ -30,8 +30,9 @@
 //      two become a layout of two (Q2). Never where columns stack, on a narrow
 //      page, beside a list item or a nested block, or for a dragged layout
 //      (FR-010: no columns inside columns). A block that carries a layout
-//      among its children counts as a dragged layout for 4 and 5 (#863's
-//      review). A layout whose `count` disagrees with its columns (written
+//      among its children makes no new column and goes beside nothing (5),
+//      and goes into no other layout's columns (4); inside the layout it
+//      already sits in it moves as before (#863's review). A layout whose `count` disagrees with its columns (written
 //      by hand or an old version) opens no edge: it draws no opening.
 
 import { insertColumnWidths, MAX_COLUMNS } from './columnWidths';
@@ -125,9 +126,6 @@ function columnEdge(layout: Layout, x: number, dragged: readonly string[]): Targ
   const cols = layout.columns;
   const n = cols.length;
   if (n < 2 || !sideBySide(layout)) return null;
-  // Its count disagrees with its columns: ColumnsBlock draws no opening there,
-  // so no edge is offered that would show only a line (#863's review).
-  if (layout.count !== undefined && layout.count !== n) return null;
   for (const at of openEdges(n)) {
     let hit: boolean;
     // From the first column's own left edge in, not the margin left of it:
@@ -144,6 +142,9 @@ function columnEdge(layout: Layout, x: number, dragged: readonly string[]): Targ
     // one of its own edges: no change, no line.
     const own = cols.findIndex((c) => c.lines.length > 0 && dragged.includes(c.lines[0].id));
     if (own >= 0 && (at === own || at === own + 1)) return 'refuse';
+    // Its count disagrees with its columns: ColumnsBlock draws no opening
+    // there, so no edge is offered that would show only a line (#863's review).
+    if (layout.count !== undefined && layout.count !== n) return null;
     const head = at < n ? cols[at].lines[0] : undefined;
     return { kind: 'column', id: layout.id, at, before: head ? head.id : null };
   }
@@ -170,8 +171,9 @@ function inLayout(layout: Layout, x: number, y: number): Target | null {
  */
 export function dropTarget(items: Item[], x: number, y: number, dragged: readonly string[] = [], options: Options = {}): Target | null {
   let target: Target | null = null;
-  const draggingLayout = dragged.some((id) => isLayout(items, id) || carriesLayout(items, id));
-  const sideways = !!options.sideways && !draggingLayout && dragged.length > 0;
+  const draggingLayout = dragged.some((id) => isLayout(items, id));
+  const carrying = !draggingLayout && dragged.some((id) => carriesLayout(items, id));
+  const sideways = !!options.sideways && !draggingLayout && !carrying && dragged.length > 0;
   for (const item of items) {
     if ('layout' in item) {
       const { box } = item.layout;
@@ -181,6 +183,8 @@ export function dropTarget(items: Item[], x: number, y: number, dragged: readonl
       }
       if (y <= box.bottom) {
         if (draggingLayout) return null;
+        // A layout carried in from outside would sit in this one's column.
+        if (carrying && !dragged.every((id) => pathOf(items, id)?.[0] === item.layout.id)) return null;
         const edge = sideways ? columnEdge(item.layout, x, dragged) : null;
         if (edge === 'refuse') return null;
         target = edge ?? inLayout(item.layout, x, y);
