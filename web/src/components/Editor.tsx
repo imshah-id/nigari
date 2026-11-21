@@ -9,6 +9,7 @@ import {
 import { filterSuggestionItems, insertOrUpdateBlockForSlashMenu, SideMenuExtension, SuggestionMenu } from '@blocknote/core';
 import { columnEnter } from '../columnEnter';
 import { dropLineWidth } from '../dropLine';
+import { blockDrop, computeDropPosition } from '../blockDrop';
 import { holdSideMenuWhileHovered } from '../sideMenuHold';
 import { en as coreEn } from '@blocknote/core/locales';
 import { BlockNoteView } from '@blocknote/mantine';
@@ -1700,7 +1701,9 @@ function BlockContent({
     // seen, so a drag gave no feedback and felt stuck. The focus colour is a
     // CSS variable, so it follows the theme (the line's colour is set inline).
     // BlockNote reads the width as a number of pixels, hence the token parsed.
-    dropCursor: { color: 'var(--color-focus)', width: dropLineWidth() },
+    // A block from the handle draws its line through blockDrop.ts instead
+    // (spec 021): the hook switches BlockNote's off for it.
+    dropCursor: { color: 'var(--color-focus)', width: dropLineWidth(), hooks: { computeDropPosition } },
     dictionary: coreEn,
   });
 
@@ -1742,6 +1745,10 @@ function BlockContent({
     () => holdSideMenuWhileHovered(editor.getExtension(SideMenuExtension), () => editor.domElement?.closest('.bn-container')),
     [editor],
   );
+
+  // The drop line and the drop of a dragged block use one decision (spec 021,
+  // blockDrop.ts and dropTarget.ts).
+  useEffect(() => blockDrop(editor), [editor]);
 
   // Enter inside a column stays in that column (#317, columnEnter.ts). No
   // label: it is what Enter already means, not a shortcut to list. Ahead of

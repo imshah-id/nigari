@@ -7,6 +7,36 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — Spec 021 PR 1: nigari decides where a dragged block lands, and draws the line itself
+
+- **One decision for the line and the drop** (`dropTarget.ts`, spec 021 R1/R2;
+  #809, #824). Both come from the boxes of the lines on the page: before the
+  first line whose middle is below the pointer, or after the last one; over a
+  columns layout, inside the nearest column. A drop on a column's first line
+  makes the block that column's new first line instead of a new column.
+- **The line is nigari's, not BlockNote's, for a block from the handle.**
+  Turned down: handing the decision to BlockNote through `computeDropPosition`
+  (the plan's first idea). BlockNote draws its line from a ProseMirror position,
+  and the position before a column's first block reads as "after the previous
+  column", so the line still showed in the column to the left however right
+  the position was. BlockNote's line stays for text dragged inside a line and
+  for files.
+- **The drop is taken over in a capture listener**, not ProseMirror's
+  `handleDrop` prop: ProseMirror asks `handleDrop` only when the pointer is over
+  a text position and gives up silently elsewhere (the gap between two
+  columns), where the line had shown a spot. The block moves through
+  BlockNote's block calls, so its id, comments and children go with it. A copy
+  (Alt, or Ctrl off a Mac) and a block from another editor stay ProseMirror's.
+- **The layout bar floats** (owner, 2026-11-21: make it "overlap … instead of
+  having it take up space"). It took a line of its own above every columns
+  block, 23px measured, empty unless hovered. Now it sits over the block's top
+  right corner on hover, with the caret in a column (a phone has no hover), or
+  with keyboard focus; while hidden it takes no clicks. Claude's default: it
+  covers the end of the line above while it shows. Turned down: removing it
+  (the presets would go), moving the presets into the block menu (BlockNote's).
+
+---
+
 ## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted
 
 - **Starter page icon** (#815, owner: "replace the salt icon on the default

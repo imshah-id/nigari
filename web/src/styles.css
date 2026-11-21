@@ -9858,25 +9858,48 @@ body:has(.live-down) .update-banner {
 .bn-columns {
   width: 100%;
 }
+/* The strip takes no room (spec 021, Story 4): a columns block starts where
+   its first line starts, like any other block. The layout bar floats over
+   the block's top edge instead of holding a line of its own above it. */
+.bn-block-content[data-content-type='columns'] {
+  padding: 0;
+}
 .bn-columns {
   position: relative;
-  display: flex;
-  justify-content: flex-end;
-  padding: 2px 0;
+  height: 0;
 }
 .bn-columns-bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  z-index: var(--layer-raised);
   display: flex;
   gap: 4px;
+  padding: 2px;
+  border-radius: var(--radius-scale-md);
+  background: var(--color-surface-default);
   opacity: 0;
+  /* Hidden, it lies over the end of the line above: it must not take the
+     clicks meant for that line. It stays focusable for the keyboard. */
+  pointer-events: none;
   transition: opacity 0.12s;
 }
-/* Two forms, as for the row below: BlockNote wraps a React block in a
-   .react-renderer between the block and its content, so the plain child chain
-   alone never matched and the bar only ever showed when it had focus. */
+/* The first block of a page: above it is the page's title, so the bar floats
+   just inside the top of the columns instead. */
+.bn-block-group > .bn-block-outer:first-child .bn-columns-bar {
+  top: 0;
+  bottom: auto;
+}
+/* Shown while the pointer is over the layout (two forms, as for the row
+   below: BlockNote wraps a React block in a .react-renderer between the block
+   and its content), while the caret is in one of its columns (is-caret, set
+   by ColumnsBlock: a phone has no hover), and with keyboard focus. */
 .bn-block:hover > .bn-block-content > .bn-columns .bn-columns-bar,
 .bn-block:hover > * > .bn-block-content > .bn-columns .bn-columns-bar,
+.bn-columns-bar.is-caret,
 .bn-columns-bar:focus-within {
   opacity: 1;
+  pointer-events: auto;
 }
 .bn-columns-n {
   font: inherit;
@@ -10361,4 +10384,14 @@ body:has(.live-down) .update-banner {
 }
 .editor-page.in-dialog .topbar {
   display: none;
+}
+
+/* The line that shows where a dragged block lands (spec 021, blockDrop.ts):
+   drawn by nigari for a block from the handle, in the place the drop will
+   really put it. Same colour and width as BlockNote's line for text (#809). */
+.nigari-drop-line {
+  position: fixed;
+  z-index: var(--layer-sticky);
+  pointer-events: none;
+  background: var(--color-focus);
 }

@@ -491,6 +491,10 @@ type ColumnsEditor = {
   removeBlocks: (blocks: unknown[]) => void;
   getBlock: (id: string) => ColumnsBlockData | undefined;
   isEditable: boolean;
+  onSelectionChange?: (cb: () => void) => () => void;
+  getTextCursorPosition?: () => { block: { id: string } };
+  getParentBlock?: (id: string) => { id: string } | undefined;
+  isFocused?: () => boolean;
 };
 type ColumnsBlockData = {
   id: string;
@@ -518,6 +522,32 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
   const drawn = drag ?? stored ?? Array<number>(count).fill(100 / count);
   const strip = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<Geometry | null>(null);
+
+  // The caret in one of this layout's columns shows the layout bar (spec 021,
+  // FR-012): a phone has no hover. Kept in our own strip's state, never as a
+  // mark on editor DOM (see the note further down).
+  const [caret, setCaret] = useState(false);
+  useEffect(() => {
+    if (!editor.onSelectionChange || !editor.getTextCursorPosition) return;
+    const check = () => {
+      let b: { id: string } | undefined;
+      try {
+        b = editor.getTextCursorPosition!().block;
+      } catch {
+        return setCaret(false);
+      }
+      let inside = false;
+      for (let i = 0; b && i < 64; i++) {
+        if (b.id === block.id) {
+          inside = true;
+          break;
+        }
+        b = editor.getParentBlock?.(b.id);
+      }
+      setCaret(inside && editor.isFocused?.() !== false);
+    };
+    return editor.onSelectionChange(check);
+  }, [editor, block.id]);
 
   useEffect(() => {
     const row = strip.current?.closest('.bn-block')?.querySelector(':scope > .bn-block-group');
@@ -626,7 +656,7 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
         <style>{`.bn-block-outer${row} > .bn-block > .bn-block-group{grid-template-columns:${gridTemplate(custom)}}`}</style>
       )}
       {editable && (
-        <div className="bn-columns-bar" role="group" aria-label={t('Column layout')}>
+        <div className={'bn-columns-bar' + (caret ? ' is-caret' : '')} role="group" aria-label={t('Column layout')}>
           {PRESETS.map((w) => {
             const on = w.length === count && sameWidths(w, stored ?? equalWidths(count));
             return (

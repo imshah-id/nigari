@@ -36,8 +36,8 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 ### Phase 1: Foundational (the landing decision)
 
-- [ ] T001 [ui] `web/src/dropTarget.ts` (new): a pure function from the pointer and the block boxes under it to a target, `between` (a block and above or below) or `newColumn` (a columns block or an ordinary block, and an edge). One target per gap (R2). In PR 1 it returns only `between`; the `newColumn` branch comes in T010
-- [ ] T002 [P] [test] `web/scripts/check-droptarget.mjs` (new), in `npm run check`: the `between` cases of US1 (the upper and lower half of a column's first and last line, after the columns block, the gap between two plain blocks giving one target). Mutation-check it
+- [x] T001 [ui] `web/src/dropTarget.ts` (new): a pure function from the pointer and the block boxes under it to a target, `between` (a block and above or below) or `newColumn` (a columns block or an ordinary block, and an edge). One target per gap (R2). In PR 1 it returns only `between`; the `newColumn` branch comes in T010
+- [x] T002 [P] [test] `web/scripts/check-droptarget.mjs` (new), in `npm run check`: the `between` cases of US1 (the upper and lower half of a column's first and last line, after the columns block, the gap between two plain blocks giving one target). Mutation-check it
 
 **Checkpoint**: the decision exists and is checked; nothing in the editor uses it yet.
 
@@ -47,11 +47,11 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drag a block to every kind of spot and compare the line with where the block landed.
 
-- [ ] T003 [US1] [ui] `web/src/blockDrop.ts` (new): passes the target to BlockNote's `DropCursorExtension` through `computeDropPosition`, and handles the drop with a ProseMirror `handleDrop` that moves the dragged block to the same target and returns true (R1)
-- [ ] T004 [US1] [ui] Cache the block boxes when a drag starts and on scroll, not per pointer step (SC-003)
-- [ ] T005 [US1] [ui] `web/src/components/Editor.tsx`: one line installing `blockDrop.ts`, next to `holdSideMenuWhileHovered` in `BlockContent` (no behaviour inline in `Editor.tsx`)
-- [ ] T006 [US1] [test] `web/tests/block-drop.mjs` (new), in the test script: a test page with plain blocks and a 3-column layout; SC-001 (every spot lands where the line showed) and SC-002 (no count change without the vertical line); also run in WebKit. Mutation-check it (remove the `handleDrop`)
-- [ ] T007 [US1] [perf] Measure a drag step with the #810 probe on a 300-block page, in Chromium and WebKit, before and after; under 4 ms (SC-003). The numbers go in the PR
+- [x] T003 [US1] [ui] `web/src/blockDrop.ts` (new): draws the line from the target and handles the drop, moving the dragged block to the same target (R1). As built: BlockNote's line is switched off for a block drag through `computeDropPosition` and nigari draws its own, and the drop is taken in a capture listener rather than ProseMirror's `handleDrop` (why: `docs/decisions.md`, 2026-11-21)
+- [x] T004 [US1] [ui] Cache the block boxes when a drag starts and on scroll, not per pointer step (SC-003)
+- [x] T005 [US1] [ui] `web/src/components/Editor.tsx`: one line installing `blockDrop.ts`, next to `holdSideMenuWhileHovered` in `BlockContent` (no behaviour inline in `Editor.tsx`)
+- [x] T006 [US1] [test] `web/tests/block-drop.mjs` (new), in the test script: a test page with plain blocks and a 3-column layout; SC-001 (every spot lands where the line showed) and SC-002 (no count change without the vertical line); also run in WebKit. Mutation-check it (remove the `handleDrop`)
+- [x] T007 [US1] [perf] Measure a drag step with the #810 probe on a 300-block page, in Chromium and WebKit, before and after; under 4 ms (SC-003). The numbers go in the PR
 
 ### Phase 3: User Story 4, the layout bar floats instead of taking a line (P2)
 
@@ -59,12 +59,12 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: the gap between a paragraph and a columns block equals the gap between two paragraphs; showing the bar moves nothing.
 
-- [ ] T008 [P] [US4] [ui] `web/src/styles.css`: `.bn-columns` takes no height; `.bn-columns-bar` is placed absolutely at its top right, over the block's top edge, shown by hover, by `:focus-within` of the columns block and by its own focus; showing it changes only opacity. It stays inside the editor when the columns block is the page's first block. Light and dark; no new literal (`check-tokens.mjs`)
-- [ ] T009 [US4] [test] `block-drop.mjs`: SC-005 (the paragraph-to-columns gap equals paragraph-to-paragraph, measured; showing the bar moves no line, 0 px); the bar shows with the caret in a column, and on Tab. Mutation-check it (put the bar back in the flow)
+- [x] T008 [P] [US4] [ui] `web/src/styles.css`: `.bn-columns` takes no height; `.bn-columns-bar` is placed absolutely at its top right, over the block's top edge, shown by hover, by `:focus-within` of the columns block and by its own focus; showing it changes only opacity. It stays inside the editor when the columns block is the page's first block. Light and dark; no new literal (`check-tokens.mjs`)
+- [x] T009 [US4] [test] `block-drop.mjs`: SC-005 (the paragraph-to-columns gap equals paragraph-to-paragraph, measured; showing the bar moves no line, 0 px); the bar shows with the caret in a column, and on Tab. Mutation-check it (put the bar back in the flow)
 
 ### Phase 4: PR 1 polish
 
-- [ ] T010 [wiki] `wiki/editor-blocks.md`: the "Not right yet" note from PR #827 goes; the layout bar shows on hover over the layout. Retake the screenshots that list the touched files and look at each
+- [x] T010 [wiki] `wiki/editor-blocks.md`: the "Not right yet" note from PR #827 goes; the layout bar shows on hover over the layout. Retake the screenshots that list the touched files and look at each
 - [ ] T011 [test] Reviews: `/code-review` (a fresh review agent writing to a scratchpad file), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added. `docs/decisions.md` entry. `scripts/agent-gate.sh` green
 
 **Checkpoint**: PR 1 can ship on its own.
