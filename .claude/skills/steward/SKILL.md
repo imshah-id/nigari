@@ -110,7 +110,10 @@ writes it.
 2. Check the release run (every push to `main` is a release): version,
    the five binaries and `SHA256SUMS.txt`, the image job.
 3. Start the next pull request on a new branch from `main`; the merged one
-   is done.
+   is done. Do not recreate it (owner, 2026-11-21, "Yes"): GitHub deletes a
+   branch on merge, and fast-forwarding it back, as the handoff's rule 9 once
+   said, only refilled the branch list with names the owner then could not
+   delete.
 4. Tell the other stream to merge `main`.
 
 ## Sessions and the handoff
