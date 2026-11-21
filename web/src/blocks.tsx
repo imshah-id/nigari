@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createReactBlockSpec } from '@blocknote/react';
 import { Table2 } from 'lucide-react';
 import { useBlockCtx } from './blockContext';
@@ -15,10 +15,12 @@ import {
   equalWidths,
   formatWidths,
   gridTemplate,
+  insertColumnWidths,
   moveDivider,
   parseWidths,
   sameWidths,
 } from './columnWidths';
+import { getOpening, subscribeOpening } from './columnOpening';
 
 // Custom nigari block types (Welle 17): callout, table of contents, bookmark.
 // Columns are ours (columnsSpec, at the end of this file) and wired in pageLink.tsx.
@@ -500,8 +502,25 @@ type ColumnsBlockData = {
 // see the note in ColumnsBlock about marking editor DOM.
 type Geometry = { left: number; top: number; width: number; gap: number; height: number };
 
+/** How long the opening slides (--motion-duration-base), and so how long the
+ *  closed track stays before the style goes. */
+const OPENING_MS = 150;
+
+/** The layout with an extra track at `at`: every column after it moved one
+ *  track along, and the tracks sliding unless reduced motion is asked for. */
+function openingStyle(row: string, at: number, tracks: readonly number[], columns: number): string {
+  const group = `.bn-block-outer${row} > .bn-block > .bn-block-group`;
+  const place = Array.from({ length: columns }, (_, i) => `${group} > .bn-block-outer:nth-child(${i + 1}){grid-column:${i < at ? i + 1 : i + 2};grid-row:1}`).join('');
+  return (
+    `${group}{grid-template-columns:${gridTemplate(tracks)}}` +
+    place +
+    `@media (prefers-reduced-motion: no-preference){${group}{transition:grid-template-columns var(--motion-duration-base) var(--motion-easing-out)}}`
+  );
+}
+
 function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: ColumnsEditor }) {
-  const count = Number(block.props.count) === 3 ? 3 : 2;
+  // 2 to 4 columns (spec 021, R5). An older document says 2 or 3.
+  const count = Math.max(2, Math.min(4, Math.round(Number(block.props.count)) || 2));
   const stored = parseWidths(block.props.widths, count);
   // The widths being dragged right now. Kept out of the block so the drag is
   // local and instant: updating the block on every pointermove would put one
@@ -514,6 +533,30 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
   const drawn = drag ?? stored ?? Array<number>(count).fill(100 / count);
   const strip = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<Geometry | null>(null);
+
+  // The opening (spec 021, R3, FR-005): while a dragged block is held at one
+  // of this layout's edges, an empty track opens where the new column will
+  // go. Two steps, so the tracks can slide: first the new track at 0fr, then,
+  // a frame later, at its width; closing runs the same way back. Through our
+  // own <style> only (see the note on editor DOM below).
+  const opening = useSyncExternalStore(subscribeOpening, getOpening);
+  const openAt = opening?.id === block.id && count === block.children.length ? opening.at : null;
+  const [open, setOpen] = useState<{ at: number; tracks: number[] } | null>(null);
+  useEffect(() => {
+    const base = drawn;
+    const closed = (at: number) => [...base.slice(0, at), 0, ...base.slice(at)];
+    if (openAt !== null) {
+      setOpen({ at: openAt, tracks: closed(openAt) });
+      const frame = requestAnimationFrame(() => setOpen({ at: openAt, tracks: insertColumnWidths(base, openAt) }));
+      return () => cancelAnimationFrame(frame);
+    }
+    if (!open) return;
+    setOpen({ at: open.at, tracks: closed(open.at) });
+    const done = setTimeout(() => setOpen(null), OPENING_MS);
+    return () => clearTimeout(done);
+    // Only a change of target opens or closes; the widths are read as they are then.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openAt]);
 
   useEffect(() => {
     const row = strip.current?.closest('.bn-block')?.querySelector(':scope > .bn-block-group');
@@ -595,10 +638,12 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
   let x = 0;
   return (
     <div className="bn-columns" data-count={count} contentEditable={false} ref={strip}>
-      {custom && (
+      {custom && !open && (
         <style>{`.bn-block-outer${row} > .bn-block > .bn-block-group{grid-template-columns:${gridTemplate(custom)}}`}</style>
       )}
+      {open && <style>{openingStyle(row, open.at, open.tracks, block.children.length)}</style>}
       {tracks &&
+        !open &&
         widths.slice(0, -1).map((w, i) => {
           const room = tracks.width - tracks.gap * (count - 1);
           x += (drawn[i] / 100) * room;

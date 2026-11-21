@@ -1391,5 +1391,7 @@
   "This is the only form view, and the database has a public form link. The link stops working until there is a form view again. Change the layout anyway?": "Dit is de enige formulierweergave, en de database heeft een openbare formulierlink. De link werkt niet meer tot er weer een formulierweergave is. Indeling toch wijzigen?",
   "This layout shows rows by date, and the database has no date property. Add one named {name}?": "Deze indeling toont rijen per datum, en de database heeft geen datumeigenschap. Er een toevoegen met de naam {name}?",
   "This layout shows rows by date, and the database has no date property. Someone who can edit the database can add one.": "Deze indeling toont rijen per datum, en de database heeft geen datumeigenschap. Iemand die de database mag bewerken, kan er een toevoegen.",
-  "Added the date property {name}. Change the dates in Settings.": "Datumeigenschap {name} toegevoegd. Wijzig de datums in Instellingen."
+  "Added the date property {name}. Change the dates in Settings.": "Datumeigenschap {name} toegevoegd. Wijzig de datums in Instellingen.",
+  "Drop to make a new column here": "Loslaten om hier een nieuwe kolom te maken",
+  "Drop to put the two blocks side by side": "Loslaten om de twee blokken naast elkaar te zetten"
 }

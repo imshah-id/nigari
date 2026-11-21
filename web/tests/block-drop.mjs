@@ -175,7 +175,7 @@ await withFixture(async ({ page, api, base, workspace }) => {
   await item.hover();
   const presets = page.locator('.bn-columns-layouts [role="menuitem"]');
   await presets.first().waitFor();
-  assert.deepEqual(await presets.allInnerTexts().then((x) => x.map((s) => s.trim())), ['50 / 50', '70 / 30', '30 / 70', '33 / 33 / 34', '25 / 50 / 25'], 'the layout submenu offers other presets');
+  assert.deepEqual(await presets.allInnerTexts().then((x) => x.map((s) => s.trim())), ['50 / 50', '70 / 30', '30 / 70', '33 / 33 / 34', '25 / 50 / 25', '25 / 25 / 25 / 25'], 'the layout submenu offers other presets');
   await presets.filter({ hasText: '25 / 50 / 25' }).click();
   await eventually(async () => {
     const cols = (await api('GET', `/api/pages/${doc.id}`)).content.find((b) => b.id === 'cols');
@@ -282,4 +282,173 @@ await withFixture(async ({ page, api, base, workspace }) => {
   assert.equal(outer.children.length, 2, 'the outer layout gained a column');
   assert(innerNow, 'the inner layout is gone');
   assert.deepEqual(innerNow.children.map((c) => c.id), ['x', 'y'], 'the inner layout gained a column');
+});
+
+// ---- sideways (spec 021, PR 2): a new column, and two blocks side by side ----
+// US2: at a column's edge a vertical line shows, the columns slide apart
+// (FR-005), moving away closes them, and a drop makes the column with the Q3
+// widths (FR-006). FR-008: a column a drag empties goes, and a layout left
+// with one column turns back into plain blocks. US3: at a plain block's edge
+// the two become a layout of two. FR-010: no sideways on a phone-width page.
+await withFixture(async ({ page, api, base, workspace }) => {
+  page.setDefaultTimeout(15000);
+  const para = (id, text, children = []) => ({ id, type: 'paragraph', props: {}, content: [{ type: 'text', text, styles: {} }], children });
+  const bullet = (id, text) => ({ id, type: 'bulletListItem', props: {}, content: [{ type: 'text', text, styles: {} }], children: [] });
+  const layout = (id, kids, widths) => ({ id, type: 'columns', props: { count: kids.length, ...(widths ? { widths } : {}) }, content: [], children: kids });
+  const doc = await api('POST', '/api/pages', { title: 'Sideways', workspaceId: workspace.id });
+  const text = (id) => page.locator(`[data-id="${id}"] .bn-inline-content`).first().boundingBox();
+  const content = async () => (await api('GET', `/api/pages/${doc.id}`)).content;
+  const open = async (blocks, wait) => {
+    await api('PATCH', `/api/pages/${doc.id}`, { content: [para('mover', 'The block that is dragged'), ...blocks] });
+    await page.goto(`${base}/p/${doc.id}`);
+    await page.locator(`[data-id="${wait}"] .bn-inline-content`).waitFor();
+    await page.mouse.move(1, 1);
+  };
+  // Picks up a block by its handle and moves it to (x, y) in small steps.
+  const lift = async (id = 'mover') => {
+    const from = await text(id);
+    await page.mouse.move(from.x + 10, from.y + 10);
+    for (let px = from.x + 8; px >= from.x - 10; px -= 2) await page.mouse.move(px, from.y + 12);
+    await page.mouse.down();
+    return { x: from.x - 10, y: from.y + 12 };
+  };
+  const glide = async (from, x, y) => {
+    for (let i = 1; i <= 25; i++) await page.mouse.move(from.x + (x - from.x) * i / 25, from.y + (y - from.y) * i / 25);
+    return { x, y };
+  };
+  const theLine = () => page.evaluate(() => {
+    const l = document.querySelector('.nigari-drop-line');
+    if (!l) return null;
+    const r = l.getBoundingClientRect();
+    return { vertical: r.height > r.width, x: (r.left + r.right) / 2 };
+  });
+  const tracks = (id) => page.evaluate((id) => getComputedStyle(document.querySelector(`[data-id="${id}"] > .bn-block > .bn-block-group`)).gridTemplateColumns.split(' ').length, id);
+  const row = (id) => page.locator(`[data-id="${id}"] > .bn-block > .bn-block-group`).first().boundingBox();
+  const settled = async (check, message) => {
+    let ok = false;
+    for (let i = 0; i < 40 && !ok; i++) {
+      await page.waitForTimeout(150);
+      ok = await check();
+    }
+    assert(ok, message);
+  };
+  const find = (blocks, id) => { for (const b of blocks) { if (b.id === id) return b; const r = find(b.children ?? [], id); if (r) return r; } return null; };
+
+  // ---- US2: the line, the opening, moving away, the drop ----
+  await open([layout('cols', [para('x', 'Left'), para('y', 'Right')])], 'y');
+  let r = await row('cols');
+  let at = await lift();
+  at = await glide(at, r.x + r.width - 4, r.y + 10);
+  let line = await theLine();
+  assert(line && line.vertical, 'no vertical line at the right edge of the last column');
+  await settled(async () => (await tracks('cols')) === 3, 'the columns did not slide apart for the new column');
+  // Back over a column's text: the horizontal line, and the columns close.
+  const yText = await text('y');
+  at = await glide(at, yText.x + 20, yText.y + yText.height * 0.75);
+  line = await theLine();
+  assert(line && !line.vertical, 'moving away from the edge kept the vertical line');
+  await settled(async () => (await tracks('cols')) === 2, 'moving away did not close the opening');
+  // And back to the edge, then drop.
+  at = await glide(at, r.x + r.width - 4, r.y + 10);
+  await page.mouse.up();
+  await settled(async () => (find(await content(), 'cols')?.children.length ?? 0) === 3, 'the drop at the edge made no column');
+  let cols = find(await content(), 'cols');
+  assert.deepEqual(cols.children.map((c) => c.id), ['x', 'y', 'mover'], 'the new column is not where the line was');
+  assert.equal(Number(cols.props.count), 3, 'the count did not go up with the new column');
+  assert.equal(cols.props.widths ?? '', '', '50/50 plus one is not three equal columns (Q3)');
+
+  // ---- Q3: a column of its own width keeps it; a row of 3 opens at the far right ----
+  await open([layout('cols', [para('x', 'Wide'), para('y', 'Narrow'), para('z', 'Narrow too')], '40,30,30')], 'z');
+  r = await row('cols');
+  at = await lift();
+  // The gap between two columns of 3 offers no column (Q1): a horizontal line.
+  const xBox = await page.locator('[data-id="x"]').first().boundingBox();
+  at = await glide(at, xBox.x + xBox.width + 2, r.y + 10);
+  line = await theLine();
+  assert(line && !line.vertical, 'a row of 3 offered a column between two columns');
+  at = await glide(at, r.x + r.width - 4, r.y + 10);
+  line = await theLine();
+  assert(line && line.vertical, 'a row of 3 offered no column at its far right');
+  await page.mouse.up();
+  await settled(async () => (find(await content(), 'cols')?.children.length ?? 0) === 4, 'a row of 3 did not take a 4th column');
+  cols = find(await content(), 'cols');
+  assert.equal(cols.props.widths, '40,20,20,20', `40/30/30 plus one is ${cols.props.widths}, not 40/20/20/20 (Q3)`);
+  // A row of 4 offers no edge.
+  await open([layout('cols', [para('w', 'One'), para('x', 'Two'), para('y', 'Three'), para('z', 'Four')])], 'z');
+  r = await row('cols');
+  at = await lift();
+  at = await glide(at, r.x + r.width - 4, r.y + 10);
+  line = await theLine();
+  await page.mouse.up();
+  assert(line && !line.vertical, 'a row of 4 offered a 5th column');
+
+  // ---- FR-008: an emptied middle column goes; one left turns back into blocks ----
+  await open([layout('cols', [para('x', 'One'), para('y', 'Two'), para('z', 'Three')], '25,50,25'), para('end', 'The end')], 'end');
+  {
+    const end = await text('end');
+    let a = await lift('y');
+    a = await glide(a, end.x + 30, end.y + end.height * 0.8);
+    await page.mouse.up();
+    await settled(async () => (find(await content(), 'cols')?.children.length ?? 0) === 2, 'the emptied middle column did not go');
+    cols = find(await content(), 'cols');
+    assert.equal(Number(cols.props.count), 2, 'the count did not drop with the emptied column');
+    assert.equal(cols.props.widths, '', `25/50/25 without its middle is ${cols.props.widths}, not two halves`);
+  }
+  await open([layout('cols', [para('x', 'One'), para('y', 'Two', [para('y1', 'Its next line')])]), para('end', 'The end')], 'y1');
+  {
+    const end = await text('end');
+    let a = await lift('x');
+    a = await glide(a, end.x + 30, end.y + end.height * 0.8);
+    await page.mouse.up();
+    await settled(async () => !find(await content(), 'cols'), 'a layout left with one column stayed a layout');
+    const ids = (await content()).map((b) => b.id);
+    assert.deepEqual(ids, ['mover', 'y', 'y1', 'end', 'x'], `the last column did not turn back into plain blocks: ${ids.join(',')}`);
+  }
+
+  // ---- US3: beside a plain block, left and right ----
+  for (const [edge, want] of [['right', ['a', 'mover']], ['left', ['mover', 'a']]]) {
+    await open([para('a', 'A paragraph to stand beside'), bullet('li', 'A list item')], 'li');
+    const a = await page.locator('[data-id="a"] .bn-block-content').first().boundingBox();
+    let p = await lift();
+    p = await glide(p, edge === 'right' ? a.x + a.width - 4 : a.x + 4, a.y + a.height / 2);
+    line = await theLine();
+    assert(line && line.vertical, `no vertical line at the ${edge} edge of a plain block`);
+    await page.mouse.up();
+    let made = null;
+    await settled(async () => { made = (await content()).find((b) => b.type === 'columns'); return !!made; }, `a drop at the ${edge} edge made no layout`);
+    assert.deepEqual(made.children.map((c) => c.id), want, `beside, ${edge}: the two are in the wrong order`);
+    assert.equal(Number(made.props.count), 2, 'beside: not a layout of two');
+  }
+  // No line beside a list item.
+  await open([para('a', 'A paragraph'), bullet('li', 'A list item')], 'li');
+  {
+    const li = await page.locator('[data-id="li"] .bn-block-content').first().boundingBox();
+    let p = await lift();
+    p = await glide(p, li.x + li.width - 4, li.y + li.height / 2);
+    line = await theLine();
+    await page.mouse.up();
+    assert(line && !line.vertical, 'a list item offered a layout beside it');
+  }
+
+  // ---- FR-007: reduced motion opens without the slide ----
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await open([layout('cols', [para('x', 'Left'), para('y', 'Right')])], 'y');
+  r = await row('cols');
+  at = await lift();
+  at = await glide(at, r.x + r.width - 4, r.y + 10);
+  await settled(async () => (await tracks('cols')) === 3, 'with reduced motion the room did not open');
+  const moving = await page.evaluate(() => getComputedStyle(document.querySelector('[data-id="cols"] > .bn-block > .bn-block-group')).transitionDuration);
+  await page.mouse.up();
+  assert(moving.split(',').every((d) => parseFloat(d) < 0.01), `with reduced motion the columns still slide (${moving})`);
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+
+  // ---- FR-010: a phone-width page offers no column ----
+  await page.setViewportSize({ width: 390, height: 844 });
+  await open([layout('cols', [para('x', 'Left'), para('y', 'Right')])], 'y');
+  r = await row('cols');
+  at = await lift();
+  at = await glide(at, r.x + r.width - 2, r.y + 10);
+  line = await theLine();
+  await page.mouse.up();
+  assert(!line || !line.vertical, 'a phone-width page offered a new column');
 });

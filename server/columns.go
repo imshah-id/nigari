@@ -18,6 +18,20 @@ import (
 // repaired: the block was written by hand or by an agent, and equal columns are
 // a safe answer where a guess is not. Only numbers are echoed, so nothing from
 // the block reaches the markup as text.
+// maxColumns is the most columns a layout has (spec 021, R5). The editor
+// makes 2 to 4; every reader here draws the same.
+const maxColumns = 4
+
+// columnCount is a columns block's count as every reader draws it: 2 to 4,
+// and 2 for anything else. A document from before spec 021 says 2 or 3.
+func columnCount(props map[string]any) int {
+	n := intProp(props, "count", 2)
+	if n < 2 || n > maxColumns {
+		return 2
+	}
+	return n
+}
+
 func columnsStyle(props map[string]any, n int) string {
 	raw, _ := props["widths"].(string)
 	if raw == "" {

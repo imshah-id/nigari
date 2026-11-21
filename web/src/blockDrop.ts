@@ -27,6 +27,9 @@
 
 import { dropTarget, lineFor, staysPut, type Box, type Item, type Line, type Target } from './dropTarget';
 import { dropLineWidth } from './dropLine';
+import { closeEmptied, insertColumn, sourcesOf, wrapBeside } from './columnMoves';
+import { setOpening } from './columnOpening';
+import { t } from './i18n';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type Editor = any;
@@ -60,7 +63,8 @@ function linesOf(outer: Element, path: string[], head: boolean, out: Line[]) {
     out.push({ id, box: rect(outer), path, columns: true, ...(head ? { head: true } : {}) });
     return;
   }
-  out.push({ id, box: rect(content), path, ...(head ? { head: true } : {}) });
+  const type = content.getAttribute('data-content-type') ?? undefined;
+  out.push({ id, box: rect(content), path, type, ...(head ? { head: true } : {}) });
   for (const child of outerOf(groupOf(outer))) linesOf(child, [...path, id], false, out);
 }
 
@@ -119,10 +123,25 @@ export function moveTo(editor: Editor, target: Target, ids: string[]) {
     const blocks = ids.map((id) => editor.getBlock(id)).filter(Boolean);
     // Nothing is removed unless there is somewhere to put it.
     if (blocks.length === 0 || ids.includes(target.id) || !editor.getBlock(target.id)) return;
+    // The columns the dragged blocks leave, read before they go (FR-008).
+    const sources = sourcesOf(editor, ids);
     editor.removeBlocks(ids);
+    const keep = target.kind === 'column' ? target.id : undefined;
+    const base = closeEmptied(editor, sources, keep);
+    if (target.kind === 'column') {
+      insertColumn(editor, target.id, target.before, blocks, base);
+      return;
+    }
+    if (target.kind === 'beside') {
+      wrapBeside(editor, target.id, target.edge, blocks);
+      return;
+    }
     const at = editor.getBlock(target.id);
     if (!at) return;
-    if (!target.head) {
+    // Still a column's first block: the layout it was in may just have turned
+    // back into plain blocks.
+    const head = target.head && editor.getParentBlock(at.id)?.type === 'columns';
+    if (!head) {
       editor.insertBlocks(blocks, at, target.kind);
       return;
     }
@@ -148,6 +167,13 @@ export function moveTo(editor: Editor, target: Target, ids: string[]) {
 export const computeDropPosition = <P,>({ view, defaultPosition }: { view: View; defaultPosition: P }): P | null =>
   isBlockDrag(view) ? null : defaultPosition;
 
+const sayColumn = () => t('Drop to make a new column here');
+const sayBeside = () => t('Drop to put the two blocks side by side');
+
+/** Below this editor width there is no room for a new column (FR-010):
+ *  the phone's page, where four columns would be slivers. */
+const SIDEWAYS_MIN_WIDTH = 480;
+
 /** A drop that copies rather than moves (Alt, or Ctrl off a Mac): ProseMirror's. */
 const copies = (e: DragEvent) => e.altKey || (!/Mac/.test(navigator.platform) && e.ctrlKey);
 
@@ -161,17 +187,37 @@ export function blockDrop(editor: Editor): () => void {
   let shown = '';
   // The drag started at this editor's own handle (see the top of the file).
   let origin = false;
+  // What a screen reader is told when a drop would make columns (T022): the
+  // vertical line and the opening are only seen.
+  let live: HTMLElement | null = null;
+  let said = '';
+  const say = (text: string) => {
+    if (text === said) return;
+    said = text;
+    if (!text) return;
+    if (!live) {
+      live = document.createElement('div');
+      live.className = 'nigari-drop-say';
+      live.setAttribute('role', 'status');
+      live.setAttribute('aria-live', 'polite');
+      document.body.append(live);
+    }
+    live.textContent = text;
+  };
   const view = (): View | undefined => editor.prosemirrorView;
 
   const hide = () => {
     line?.remove();
     line = null;
     shown = '';
+    setOpening(null);
   };
   const decide = (v: View, x: number, y: number) => {
     if (!items) items = readItems(v.dom);
     const ids = draggedIds(v.state);
-    const target = dropTarget(items, x, y, ids);
+    // Sideways only where there is room for columns side by side (FR-010).
+    const sideways = v.dom.getBoundingClientRect().width >= SIDEWAYS_MIN_WIDTH;
+    const target = dropTarget(items, x, y, ids, { sideways });
     return target ? { target, all: items, ids } : null;
   };
   const draw = (box: Box | null, key: string) => {
@@ -199,8 +245,18 @@ export function blockDrop(editor: Editor): () => void {
     const v = view();
     if (!v || !v.editable || !origin || !isBlockDrag(v)) return;
     const d = decide(v, e.clientX, e.clientY);
-    if (!d) draw(null, 'none');
-    else draw(lineFor(d.all, d.target, dropLineWidth()), `${d.target.kind}:${d.target.id}`);
+    if (!d) {
+      draw(null, 'none');
+      setOpening(null);
+      say('');
+      return;
+    }
+    const t = d.target;
+    draw(lineFor(d.all, t, dropLineWidth()), t.kind === 'column' ? `column:${t.id}:${t.at}` : t.kind === 'beside' ? `beside:${t.id}:${t.edge}` : `${t.kind}:${t.id}`);
+    // The columns slide apart to open the room (FR-005); anywhere else they
+    // close again.
+    setOpening(t.kind === 'column' ? { id: t.id, at: t.at } : null);
+    say(t.kind === 'column' ? sayColumn() : t.kind === 'beside' ? sayBeside() : '');
   };
   const onLeave = (e: DragEvent) => {
     const v = view();
@@ -266,5 +322,6 @@ export function blockDrop(editor: Editor): () => void {
     window.removeEventListener('resize', onScroll);
     if (typeof offChange === 'function') offChange();
     hide();
+    live?.remove();
   };
 }

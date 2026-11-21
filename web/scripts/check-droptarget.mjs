@@ -31,7 +31,7 @@ try {
     console.error(String(e.stderr ?? e));
     process.exit(1);
   }
-  const { dropTarget, lineFor, staysPut } = await import(bundle);
+  const { dropTarget, lineFor, staysPut, openEdges, openingCentre } = await import(bundle);
 
   let failed = 0;
   let passed = 0;
@@ -133,6 +133,42 @@ try {
   check('the line above a column\'s first line is above it, in that column', [lineFor(page, before('b', true), 2).left, mid(lineFor(page, before('b', true), 2))], [310, 62]);
   check('the line after a column\'s last line is under it', mid(lineFor(page, after('b3'), 2)), 186);
   check('the line is as thick as asked', (() => { const b = lineFor(page, before('list'), 2); return b.bottom - b.top; })(), 2);
+
+  // ---- sideways (spec 021, PR 2): a new column, or side by side ----
+  const side = { sideways: true };
+  const col = (id, at, before) => ({ kind: 'column', id, at, before });
+  const pair = { layout: { id: 'duo', box: { left: 100, right: 700, top: 64, bottom: 184 }, columns: [column('d', 100, 390), column('e', 410, 700)] } };
+  const duo = [{ line: line('top', 100, 700, 0, [], false) }, pair];
+  check('Q1: a row of 2 opens at every edge', openEdges(2), [0, 1, 2]);
+  check('Q1: a row of 3 only at the far right', openEdges(3), [3]);
+  check('Q1: a row of 4 nowhere', openEdges(4), []);
+  check('row of 2: left edge of the first column', dropTarget(duo, 105, 100, ['top'], side), col('duo', 0, 'd'));
+  check('row of 2: the gap between the columns', dropTarget(duo, 400, 100, ['top'], side), col('duo', 1, 'e'));
+  check('row of 2: right edge of the first column is the same gap', dropTarget(duo, 380, 100, ['top'], side), col('duo', 1, 'e'));
+  check('row of 2: right edge of the last column', dropTarget(duo, 695, 100, ['top'], side), col('duo', 2, null));
+  check('row of 2: past the right edge', dropTarget(duo, 800, 100, ['top'], side), col('duo', 2, null));
+  check('row of 2: over a column\'s text is a line, not a column', dropTarget(duo, 250, 100, ['top'], side), before('d1'));
+  check('row of 3: an inner edge is a line', at(296, 130, ['top']) && dropTarget(page, 296, 130, ['top'], side), before('a2'));
+  check('row of 3: the far right edge opens a 4th', dropTarget(page, 695, 130, ['top'], side), col('cols', 3, null));
+  const four = [{ layout: { id: 'q', box: { left: 0, right: 800, top: 0, bottom: 120 }, columns: [column('w', 0, 185), column('x', 205, 390), column('y', 410, 595), column('z', 615, 800)] } }];
+  check('row of 4: the far right edge is no column', dropTarget(four, 795, 100, ['top'], side).kind, 'before');
+  check('without sideways (a narrow page): a line', dropTarget(duo, 695, 100, ['top']), before('e1'));
+  check('a whole column at its own edge: nothing', dropTarget(duo, 400, 100, ['e'], side), null);
+  check('a whole column at the other side: a move', dropTarget(duo, 105, 100, ['e'], side), col('duo', 0, 'd'));
+  check('a layout dragged: no column inside columns', dropTarget([pair, { layout: { id: 'other', box: { left: 100, right: 700, top: 300, bottom: 400 }, columns: [column('f', 100, 390), column('g', 410, 700)] } }], 695, 100, ['other'], side), null);
+  const stackedSide = dropTarget(stacked, 295, 170, ['zz'], side);
+  check('stacked columns: no new column', stackedSide && stackedSide.kind, 'after');
+  check('beside a plain block: left', dropTarget(duo, 105, 10, ['x'], side), { kind: 'beside', id: 'top', edge: 'left' });
+  check('beside a plain block: right', dropTarget(duo, 695, 10, ['x'], side), { kind: 'beside', id: 'top', edge: 'right' });
+  check('beside a plain block, over its text: a line', dropTarget(duo, 300, 5, ['x'], side), before('top'));
+  check('beside itself: nothing beside', dropTarget(duo, 695, 10, ['top'], side).kind, 'before');
+  check('beside a list item: a line', dropTarget([{ line: { ...line('li', 100, 700, 0), type: 'bulletListItem' } }], 695, 5, ['x'], side), before('li'));
+  check('beside a nested block: a line', dropTarget([{ line: line('p', 100, 700, 0) }, { line: line('p1', 120, 700, 32, ['p']) }], 695, 40, ['x'], side), before('p1'));
+  check('beside a plain block, no sideways: a line', dropTarget(duo, 695, 5, ['x']), before('top'));
+  check('the line for a new column is in the opened gap', Math.round(openingCentre(pair.layout, 2)), 605);
+  check('the line for a new column is vertical', (() => { const b = lineFor(duo, col('duo', 2, null), 2); return [b.right - b.left, b.top, b.bottom]; })(), [2, 64, 184]);
+  check('the line beside a block is at its edge', (() => { const b = lineFor(duo, { kind: 'beside', id: 'top', edge: 'left' }, 2); return [b.left, b.right, b.top, b.bottom]; })(), [95, 97, 0, 24]);
+  check('a sideways target never stays put', staysPut(duo, col('duo', 0, 'd'), ['top']), false);
 
   console.log(`  drop target: ${passed} passed, ${failed} failed`);
   if (failed) process.exit(1);

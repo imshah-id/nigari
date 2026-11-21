@@ -58,3 +58,43 @@ func TestColumnWidthsReachPublicAndPrint(t *testing.T) {
 		t.Error("an inline grid-template-columns would defeat the narrow-screen rule")
 	}
 }
+
+// Spec 021 (R5): the editor makes up to four columns, so the print view, the
+// shared page and Markdown (what an agent reads and writes) take four too. A
+// count the editor never makes reads as two, as before. The bug this guards:
+// a fourth column drawn wrapped under the others in print and on a shared
+// page, because those readers knew only 2 and 3.
+func TestFourColumnsEverywhere(t *testing.T) {
+	content := []byte(`[
+ {"type":"columns","props":{"count":4,"widths":"40,20,20,20"},"children":[
+  {"type":"paragraph","content":[{"type":"text","text":"A"}]},
+  {"type":"paragraph","content":[{"type":"text","text":"B"}]},
+  {"type":"paragraph","content":[{"type":"text","text":"C"}]},
+  {"type":"paragraph","content":[{"type":"text","text":"D"}]}]},
+ {"type":"columns","props":{"count":9},"children":[
+  {"type":"paragraph","content":[{"type":"text","text":"E"}]},
+  {"type":"paragraph","content":[{"type":"text","text":"F"}]}]}
+ ]`)
+	want := `<div class="cols" data-count="4" style="--cols:minmax(0,40fr) minmax(0,20fr) minmax(0,20fr) minmax(0,20fr)">`
+	for name, got := range map[string]string{"public": publicBlocksHTML(content), "print": blocksToHTML(content)} {
+		if !strings.Contains(got, want) {
+			t.Errorf("%s: four columns not drawn as four: %s", name, got)
+		}
+		if !strings.Contains(got, `<div class="cols" data-count="2">`) {
+			t.Errorf("%s: a count the editor never makes is not read as two: %s", name, got)
+		}
+	}
+	for name, css := range map[string]string{"public": publicBlockLayout, "print": htmlDocStyle} {
+		if !strings.Contains(css, `.cols[data-count="4"]{grid-template-columns:var(--cols,repeat(4,minmax(0,1fr)))}`) && !strings.Contains(css, `.public-doc .cols[data-count="4"]{grid-template-columns:var(--cols,repeat(4,minmax(0,1fr)))}`) {
+			t.Errorf("%s: no four-column rule in the stylesheet", name)
+		}
+	}
+	md := blocksToMarkdown(content)
+	if strings.Count(md, "::: {.column width=") != 4 {
+		t.Errorf("Markdown lost a column or its width:\n%s", md)
+	}
+	back, _ := mdToBlocksJSON(md)
+	if !strings.Contains(back, `"count":4`) || !strings.Contains(back, `"widths":"40,20,20,20"`) {
+		t.Errorf("four columns did not come back from Markdown: %s", back)
+	}
+}

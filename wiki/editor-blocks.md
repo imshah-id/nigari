@@ -102,11 +102,11 @@ it is embedded as it is, without a new chart, and a message says why. See
 **Columns** is a block that holds nothing itself. Inserting it gives you two
 empty blocks side by side. To change the layout, open the block menu of any
 line in the columns (the handle at its left, then **Column layout**) and pick
-one of five: two equal columns, **70 / 30**, **30 / 70**, three equal columns,
-and **25 / 50 / 25**. On a phone, tap a line to show its handle. From the
+one of six: two equal columns, **70 / 30**, **30 / 70**, three equal columns,
+**25 / 50 / 25** and four equal columns. On a phone, tap a line to show its handle. From the
 keyboard, type **/** in a line inside the columns and then the layout, such as
-`/70 / 30`. Picking a three-column layout adds the third
-column; going back to two removes the last column only if it is empty, so
+`/70 / 30`. Picking a layout with more columns adds them; going back to fewer
+removes the last columns only if they are empty, so
 nothing you wrote is deleted by a click. A column is one block, and a block can
 be indented into it, so a column can hold more than one thing.
 
@@ -120,8 +120,8 @@ right arrow (5% a press, 1% with Shift). The widths are saved on the block, so
 they survive a reload, reach everyone editing the page, and are used by the
 public page and the print view.
 
-It replaced a paid add-on. One thing it does not do, which that one did:
-dragging a block sideways to open a new column.
+A layout has two to four columns. Besides the menu, a drag makes them: see
+dragging below.
 
 **Diagram** is written, not drawn. The block holds
 [Mermaid](https://mermaid.js.org) source (`A --> B` rather than coordinates for
@@ -189,9 +189,30 @@ column, so they can be reached from the text.
 Drag the grip to move a block. While you drag, a line in the accent colour shows
 where it will land, and the block lands exactly there. Over a column the line
 stays in that column: above a column's first line it makes the block that
-column's new first line. Dragging moves a block between other blocks, into a
-column or out of one; it does not make new columns (use **Columns** from the
-slash menu). Drag the gap between two columns to change their widths.
+column's new first line. Drag the gap between two columns to change their
+widths.
+
+**Sideways makes columns.** Hold a dragged block at the left or right edge of a
+column and the line turns upright, and the columns slide apart to show the room
+the new column will take; move back over the text and they close again. Drop,
+and the block is a new column there.
+
+- A layout of two takes a new column at any edge, a layout of three only at
+  the right edge of its last column, and four is the most.
+- The widths: columns that share one width split their room with the new one,
+  and a column you made wider or narrower keeps its width. 50 / 50 becomes
+  three equal columns; 40 / 30 / 30 becomes 40 / 20 / 20 / 20. Where no two
+  columns are alike, all of them shrink in proportion, and none goes under 15%.
+- Hold a block at the left or right edge of an ordinary block on the page and
+  the two go side by side as a new layout of two, the dragged one on the side
+  you held it. Not beside a list item or a block nested under another.
+- A column a drag leaves empty goes, and the columns beside it take its room.
+  A layout left with one column turns back into ordinary blocks.
+- On a narrow page, such as a phone, there is no room for another column, so
+  dragging only moves blocks up and down. With reduced motion turned on, the
+  room opens without the slide.
+
+Not right yet: dragging is tested in Chrome only. Safari has not been tried.
 
 ### Editing shortcuts
 
@@ -310,7 +331,8 @@ want it inside this document, embed it (below).
 ### Columns
 
 **Columns** inserts two empty columns; **Column layout** in the block menu of a line in them switches layout.
-Blocks are dragged in and out; column widths are dragged. Columns are a layout, not
+Blocks are dragged in and out, and dragged to a column's edge they make a new
+column (up to four); column widths are dragged. Columns are a layout, not
 content: a Markdown export flattens them back into one sequence.
 
 ### Image, Video, Audio, File

@@ -9979,6 +9979,11 @@ body:has(.live-down) .update-banner {
 .bn-block:has(> * > .bn-block-content[data-content-type='columns'][data-count='3']) > .bn-block-group {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+/* Four, the most (spec 021, R5): after three for the same reason. */
+.bn-block:has(> .bn-block-content[data-content-type='columns'][data-count='4']) > .bn-block-group,
+.bn-block:has(> * > .bn-block-content[data-content-type='columns'][data-count='4']) > .bn-block-group {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
 
 /* Diagram block. The picture is a button, because clicking it is how you get to
    the source — there is nowhere else to put an edit affordance without stealing
@@ -10335,6 +10340,15 @@ body:has(.live-down) .update-banner {
    really put it. Same colour and width as BlockNote's line for text (#809).
    On the body, so the layer is above the peek panel (90) and the template
    dialog (100) whose editors take block drags too. */
+/* Read out, never seen: what a drop at an edge would make (blockDrop.ts). */
+.nigari-drop-say {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .nigari-drop-line {
   position: fixed;
   z-index: var(--layer-dropdown);

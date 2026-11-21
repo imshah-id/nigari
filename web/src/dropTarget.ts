@@ -23,6 +23,15 @@
 //      cannot go inside itself.
 //   4. A dragged layout is refused inside another layout's column: its
 //      columns would become that column's lines, or the column its columns.
+//   5. SIDEWAYS (spec 021, PR 2): at a column's left or right edge the target
+//      is a new column there. A row of 2 offers every edge, a row of 3 only
+//      the right edge of its last column, a row of 4 none (Q1). At the left or
+//      right edge of an ordinary top-level block the target is "beside" it: the
+//      two become a layout of two (Q2). Never where columns stack, on a narrow
+//      page, beside a list item or a nested block, or for a dragged layout
+//      (FR-010: no columns inside columns).
+
+import { insertColumnWidths, MAX_COLUMNS } from './columnWidths';
 
 export interface Box {
   left: number;
@@ -41,6 +50,8 @@ export interface Line {
   head?: boolean;
   /** It is a columns block nested in another block, read as one line. */
   columns?: boolean;
+  /** The block's type (BlockNote's data-content-type): lists take no layout. */
+  type?: string;
 }
 
 /** A columns block: its columns side by side, or stacked on a phone. */
@@ -55,7 +66,24 @@ export type Item = { line: Line } | { layout: Layout };
 
 export type Target =
   | { kind: 'before'; id: string; head: boolean }
-  | { kind: 'after'; id: string; head: boolean };
+  | { kind: 'after'; id: string; head: boolean }
+  /** A new column in layout `id`, before the column whose first block is
+   *  `before` (null: after the last). `at` is its index among the columns. */
+  | { kind: 'column'; id: string; at: number; before: string | null }
+  /** Beside the top-level block `id`: the two become a layout of two. */
+  | { kind: 'beside'; id: string; edge: 'left' | 'right' };
+
+/** How the decision may answer. */
+export interface Options {
+  /** Sideways targets are offered (not on a narrow page, FR-010). */
+  sideways?: boolean;
+}
+
+/** How far from an edge (px) the pointer still means "at the edge". */
+export const EDGE = 16;
+
+/** Lists keep their blocks in a column: no layout is made beside one. */
+const LIST_TYPES = new Set(['bulletListItem', 'numberedListItem', 'checkListItem', 'toggleListItem']);
 
 const middle = (b: Box) => (b.top + b.bottom) / 2;
 
@@ -73,6 +101,38 @@ function amongLines(lines: Line[], y: number): Target | null {
   }
   const last = lines[lines.length - 1];
   return { kind: 'after', id: last.id, head: !!last.head };
+}
+
+/** The layout's columns sit side by side (not stacked on a phone). */
+const sideBySide = (layout: Layout) =>
+  layout.columns.every((c, i) => i === 0 || c.box.left >= layout.columns[i - 1].box.right - 1);
+
+/** Which column edges take a new column (Q1). */
+export function openEdges(n: number): number[] {
+  if (n >= MAX_COLUMNS) return [];
+  if (n === 3) return [3];
+  return Array.from({ length: n + 1 }, (_, i) => i);
+}
+
+/** A new column at the edge under the pointer, if it is one that may open. */
+function columnEdge(layout: Layout, x: number, dragged: readonly string[]): Target | 'refuse' | null {
+  const cols = layout.columns;
+  const n = cols.length;
+  if (n < 2 || !sideBySide(layout)) return null;
+  for (const at of openEdges(n)) {
+    let hit: boolean;
+    if (at === 0) hit = x <= cols[0].box.left + EDGE;
+    else if (at === n) hit = x >= cols[n - 1].box.right - EDGE;
+    else hit = x >= cols[at - 1].box.right - EDGE && x <= cols[at].box.left + EDGE;
+    if (!hit) continue;
+    // A whole column dragged (its first block, which carries the rest) to
+    // one of its own edges: no change, no line.
+    const own = cols.findIndex((c) => c.lines.length > 0 && dragged.includes(c.lines[0].id));
+    if (own >= 0 && (at === own || at === own + 1)) return 'refuse';
+    const head = at < n ? cols[at].lines[0] : undefined;
+    return { kind: 'column', id: layout.id, at, before: head ? head.id : null };
+  }
+  return null;
 }
 
 function inLayout(layout: Layout, x: number, y: number): Target | null {
@@ -93,8 +153,10 @@ function inLayout(layout: Layout, x: number, y: number): Target | null {
  * `items` are the page's top-level lines and layouts in document order, with
  * nested lines flattened in; `dragged` are the ids of the blocks being moved.
  */
-export function dropTarget(items: Item[], x: number, y: number, dragged: readonly string[] = []): Target | null {
+export function dropTarget(items: Item[], x: number, y: number, dragged: readonly string[] = [], options: Options = {}): Target | null {
   let target: Target | null = null;
+  const draggingLayout = dragged.some((id) => isLayout(items, id));
+  const sideways = !!options.sideways && !draggingLayout && dragged.length > 0;
   for (const item of items) {
     if ('layout' in item) {
       const { box } = item.layout;
@@ -103,14 +165,21 @@ export function dropTarget(items: Item[], x: number, y: number, dragged: readonl
         break;
       }
       if (y <= box.bottom) {
-        if (dragged.some((id) => isLayout(items, id))) return null;
-        target = inLayout(item.layout, x, y);
+        if (draggingLayout) return null;
+        const edge = sideways ? columnEdge(item.layout, x, dragged) : null;
+        if (edge === 'refuse') return null;
+        target = edge ?? inLayout(item.layout, x, y);
         break;
       }
       target = { kind: 'after', id: item.layout.id, head: false };
       continue;
     }
     const { line } = item;
+    // Beside an ordinary top-level block (Q2): its own row, at an edge.
+    if (sideways && line.path.length === 0 && !line.columns && !LIST_TYPES.has(line.type ?? '') && !dragged.includes(line.id) && y >= line.box.top && y <= line.box.bottom) {
+      if (x <= line.box.left + EDGE) return { kind: 'beside', id: line.id, edge: 'left' };
+      if (x >= line.box.right - EDGE) return { kind: 'beside', id: line.id, edge: 'right' };
+    }
     if (y < middle(line.box)) {
       target = { kind: 'before', id: line.id, head: false };
       break;
@@ -154,6 +223,19 @@ function pathOf(items: Item[], id: string): string[] | null {
 
 /** Where the line is drawn for a target: a horizontal line in the gap. */
 export function lineFor(items: Item[], target: Target, thickness: number): Box | null {
+  const half0 = thickness / 2;
+  if (target.kind === 'column') {
+    const layout = items.map((it) => ('layout' in it ? it.layout : null)).find((l) => l?.id === target.id);
+    if (!layout) return null;
+    const x = openingCentre(layout, target.at);
+    return { left: x - half0, right: x + half0, top: layout.box.top, bottom: layout.box.bottom };
+  }
+  if (target.kind === 'beside') {
+    const line = flatten(items).find((l) => l.line.id === target.id)?.line;
+    if (!line) return null;
+    const x = target.edge === 'left' ? line.box.left - 4 : line.box.right - 2;
+    return { left: x - half0, right: x + half0, top: line.box.top, bottom: line.box.bottom };
+  }
   const lines = flatten(items);
   const i = lines.findIndex((l) => l.line.id === target.id);
   if (i < 0) return null;
@@ -171,6 +253,27 @@ export function lineFor(items: Item[], target: Target, thickness: number): Box |
   return { left: line.box.left, right: line.box.right, top: y - half, bottom: y + half };
 }
 
+/** The widths a layout's columns have now, in percent, from their boxes. */
+export function boxWidths(layout: Layout): number[] {
+  const w = layout.columns.map((c) => c.box.right - c.box.left);
+  const sum = w.reduce((a, b) => a + b, 0) || 1;
+  return w.map((n) => Math.round((n * 100) / sum));
+}
+
+/** The middle of the room a new column at `at` takes once the layout opens
+ *  (spec 021, R3): where the line goes, so it sits in the opened gap. */
+export function openingCentre(layout: Layout, at: number): number {
+  const cols = layout.columns;
+  const n = cols.length;
+  const left = cols[0].box.left;
+  const right = cols[n - 1].box.right;
+  const gap = n > 1 ? Math.max(0, cols[1].box.left - cols[0].box.right) : 0;
+  const next = insertColumnWidths(boxWidths(layout), at);
+  const room = right - left - gap * n;
+  const before = next.slice(0, at).reduce((a, b) => a + b, 0);
+  return left + (before / 100) * room + gap * at + ((next[at] / 100) * room) / 2;
+}
+
 /** Every line (layouts count as one line, their box), with the run it sits in. */
 function flatten(items: Item[]): { line: Line; siblings: Line[] }[] {
   const top: Line[] = items.map((it) => ('line' in it ? it.line : { id: it.layout.id, box: it.layout.box, path: [] }));
@@ -185,6 +288,7 @@ function flatten(items: Item[]): { line: Line; siblings: Line[] }[] {
 /** The target changes nothing: the dragged block would land where it is. */
 export function staysPut(items: Item[], target: Target, dragged: readonly string[]): boolean {
   if (dragged.length === 0) return false;
+  if (target.kind === 'column' || target.kind === 'beside') return false;
   if (dragged.includes(target.id)) return true;
   const runs = flatten(items);
   const at = runs.find((r) => r.line.id === target.id);
