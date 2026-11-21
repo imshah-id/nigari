@@ -55,3 +55,11 @@ Markdown import keeps 4 sections and folds only from the 5th, the same way it no
 **Why**: the owner's Q1 allows a 4th at the far right. Every reader then has to draw it, or the print, shared page and agents see a broken layout.
 
 **Turned down**: allowing 4 in the editor only.
+
+## R6: The layout bar floats
+
+**Decision**: keep the bar and float it. The strip `.bn-columns` that holds it (non-editable, rendered by `ColumnsBlock`) takes no height; the bar is placed absolutely at the strip's top right and lifted over the block's top edge. It shows on hover of the columns block, when the caret is inside it (`:focus-within`, which is how a phone shows it, having no hover), and on its own keyboard focus. Showing it changes only opacity, so no line moves. The bar stays in the same strip, so it keeps out of the editor's DOM like the widths' `<style>` does (R3).
+
+**Why**: the owner asked for it to overlap rather than take space ("better yet"). Removing it would leave no way to pick a layout preset except dragging each divider, and the "4 equal" preset (R5) lives there.
+
+**Turned down**: removing the bar (the owner's first option; the presets would go); moving the presets into the block's menu (one more step, and the menu is BlockNote's).

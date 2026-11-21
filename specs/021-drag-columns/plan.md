@@ -17,7 +17,7 @@ A drop on a new column inserts the block as a column. The widths follow the owne
 Columns go up to 4 everywhere: the editor, the print view, the shared page, and Markdown in both directions, so agents get 4 through `write_content` too.
 
 The work comes as two pull requests:
-1. The landing spot (Story 1).
+1. The landing spot (Story 1), and the layout bar floating over the block's top edge (Story 4).
 2. Sideways columns, the opening and 4 columns (Stories 2 and 3).
 
 ## Technical Context
@@ -78,11 +78,11 @@ The work comes as two pull requests:
 | REST routes (`server/server.go`, middleware) | No change: no route. | backend |
 | MCP tools (`server/mcp*.go`, descriptions, `wrapUntrusted`, read-scope refusal) | `columnsFromSections` (`mdimport.go`) keeps up to 4 sections and folds only past 4. The `write_content` spelling text (`mdimport.go`, "columns …") says up to four. `get_page` already writes every column. | mcp |
 | Closed-to-agents list (`not_available_via_mcp`) | No change: nothing closed. Dragging is a pointer gesture; its result is open. | mcp |
-| UI components (`web/src/…`, light + dark, keyboard) | New `dropTarget.ts` (the decision) and `blockDrop.ts` (installs `computeDropPosition` and `handleDrop` with the editor). `ColumnsBlock` takes 2–4 columns, renders the opening (a gap where the new column goes) through its own `<style>`, and removes an emptied column (FR-008). Editor CSS for `data-count='4'`; the vertical line in the focus colour. Light and dark. Keyboard: no new key; block moves by keyboard stay BlockNote's. | ui |
+| UI components (`web/src/…`, light + dark, keyboard) | New `dropTarget.ts` (the decision) and `blockDrop.ts` (installs `computeDropPosition` and `handleDrop` with the editor). `ColumnsBlock` takes 2–4 columns, renders the opening (a gap where the new column goes) through its own `<style>`, and removes an emptied column (FR-008). The layout bar (`.bn-columns-bar`) floats: the strip `.bn-columns` that holds it takes no height, and the bar sits absolutely at its top right, over the block's top edge (FR-012). It shows on hover, on `:focus-within` of the columns block (caret in a column) and on its own keyboard focus. Editor CSS for `data-count='4'`; the vertical line in the focus colour. Light and dark. Keyboard: no new key; block moves by keyboard stay BlockNote's. | ui |
 | Translations (`t()`, `de.json` and `nl.json` required, `es.json`) | The announcement for screen readers when a new column will be made, and the "4 columns" preset label on the layout bar: de, es, nl. | i18n |
 | Server error codes (`web/src/serverErrors.ts`) | No change: no new error. | i18n |
 | Wiki (`wiki/*.md`, `mcp-tools.md`, stale screenshots) | `editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, widths) and the "Not right yet" note from PR #827 removed. `mcp-tools.md`: columns spelling up to 4. Screenshots that list the touched files are retaken. | wiki |
-| Tests (Go incl. refusal paths, Playwright spec, check scripts) | `check-droptarget.mjs`: every target kind, plus Q1 and FR-010. `check-columnwidths.mjs`: the Q3 rule with the spec's three examples and the 15% floor. Go: `columns_test.go` with 4 columns in print, public and the Markdown round trip; `mdimport` keeps 4 and folds a 5th. Playwright `block-drop.mjs`: SC-001/SC-002 on a test page, the opening and its reverse, Q2, reduced motion, WebKit run. No refusal path: no gate (above). | test |
+| Tests (Go incl. refusal paths, Playwright spec, check scripts) | `check-droptarget.mjs`: every target kind, plus Q1 and FR-010. `check-columnwidths.mjs`: the Q3 rule with the spec's three examples and the 15% floor. Go: `columns_test.go` with 4 columns in print, public and the Markdown round trip; `mdimport` keeps 4 and folds a 5th. Playwright `block-drop.mjs`: SC-005 (paragraph-to-columns gap equals paragraph-to-paragraph; bar shown moves nothing), SC-001/SC-002 on a test page, the opening and its reverse, Q2, reduced motion, WebKit run. No refusal path: no gate (above). | test |
 | Performance (query plans, payload size, per-request work) | Per drag step: one target computation from cached column boxes, and a style change only when the target changes. Measured against SC-003 with the #810 probe. | perf |
 | Manifest (`capabilities.json`, `gapBudget`, parity acts) | No change: no route or tool. | mcp |
 | Design system (`web/src/ui/`, tokens, `check-tokens.mjs` budgets, catalogue) | The vertical line and the opening use `--color-focus`, `--editor-drop-line-width` and `--motion-duration-base` / `--motion-easing-out`. No new literal; budgets unchanged. | ui |
@@ -108,7 +108,7 @@ The work comes as two pull requests:
 ```text
 specs/021-drag-columns/
 ├── plan.md
-├── research.md          # R1–R5: the decisions below
+├── research.md          # R1–R6: the decisions below
 └── tasks.md             # /speckit-tasks
 ```
 

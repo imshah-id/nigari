@@ -81,6 +81,12 @@ and from the measurements in #812:
   its width. Claude's defaults where the owner's rule says nothing: with no
   two columns the same width, every column shrinks in proportion; equal
   columns stay equal (the common case: 3 equal become 4 equal).
+- Q: The layout bar (the row of layout buttons above a columns block)? →
+  A: "remove that weird column divider element showing the column options,
+  or, better yet, somehow make it overlap (hover or something) instead of
+  having it take up space on the page" (owner). Claude's reading, stated to
+  the owner: keep the bar, float it over the block's top edge when shown, so
+  the layout takes no line of its own (Story 4).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -167,6 +173,36 @@ with the two paragraphs, in that order.
 
 ---
 
+### User Story 4 - The layout bar floats instead of taking a line (Priority: P2)
+
+The row of layout buttons above a columns block (two equal, 70 / 30 …) is
+hidden until the pointer is over the layout, but today it still holds a line
+of its own above the columns, empty most of the time. It floats over the
+block's top edge instead, so a columns block starts where its first line
+starts, like any other block.
+
+**Why this priority**: the owner's ask (2026-11-21). Small and on its own,
+so it goes in the first pull request.
+
+**Independent Test**: put a paragraph above a columns block and compare the
+gap between them with the gap between two paragraphs; hover the layout and
+check the bar shows without moving anything; tab into the bar.
+
+**Acceptance Scenarios**:
+
+1. **Given** a columns block under a paragraph, **When** nothing is
+   hovered, **Then** the space between them is the same as between two
+   paragraphs.
+2. **Given** that page, **When** the pointer is over the layout, **Then**
+   the bar shows at the top right, over the block's top edge, and no line
+   on the page moves.
+3. **Given** the caret in a column, or keyboard focus in the bar, **When**
+   no pointer hovers (a phone, the keyboard), **Then** the bar shows.
+4. **Given** a page that cannot be edited, **Then** there is no bar and no
+   space for one (as today).
+
+---
+
 ### Edge Cases
 
 - **The layout already has 3 columns**: only the right edge of its last
@@ -188,6 +224,12 @@ with the two paragraphs, in that order.
 - **A phone-width page**, where columns stack (`server/columns.go`, editor
   CSS): sideways makes no sense there, so only the horizontal line is
   offered.
+- **The bar over the line above**: the bar floats above the columns'
+  first line, in the gap above the block, and may cover part of the block
+  above while it shows. It sits at the right, where a line's text usually
+  ends, and it hides when the pointer leaves the layout.
+- **The first block of a page is a columns block**: the bar must stay inside
+  the editor, not under the page title or cover.
 - **Two people editing** the same page: the drop is one change to the
   document, like any other edit (Yjs).
 
@@ -229,6 +271,11 @@ with the two paragraphs, in that order.
   today), so each MUST take a count of 4.
 - **FR-010**: Sideways drops MUST NOT be offered where columns stack (phone
   width).
+- **FR-012**: The layout bar MUST take no space in the page: a columns
+  block's first line MUST start where a paragraph's would. The bar MUST show
+  over the block's top edge while the pointer is over the layout, the caret
+  is inside it, or the bar has keyboard focus, and showing it MUST NOT move
+  any line (Story 4).
 - **FR-011**: Dragging MUST stay smooth: the opening and the line MUST NOT
   add a noticeable delay to a drag (see SC-003, and #810).
 
@@ -253,6 +300,9 @@ with the two paragraphs, in that order.
 - **SC-003**: Dragging feels as quick as without the opening. Each drag step
   costs under 4ms of script and style work on a 300-block page (#810
   measured 0.5–1ms per step before this feature).
+- **SC-005**: The gap between a paragraph and a columns block below it equals
+  the gap between two paragraphs, measured in the browser test; showing the
+  bar moves no line (0px).
 - **SC-004**: The owner drags a block into a new column in Safari on the
   first try, without explanation.
 
