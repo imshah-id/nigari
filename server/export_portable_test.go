@@ -104,3 +104,20 @@ func TestPortableExportUsesConfiguredPublicBase(t *testing.T) {
 		t.Fatal("export ignored configured public origin")
 	}
 }
+
+// An image the app serves itself, not an upload, gets the instance's address
+// too: the starter page's icon is /logo.svg (#815), and a downloaded HTML file
+// opened from disk looked for it at file:///logo.svg and showed a broken image
+// (found by review).
+func TestPortableExportPointsAppImagesAtTheInstance(t *testing.T) {
+	s := testServer(t)
+	p := &page{Content: json.RawMessage(`[{"type":"paragraph","content":[{"type":"text","text":"Hi","styles":{}}]}]`)}
+	p.Title, p.Icon = "Welcome to nigari", "/logo.svg"
+	got, err := s.portableExportHTML(p, httptest.NewRequest("GET", "https://docs.example.test/api/pages/p/export?format=html", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(got, `src="/logo.svg"`) || !strings.Contains(got, `src="https://docs.example.test/logo.svg"`) {
+		t.Fatal("the app's own image was left site-relative in a portable export")
+	}
+}

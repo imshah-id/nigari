@@ -16,6 +16,11 @@ entries are not edited away.
   Claude's default, stated in the pull request: the mark rather than another
   emoji or no icon, since it is the one image that says nigari. Existing
   instances keep their starter page as it is: it is the person's page now.
+  Found by review and fixed with it: a downloaded HTML export pointed the
+  icon at `file:///logo.svg` (now the instance's address, as links are);
+  the Markdown heading printed `/logo.svg` as text (#828, folded in because
+  this change put it on every new instance: only an emoji goes in a
+  heading); `logo.svg` joins the files sent with `no-cache`.
 - **The favicon itself was already the new mark** in every file since v2.1.18
   (2026-11-09). An instance on an older release, Safari's own icon cache, or
   the Umbrel store's tile icon (in the store repository) can still show the
