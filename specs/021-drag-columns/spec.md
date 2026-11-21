@@ -66,8 +66,8 @@ and from the measurements in #812:
   target line and the columns sliding apart to make room; moving away
   reverses it (owner).
 - Q1: A row that already has 3 columns? → A: "Only the right side of the
-  most right column would trigger a new column creation" (owner). Claude's
-  reading, to be confirmed: a row of 3 takes a 4th column only at the right
+  most right column would trigger a new column creation" (owner). Confirmed
+  ("ok") as Claude read it: a row of 3 takes a 4th column only at the right
   edge of its last column; a row of 2 opens a column at any column edge; 4
   is the most (at 15% per column, the narrowest a column may be, 4 still
   leaves the rest room).

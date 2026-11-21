@@ -31,4 +31,4 @@
 
 ## Notes
 
-- Q1 is recorded with Claude's reading (a row of 3 takes a 4th only at the right edge of its last column; 4 is the most), pending the owner's confirmation.
+- Q1 recorded as Claude read it, confirmed by the owner ("ok").
