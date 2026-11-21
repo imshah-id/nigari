@@ -203,6 +203,9 @@ of a line in a column and pick a layout.
    **Then** it offers "Column layout" with the five layouts, and picking one
    changes that layout (a three-column layout adds the third column, as the
    bar did).
+2a. **Given** the caret in a line inside a layout, **When** "/" is typed,
+   **Then** the / menu offers the same five layouts (the keyboard's way: the
+   block menu opens only under a pointer or a tap).
 3. **Given** a block outside any layout, **Then** its block menu has no
    "Column layout".
 4. **Given** a page that cannot be edited, **Then** there is no block menu,
@@ -277,7 +280,8 @@ of a line in a column and pick a layout.
 - **FR-012**: A columns block MUST take no space above its first line: its
   first line MUST start where a paragraph's would, and nothing of it is
   drawn over the block above. Its layouts MUST be offered in the block menu
-  of every line inside it, and only there (Story 4).
+  of every line inside it, and in the / menu while the caret is inside it,
+  and nowhere else (Story 4).
 - **FR-011**: Dragging MUST stay smooth: the opening and the line MUST NOT
   add a noticeable delay to a drag (see SC-003, and #810).
 

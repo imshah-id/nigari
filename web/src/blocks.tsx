@@ -486,9 +486,6 @@ export const columnsSpec = createReactBlockSpec(
 
 type ColumnsEditor = {
   updateBlock: (b: unknown, update: unknown) => void;
-  insertBlocks: (blocks: unknown[], ref: unknown, place: 'before' | 'after') => void;
-  removeBlocks: (blocks: unknown[]) => void;
-  getBlock: (id: string) => ColumnsBlockData | undefined;
   isEditable: boolean;
 };
 type ColumnsBlockData = {

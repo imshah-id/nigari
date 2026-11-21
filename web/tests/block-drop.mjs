@@ -189,6 +189,80 @@ await withFixture(async ({ page, api, base, workspace }) => {
   assert.equal(await menu.getByRole('menuitem', { name: 'Column layout' }).count(), 0, 'a plain block offers a column layout');
   await page.keyboard.press('Escape');
 
+  // ---- the layouts change the number of columns, as the bar did ----
+  const layoutPage = async (kids) => {
+    await api('PATCH', `/api/pages/${doc.id}`, { content: [para('mover', 'The block that is dragged'), { id: 'cols', type: 'columns', props: { count: kids.length }, content: [], children: kids }] });
+    await page.goto(`${base}/p/${doc.id}`);
+    await page.locator('[data-id="x1"] .bn-inline-content').waitFor();
+    await page.mouse.move(1, 1);
+  };
+  const columns = async () => (await api('GET', `/api/pages/${doc.id}`)).content.find((b) => b.id === 'cols');
+  const pick = async (id, label) => {
+    const m = await blockMenu(id);
+    await m.getByRole('menuitem', { name: 'Column layout' }).hover();
+    const p = page.locator('.bn-columns-layouts [role="menuitem"]').filter({ hasText: label });
+    await p.waitFor();
+    await p.click();
+    await page.mouse.move(1, 1);
+  };
+  await layoutPage([para('x1', 'Left'), para('y1', 'Right')]);
+  // The current layout is ticked.
+  {
+    const m = await blockMenu('x1');
+    await m.getByRole('menuitem', { name: 'Column layout' }).hover();
+    const ticked = page.locator('.bn-columns-layouts [role="menuitem"]').filter({ hasText: '50 / 50' }).locator('svg');
+    await ticked.first().waitFor().catch(() => assert.fail('the current layout is not ticked'));
+    assert.equal(await page.locator('.bn-columns-layouts [role="menuitem"]').filter({ hasText: '70 / 30' }).locator('svg').count(), 0, 'a layout that is not the current one is ticked');
+    await page.keyboard.press('Escape');
+    await page.mouse.move(1, 1);
+  }
+  await pick('x1', '33 / 33 / 34');
+  await eventually(async () => (await columns()).children.length === 3).catch(() => assert.fail('a three-column layout did not add the third column'));
+  assert.equal((await columns()).props.count, 3, 'the count did not follow the three-column layout');
+  await page.locator('[data-id="x1"] .bn-inline-content').waitFor();
+  await pick('x1', '70 / 30');
+  await eventually(async () => (await columns()).children.length === 2).catch(() => assert.fail('back to two columns did not remove the empty third'));
+  // A last column with something in it stays.
+  await layoutPage([para('x1', 'Left'), para('y1', 'Middle'), para('z1', 'Right, with text')]);
+  await pick('x1', '50 / 50');
+  await eventually(async () => String((await columns()).props.count) === '2');
+  assert.equal((await columns()).children.length, 3, 'a column with text in it was removed by a layout');
+
+  // ---- the keyboard's way: the / menu inside a layout ----
+  await layoutPage([para('x1', 'Left'), para('y1', 'Right')]);
+  await page.locator('[data-id="y1"] .bn-inline-content').click();
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('/25 / 50 / 25');
+  await page.locator('.bn-suggestion-menu-item', { hasText: '25 / 50 / 25' }).first().waitFor();
+  await page.keyboard.press('Enter');
+  await eventually(async () => (await columns()).props.widths === '25,50,25').catch(() => assert.fail('the / menu did not set the layout'));
+  // Outside a layout the / menu has no layouts.
+  await page.locator('[data-id="mover"] .bn-inline-content').click();
+  await page.keyboard.press('End');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('/25 / 50 / 25');
+  await page.waitForTimeout(400);
+  assert.equal(await page.locator('.bn-suggestion-menu-item', { hasText: '25 / 50 / 25' }).count(), 0, 'the / menu offers a layout outside a layout');
+  await page.keyboard.press('Escape');
+
+  // ---- a phone: a tap shows the handle, and its menu has the layouts ----
+  {
+    const phone = await page.context().browser().newContext({ storageState: await page.context().storageState(), hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 }, locale: 'en-US' });
+    const p = await phone.newPage();
+    await p.goto(`${base}/p/${doc.id}`);
+    const line = p.locator('[data-id="x1"] .bn-inline-content');
+    await line.waitFor();
+    const lb = await line.boundingBox();
+    await p.touchscreen.tap(lb.x + 10, lb.y + lb.height / 2);
+    const handle = p.locator('.bn-side-menu [draggable="true"]').first();
+    await handle.waitFor().catch(() => assert.fail('a tap on a line in a layout shows no block handle on a phone'));
+    const hb = await handle.boundingBox();
+    await p.touchscreen.tap(hb.x + hb.width / 2, hb.y + hb.height / 2);
+    await p.locator('.bn-menu-dropdown [role="menuitem"]', { hasText: 'Column layout' }).waitFor().catch(() => assert.fail('the block menu on a phone has no Column layout'));
+    await phone.close();
+  }
+
   // ---- a layout inside a column: a drop beside its first line is above or
   // below the inner layout, and makes no column (found by review; #824) ----
   const inner = { id: 'inner', type: 'columns', props: { count: 2 }, content: [], children: [para('x', 'Inner left'), para('y', 'Inner right')] };

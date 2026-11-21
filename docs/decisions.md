@@ -42,8 +42,11 @@ entries are not edited away.
   menu (built like BlockNote's own Colour item, with its own icon). A columns
   block has no handle of its own (BlockNote's side menu picks the column's
   first block), so the item shows in the menu of every block inside a layout
-  and changes the nearest layout. Turned down: the floating bar; a bar in the
-  page's right margin (a phone has none).
+  and changes the nearest layout. The block menu opens only under a pointer
+  or a tap, so the layouts are also / menu entries while the caret is in a
+  layout: the keyboard reached the bar with Tab (found by review). A tap on a
+  phone shows the handle (tested). Turned down: the floating bar; a bar in
+  the page's right margin (a phone has none).
 ---
 
 ## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted

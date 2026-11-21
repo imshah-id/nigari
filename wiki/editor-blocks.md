@@ -103,7 +103,9 @@ it is embedded as it is, without a new chart, and a message says why. See
 empty blocks side by side. To change the layout, open the block menu of any
 line in the columns (the handle at its left, then **Column layout**) and pick
 one of five: two equal columns, **70 / 30**, **30 / 70**, three equal columns,
-and **25 / 50 / 25**. Picking a three-column layout adds the third
+and **25 / 50 / 25**. On a phone, tap a line to show its handle. From the
+keyboard, type **/** in a line inside the columns and then the layout, such as
+`/70 / 30`. Picking a three-column layout adds the third
 column; going back to two removes the last column only if it is empty, so
 nothing you wrote is deleted by a click. A column is one block, and a block can
 be indented into it, so a column can hold more than one thing.

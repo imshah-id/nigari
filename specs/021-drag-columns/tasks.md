@@ -26,7 +26,7 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 - **`holdSideMenuWhileHovered`**: one caller, `BlockContent` in `Editor.tsx:1650`. `blockDrop.ts` is installed beside it (T005).
 - **`moveDivider`**: two callers in `ColumnsBlock` (`at`, `onKey`). **`equalWidths`**: `formatWidths` and `ColumnsBlock`. `insertColumnWidths` and `removeColumnWidths` join them in `columnWidths.ts` (T013).
 - **`columnsFromSections`**: one caller, `mdLinesToBlocks` (`mdimport.go:193`), which is `write_content`'s path. **`renderPublicBlock`**: one caller, `renderPublicBlocks`.
-- **CSS and the Playwright specs are not indexed**: `data-count`, `.bn-columns` and `.bn-columns-bar` come from text search. The specs that touch columns today are `block-handle.mjs` and `column-enter.mjs`.
+- **CSS and the Playwright specs are not indexed**: `data-count`, `.bn-columns` and `.bn-columns-bar` (the bar PR 1 removed) come from text search. The specs that touch columns today are `block-handle.mjs` and `column-enter.mjs`.
 
 ## Format: `[ID] [P?] [Story] [surface] Description`
 

@@ -45,7 +45,7 @@ import { collectTags, suggestTags } from '../tagSuggest';
 import { modalOpen, useMenuDismiss } from '../modal';
 import { Menu, MenuCheckboxItem, MenuItem, MenuLabel, MenuSeparator, useNarrowScreen } from '../ui/Menu';
 import { Button } from '../ui/Button';
-import { SideMenuWithIcons, slashIcon, withPairedIcons } from '../slashIcons';
+import { SideMenuWithIcons, layoutSlashItems, slashIcon, withPairedIcons } from '../slashIcons';
 import { Menu as MenuGlyph, Copy, Star, Lock, LockOpen, Globe, MessageSquare, MoreHorizontal, FileText, Upload, AlignLeft, Check, Image as ImageIcon, Smile, PanelRight, Link2, FilePlus2, LayoutTemplate } from 'lucide-react';
 import { CHART_SLASH_KINDS } from '../chartInsert';
 import type { ChartKind } from '../chartLayout';
@@ -1899,6 +1899,8 @@ function BlockContent({
       [
         ...withPairedIcons(getDefaultReactSlashMenuItems(editor)),
         ...custom,
+        // Inside a layout: its layouts, the keyboard's way to them (spec 021).
+        ...layoutSlashItems(editor),
       ],
       query,
     );

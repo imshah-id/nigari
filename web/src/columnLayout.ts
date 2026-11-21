@@ -1,7 +1,9 @@
-// A column layout chosen from the block menu (spec 021, owner 2026-11-21:
-// "remove it and add the functions in the options menu for the columns
-// block"). It was a bar of presets over the block; it is now a submenu of the
-// block handle's menu, shown only for a columns block (slashIcons.tsx).
+// A column layout chosen from a menu (spec 021, owner 2026-11-21: "remove it
+// and add the functions in the options menu for the columns block"). It was a
+// bar of presets over the block. It is now a submenu of the block menu of
+// every line inside a layout, and, for the keyboard, entries of the / menu
+// while the caret is inside one (slashIcons.tsx). Both act on the nearest
+// layout around the line.
 //
 // Changing the count changes the number of columns, so the blocks follow:
 // three columns with two children would be a third track with nothing in it
@@ -15,6 +17,16 @@ type Editor = any;
 interface ColumnsLike {
   id: string;
   props: { count?: number | string; widths?: string };
+}
+
+/** The columns block a block sits in (itself included), or none. */
+export function layoutOf<B extends { id: string; type: string }>(editor: Editor, block: B | undefined): B | undefined {
+  let b = block;
+  for (let i = 0; b && i < 64; i++) {
+    if (b.type === 'columns') return b;
+    b = editor.getParentBlock(b.id);
+  }
+  return undefined;
 }
 
 /** The layout a columns block has now: its stored widths, or equal ones. */

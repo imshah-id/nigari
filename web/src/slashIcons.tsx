@@ -15,7 +15,7 @@ import { DRAG_HANDLE_FUNCTIONS, MenuIcon, SLASH_FUNCTIONS, type MenuFunction } f
 import { SideMenuExtension } from '@blocknote/core/extensions';
 import { t } from './i18n';
 import { PRESETS } from './columnWidths';
-import { applyLayout, isCurrent } from './columnLayout';
+import { applyLayout, isCurrent, layoutOf } from './columnLayout';
 
 // The editor's own menus take their icons from the same pairing as every
 // other menu (spec 010, research R4). BlockNote draws its / menu with
@@ -41,7 +41,8 @@ export function withPairedIcons<T extends { key?: string; icon?: ReactElement }>
 }
 
 /** The block menu (the drag handle's) is built FROM DRAG_HANDLE_FUNCTIONS, so
- *  its items and the pairing cannot drift apart. The table below is typed by
+ *  BlockNote's items and the pairing cannot drift apart; nigari's own item
+ *  (the column layouts) comes first. The table below is typed by
  *  the pairing's keys: a key added there (because check-menu-icons.mjs reported
  *  a new BlockNote item) fails tsc here until it has its component and label,
  *  instead of passing the check and never showing up. */
@@ -52,17 +53,6 @@ const DRAG_HANDLE_ITEMS: Record<DragHandleKey, { Item: ComponentType<{ children:
   header_row_menuitem: { Item: TableRowHeaderItem, label: () => t('Header row') },
   header_column_menuitem: { Item: TableColumnHeaderItem, label: () => t('Header column') },
 };
-
-/** The columns block a block sits in (itself included), or none. */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function layoutOf(editor: any, block: { id: string; type: string } | undefined) {
-  let b = block;
-  for (let i = 0; b && i < 64; i++) {
-    if (b.type === 'columns') return b;
-    b = editor.getParentBlock(b.id);
-  }
-  return undefined;
-}
 
 /** A layout's presets, as a submenu of the block menu (spec 021; the owner's
  *  call, 2026-11-21: they were a bar floating over the layout). The columns
@@ -108,6 +98,30 @@ function ColumnLayoutItem() {
       </Components.Generic.Menu.Dropdown>
     </Components.Generic.Menu.Root>
   );
+}
+
+/** The same layouts in the / menu while the caret is inside a layout: the
+ *  block menu opens only under a pointer, so this is the keyboard's way to
+ *  them (found by review). Empty elsewhere. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function layoutSlashItems(editor: any) {
+  if (!editor.isEditable) return [];
+  let block;
+  try {
+    block = layoutOf(editor, editor.getTextCursorPosition().block as { id: string; type: string });
+  } catch {
+    return [];
+  }
+  if (!block) return [];
+  const layout = block;
+  return PRESETS.map((w) => ({
+    title: w.join(' / '), // i18n-ok: column widths in percent, the same in every language
+    subtext: t('Column layout'),
+    aliases: ['layout', 'columns', 'spalten', 'aufteilung', 'kolom', 'indeling', 'columnas', 'distribucion'], // i18n-ok: search aliases, deliberately multilingual
+    group: t('Column layout'),
+    icon: slashIcon('columnLayout'),
+    onItemClick: () => applyLayout(editor, layout as never, w),
+  }));
 }
 
 function BlockMenu() {
