@@ -7,6 +7,46 @@ entries are not edited away.
 
 ---
 
+## 2026-11-20 — Dragging blocks, first part (#808, #809 line, #811)
+
+Research in #812 (measured, with the causes). What this part decides:
+
+- **The handle holds still while the pointer is on it** (#808), through
+  BlockNote's own `freezeMenu`/`unfreezeMenu`, thrown on a pointermove onto
+  the side menu and released on the first move off it (`sideMenuHold.ts`).
+  The cause was nigari's own columns block: BlockNote's paid one has a
+  hit-test fix ours does not get. Turned down, each tried and measured:
+  widening the columns' hover area (BlockNote's right-edge check then
+  landed in the next column); swallowing the mousemove (Playwright, and
+  any other listener, no longer saw a drag start); holding on
+  pointerover/pointerout (a stray pointerover after every drop froze the
+  handle again). Bringing back `xl-multi-column` stays rejected.
+  After `/code-review`: each editor holds only its own handle (a peek beside
+  a document is a second editor, and freezing its menu threw); while the
+  block menu is open the hold lets BlockNote own the freeze and picks it up
+  again afterwards; a finger is left alone (a touch sends no move to release
+  it). The decision is a pure function with `check-sidemenuhold.mjs`.
+- **Handle size B** (owner, from a picture of A/B/C): 20×24 buttons, an
+  18px icon, in the muted text colour (4.88:1 light, 4.99:1 dark;
+  BlockNote's was 1.49:1 light). Tokens `editor.side-menu.*`. The colour
+  is set on the two icons only, not through BlockNote's
+  `--bn-colors-side-menu`, which also colours the empty-line placeholder,
+  the nesting guides and the table handles (found by review).
+- **The drop line is the focus colour, 2px** (owner: "All ok" to the
+  picture). BlockNote's `#ddeeff` was 1.13:1 on the light page. The colour is
+  `var(--color-focus)` passed to BlockNote directly, because a component
+  token that aliases a themed role is flattened to its light value by the
+  token build.
+- **#810 (slow in Safari) stays open.** Per drag step under 2 ms in WebKit
+  and Chromium, with or without a database view and with or without the
+  `:has()` rules; not reproduced. The owner tries again in Safari with the
+  visible line; an unseen line can feel like a stuck drag.
+- **The wiki said a sideways drop makes columns.** It never did in nigari
+  (that was the paid block); corrected, with #824 and the line/drop mismatch
+  named as not right yet.
+
+---
+
 ## 2026-11-19 — Spec 020 PR 4: what stays a raw button, and how the check knows
 
 - **Only BlockNote's own controls are marked.** The 8 buttons `blocks.tsx`
