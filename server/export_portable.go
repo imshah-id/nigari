@@ -68,7 +68,11 @@ func (s *Server) portableExportHTML(p *page, r *http.Request) (string, error) {
 					}
 				}
 				changed = true
-			} else if attr.Key == "href" && strings.HasPrefix(attr.Val, "/") && !strings.HasPrefix(attr.Val, "//") {
+			} else if (attr.Key == "href" || (token.Data == "img" && attr.Key == "src")) && strings.HasPrefix(attr.Val, "/") && !strings.HasPrefix(attr.Val, "//") {
+				// An image the app itself serves (the starter page's icon is
+				// /logo.svg, #815) is not an upload to embed, but a file opened
+				// from disk would look for it at file:///logo.svg: point it at
+				// the instance, as links are.
 				relative, err := url.Parse(attr.Val)
 				if err == nil {
 					attr.Val = origin.ResolveReference(relative).String()

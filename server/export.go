@@ -348,13 +348,31 @@ func walkText(v any, b *strings.Builder) {
 
 // ---- Export handlers ----
 
+// markdownIcon reports whether a page icon belongs in a Markdown heading: an
+// emoji does, as text. An image ("/files/…", "/logo.svg", "http…", "data:")
+// or a drawn icon ("lucide:…", "mdi:…") is a reference, not text, and came
+// out as "# /logo.svg Welcome to nigari" (#828), on every new instance once
+// the starter page carried the mark (#815).
+func markdownIcon(icon string) bool {
+	icon = strings.TrimSpace(icon)
+	if icon == "" {
+		return false
+	}
+	for _, prefix := range []string{"/", "http", "data:", "lucide:", "mdi:"} {
+		if strings.HasPrefix(icon, prefix) {
+			return false
+		}
+	}
+	return true
+}
+
 func pageMarkdown(p *page) string {
 	title := p.Title
 	if title == "" {
 		title = "Untitled"
 	}
 	h := "# "
-	if p.Icon != "" {
+	if markdownIcon(p.Icon) {
 		h += p.Icon + " "
 	}
 	return h + title + "\n\n" + blocksToMarkdown(p.Content)

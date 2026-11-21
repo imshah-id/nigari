@@ -421,7 +421,7 @@ func openDB(path string) (*sql.DB, error) {
 func now() string { return time.Now().UTC().Format(time.RFC3339Nano) }
 
 const welcomeContent = `[
- {"type":"paragraph","content":[{"type":"text","text":"Welcome to ","styles":{}},{"type":"text","text":"nigari","styles":{"bold":true}},{"type":"text","text":": a fast, lightweight, open-source workspace for your notes, docs and ideas. 🧂","styles":{}}]},
+ {"type":"paragraph","content":[{"type":"text","text":"Welcome to ","styles":{}},{"type":"text","text":"nigari","styles":{"bold":true}},{"type":"text","text":": a fast, lightweight, open-source workspace for your notes, docs and ideas.","styles":{}}]},
  {"type":"heading","props":{"level":2},"content":[{"type":"text","text":"Everything is a block","styles":{}}]},
  {"type":"paragraph","content":[{"type":"text","text":"Type ","styles":{}},{"type":"text","text":"/","styles":{"code":true}},{"type":"text","text":" anywhere to insert headings, lists, quotes, code blocks, images, tables and more. Drag blocks by their handle to rearrange them.","styles":{}}]},
  {"type":"checkListItem","props":{"checked":true},"content":[{"type":"text","text":"Install nigari","styles":{}}]},
@@ -432,6 +432,14 @@ const welcomeContent = `[
  {"type":"bulletListItem","content":[{"type":"text","text":"Export any page, or your whole workspace, as Markdown","styles":{}}]},
  {"type":"bulletListItem","content":[{"type":"text","text":"Clean REST API: build your own clients on top","styles":{}}]}
 ]`
+
+// welcomeIcon is the starter page's icon: nigari's own mark, served by the
+// app as /logo.svg, so the page shows it like an uploaded image icon. It was
+// the shaker emoji (🧂) from before the rename, the last copy of the old
+// identity a new install still showed (#815). An image icon renders in the
+// app, on a shared page and in the PDF; existing instances keep whatever
+// their starter page has, because it is the person's page now.
+const welcomeIcon = "/logo.svg"
 
 func (s *Server) seed() error {
 	// A persistent marker (not the page count) decides whether to seed, so
@@ -458,7 +466,7 @@ func (s *Server) seed() error {
 	id := newID()
 	_, err = s.db.Exec(
 		`INSERT INTO pages (id, parent_id, title, icon, content, position, created_at, updated_at) VALUES (?, NULL, ?, ?, ?, 1, ?, ?)`,
-		id, "Welcome to nigari", "🧂", welcomeContent, ts, ts,
+		id, "Welcome to nigari", welcomeIcon, welcomeContent, ts, ts,
 	)
 	if err != nil {
 		return err

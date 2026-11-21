@@ -100,6 +100,9 @@ var appIdentityFiles = []string{
 	"icon-maskable-512.png",
 	"favicon.svg",
 	"favicon.ico",
+	// The mark as a file: the starter page uses it as its icon (#815). A
+	// cached copy would outlive a new mark the way the old favicon did.
+	"logo.svg",
 }
 
 func isAppIdentity(p string) bool {

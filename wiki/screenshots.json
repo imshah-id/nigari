@@ -932,7 +932,7 @@
       ],
       "takenAt": {
         "web/src/components/AdminSettings.tsx": "6e715b7567e1",
-        "server/mail_oauth.go": "76b951ae59bc",
+        "server/mail_oauth.go": "a43e3273a4eb",
         "server/admin.go": "d9bafd916d93",
         "web/src/tokens.css": "57855a2ffdba",
         "web/src/theme.css": "16fd3013201a",

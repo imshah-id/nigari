@@ -7,6 +7,30 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted
+
+- **Starter page icon** (#815, owner: "replace the salt icon on the default
+  start page"): a new instance's "Welcome to nigari" now has nigari's mark
+  (`/logo.svg`, an image icon) instead of the 🧂 emoji from salt.md, and its
+  first line no longer ends in 🧂. The admin's test mail lost its 🧂 too.
+  Claude's default, stated in the pull request: the mark rather than another
+  emoji or no icon, since it is the one image that says nigari. Existing
+  instances keep their starter page as it is: it is the person's page now.
+  Found by review and fixed with it: a downloaded HTML export pointed the
+  icon at `file:///logo.svg` (now the instance's address, as links are);
+  the Markdown heading printed `/logo.svg` as text (#828, folded in because
+  this change put it on every new instance: only an emoji goes in a
+  heading); `logo.svg` joins the files sent with `no-cache`.
+- **The favicon itself was already the new mark** in every file since v2.1.18
+  (2026-11-09). An instance on an older release, Safari's own icon cache, or
+  the Umbrel store's tile icon (in the store repository) can still show the
+  old one; findings on #815.
+- **Merged branches are not recreated** (owner, 2026-11-21: "Yes"). The
+  handoff's rule 9 had each merged branch fast-forwarded back; it only
+  refilled the branch list. The steward skill says so.
+
+---
+
 ## 2026-11-20 — Dragging blocks, first part (#808, #809 line, #811)
 
 Research in #812 (measured, with the causes). What this part decides:
