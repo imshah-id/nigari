@@ -464,15 +464,16 @@ export const databaseSpec = createReactBlockSpec(
 // everything that already works about nesting keeps working: dragging a block
 // in, indenting into it, the drag handle, undo.
 //
-// What we give up against the paid one: dragging a block SIDEWAYS to make a new
-// column. Worth having, and not worth a licence that has to be renegotiated the
-// day part of nigari is closed. Column WIDTHS are ours: preset layouts on the
-// bar, and a grip between columns that drags like a table column's.
+// Dragging a block SIDEWAYS to make a new column is ours too (spec 021,
+// blockDrop.ts and columnMoves.ts), not the paid package's, whose licence would
+// have to be renegotiated the day part of nigari is closed. Column WIDTHS are
+// ours: preset layouts in the block menu, and a grip between columns that drags
+// like a table column's.
 export const columnsSpec = createReactBlockSpec(
   {
     type: 'columns',
     propSchema: {
-      // 2 or 3. Stored so the layout survives a reload, and so the export knows
+      // 2 to 4. Stored so the layout survives a reload, and so the export knows
       // how to divide the page without measuring anything.
       count: { default: 2 },
       // The widths in percent, "70,30". Empty is equal columns. See
@@ -541,17 +542,29 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
   // own <style> only (see the note on editor DOM below).
   const opening = useSyncExternalStore(subscribeOpening, getOpening);
   const openAt = opening?.id === block.id && count === block.children.length ? opening.at : null;
-  const [open, setOpen] = useState<{ at: number; tracks: number[] } | null>(null);
+  // `columns` is how many the layout had when it opened: once a drop has
+  // added the new column there is nothing left to close (found by review: the
+  // closing ran on the grown layout and it jumped).
+  const [opened, setOpen] = useState<{ at: number; tracks: number[]; columns: number } | null>(null);
+  const open = opened && opened.columns === block.children.length ? opened : null;
   useEffect(() => {
     const base = drawn;
+    const columns = block.children.length;
     const closed = (at: number) => [...base.slice(0, at), 0, ...base.slice(at)];
     if (openAt !== null) {
-      setOpen({ at: openAt, tracks: closed(openAt) });
-      const frame = requestAnimationFrame(() => setOpen({ at: openAt, tracks: insertColumnWidths(base, openAt) }));
+      setOpen({ at: openAt, tracks: closed(openAt), columns });
+      // Two frames, not one: the 0fr track has to be drawn once before the
+      // full one, or the browser sees one change and nothing slides.
+      let frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => setOpen({ at: openAt, tracks: insertColumnWidths(base, openAt), columns }));
+      });
       return () => cancelAnimationFrame(frame);
     }
-    if (!open) return;
-    setOpen({ at: open.at, tracks: closed(open.at) });
+    if (!open) {
+      if (opened) setOpen(null);
+      return;
+    }
+    setOpen({ at: open.at, tracks: closed(open.at), columns });
     const done = setTimeout(() => setOpen(null), OPENING_MS);
     return () => clearTimeout(done);
     // Only a change of target opens or closes; the widths are read as they are then.

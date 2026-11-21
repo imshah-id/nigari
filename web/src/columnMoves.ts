@@ -50,9 +50,13 @@ export function sourcesOf(editor: Editor, ids: string[]): Source[] {
  * layout left with one column turns back into plain blocks, with none it
  * goes. `keep` is a layout the drop then adds a column to: it is not
  * rewritten here, and the widths it is left with are returned for it.
+ * `replaced` says which blocks now stand where an unwrapped layout stood, so
+ * a drop aimed above or below that layout still finds its place (found by
+ * review: the drop had nowhere to go, and the dragged column was lost).
  */
-export function closeEmptied(editor: Editor, sources: Source[], keep?: string): number[] | undefined {
+export function closeEmptied(editor: Editor, sources: Source[], keep?: string): { kept?: number[]; replaced: Map<string, string[]> } {
   let kept: number[] | undefined;
+  const replaced = new Map<string, string[]>();
   const byLayout = new Map<string, Source[]>();
   for (const s of sources) byLayout.set(s.layout, [...(byLayout.get(s.layout) ?? []), s]);
   for (const [id, gone] of byLayout) {
@@ -70,11 +74,12 @@ export function closeEmptied(editor: Editor, sources: Source[], keep?: string): 
     } else if (live.children.length === 1) {
       const only = live.children[0];
       editor.replaceBlocks([live], [{ ...only, children: [] }, ...only.children]);
+      replaced.set(id, [only.id, ...only.children.map((c: Block) => c.id)]);
     } else {
       editor.updateBlock(live, { props: { count: live.children.length, widths: formatWidths(w) } });
     }
   }
-  return kept;
+  return { kept, replaced };
 }
 
 /** The dragged blocks become a new column of `layoutId`, before the column

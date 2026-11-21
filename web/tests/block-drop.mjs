@@ -350,8 +350,22 @@ await withFixture(async ({ page, api, base, workspace }) => {
   await settled(async () => (await tracks('cols')) === 2, 'moving away did not close the opening');
   // And back to the edge, then drop.
   at = await glide(at, r.x + r.width - 4, r.y + 10);
+  await settled(async () => (await tracks('cols')) === 3, 'the columns did not open again');
+  // Found by review: the closing ran on the grown layout, so for a moment the
+  // three columns sat in four tracks and the row jumped.
+  await page.evaluate(() => {
+    const g = document.querySelector('[data-id="cols"] > .bn-block > .bn-block-group');
+    window.__most = 0;
+    const tick = () => {
+      window.__most = Math.max(window.__most, getComputedStyle(g).gridTemplateColumns.split(' ').length);
+      if (window.__most < 9) requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
   await page.mouse.up();
   await settled(async () => (find(await content(), 'cols')?.children.length ?? 0) === 3, 'the drop at the edge made no column');
+  await page.waitForTimeout(300);
+  assert.equal(await page.evaluate(() => window.__most), 3, 'after the drop the new column sat beside an empty track');
   let cols = find(await content(), 'cols');
   assert.deepEqual(cols.children.map((c) => c.id), ['x', 'y', 'mover'], 'the new column is not where the line was');
   assert.equal(Number(cols.props.count), 3, 'the count did not go up with the new column');
@@ -403,6 +417,42 @@ await withFixture(async ({ page, api, base, workspace }) => {
     await settled(async () => !find(await content(), 'cols'), 'a layout left with one column stayed a layout');
     const ids = (await content()).map((b) => b.id);
     assert.deepEqual(ids, ['mover', 'y', 'y1', 'end', 'x'], `the last column did not turn back into plain blocks: ${ids.join(',')}`);
+  }
+  // Found by review: a column dropped just above its own layout, which the
+  // drag turns back into plain blocks, landed nowhere and was lost.
+  await open([layout('cols', [para('x', 'One'), para('y', 'Two')])], 'y');
+  {
+    const m = await text('mover');
+    let a = await lift('x');
+    a = await glide(a, m.x + 30, m.y + m.height * 0.8);
+    await page.mouse.up();
+    await settled(async () => !find(await content(), 'cols'), 'a column dropped above its own layout: the layout stayed');
+    const ids = (await content()).map((b) => b.id);
+    assert.deepEqual(ids, ['mover', 'x', 'y'], `a column dropped above its own layout was lost or misplaced: ${ids.join(',')}`);
+  }
+
+  // ---- the opening slides (FR-005): a width between shut and open is drawn ----
+  await open([layout('cols', [para('x', 'Left'), para('y', 'Right')])], 'y');
+  {
+    await page.evaluate(() => {
+      const g = document.querySelector('[data-id="cols"] > .bn-block > .bn-block-group');
+      window.__widths = [];
+      const tick = () => {
+        const t = getComputedStyle(g).gridTemplateColumns.split(' ');
+        if (t.length === 3) window.__widths.push(parseFloat(t[2]));
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+    const rr = await row('cols');
+    let a = await lift();
+    a = await glide(a, rr.x + rr.width - 4, rr.y + 10);
+    await settled(async () => (await tracks('cols')) === 3, 'the columns did not open');
+    await page.waitForTimeout(400);
+    const widths = await page.evaluate(() => window.__widths);
+    await page.mouse.up();
+    const full = Math.max(...widths);
+    assert(widths.some((w) => w > 1 && w < full - 1), `the new track jumped open instead of sliding: ${widths.slice(0, 12).join(',')}`);
   }
 
   // ---- US3: beside a plain block, left and right ----

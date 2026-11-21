@@ -36,6 +36,19 @@ entries are not edited away.
   the HTML export, Markdown import (a fifth section joins the fourth) and the
   MCP tools read 2 to 4. An older version reads a count of 4 as 2 and wraps the
   extra columns below, losing nothing: that goes in the release notes.
+- **A drop is all or nothing** (found by review). The dragged blocks are taken
+  out first and the layouts they leave are closed, so a drop that then finds
+  no place, such as a column dropped just above its own layout which the drag
+  has just unwrapped, lost the blocks. The drop above an unwrapped layout now
+  lands above the blocks that replaced it, and any drop that still finds no
+  place throws inside BlockNote's `transact`, which then dispatches nothing.
+- **The left margin reorders, it does not make columns** (found by review).
+  The left edge zone starts at the block's own left edge, because the margin
+  left of it is where the drag handle is: a block moved straight down from its
+  handle offered "side by side" on every row. The right edge stays open past
+  the edge; nothing is dragged from there.
+- **More than four is drawn as four** by the server's readers, as the editor
+  draws it; they had drawn 2 (found by review).
 - **Safari was not tried.** Grid track transitions are supported there from
   18; the browser tests run in Chromium only.
 

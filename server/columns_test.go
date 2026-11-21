@@ -73,15 +73,23 @@ func TestFourColumnsEverywhere(t *testing.T) {
   {"type":"paragraph","content":[{"type":"text","text":"D"}]}]},
  {"type":"columns","props":{"count":9},"children":[
   {"type":"paragraph","content":[{"type":"text","text":"E"}]},
-  {"type":"paragraph","content":[{"type":"text","text":"F"}]}]}
+  {"type":"paragraph","content":[{"type":"text","text":"F"}]}]},
+ {"type":"columns","props":{"count":0},"children":[
+  {"type":"paragraph","content":[{"type":"text","text":"G"}]},
+  {"type":"paragraph","content":[{"type":"text","text":"H"}]}]}
  ]`)
 	want := `<div class="cols" data-count="4" style="--cols:minmax(0,40fr) minmax(0,20fr) minmax(0,20fr) minmax(0,20fr)">`
 	for name, got := range map[string]string{"public": publicBlocksHTML(content), "print": blocksToHTML(content)} {
 		if !strings.Contains(got, want) {
 			t.Errorf("%s: four columns not drawn as four: %s", name, got)
 		}
+		// More than four is drawn as four, as the editor draws it (blocks.tsx);
+		// review found the readers drawing 2 where the editor drew 4.
+		if !strings.Contains(got, `<div class="cols" data-count="4">`) {
+			t.Errorf("%s: a count over four is not drawn as four: %s", name, got)
+		}
 		if !strings.Contains(got, `<div class="cols" data-count="2">`) {
-			t.Errorf("%s: a count the editor never makes is not read as two: %s", name, got)
+			t.Errorf("%s: a count under two is not read as two: %s", name, got)
 		}
 	}
 	for name, css := range map[string]string{"public": publicBlockLayout, "print": htmlDocStyle} {

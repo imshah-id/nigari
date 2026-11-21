@@ -159,6 +159,10 @@ try {
   const stackedSide = dropTarget(stacked, 295, 170, ['zz'], side);
   check('stacked columns: no new column', stackedSide && stackedSide.kind, 'after');
   check('beside a plain block: left', dropTarget(duo, 105, 10, ['x'], side), { kind: 'beside', id: 'top', edge: 'left' });
+  // The margin left of a block is where its handle is: a block moved down it reorders.
+  check('the margin left of a plain block: a line, not beside', dropTarget(duo, 60, 10, ['x'], side), before('top'));
+  check('the margin left of a layout: no new first column', dropTarget(duo, 60, 100, ['top'], side).kind, 'before');
+  check('every column of a layout dragged to its edge: nothing', dropTarget(duo, 695, 100, ['d', 'e'], side), null);
   check('beside a plain block: right', dropTarget(duo, 695, 10, ['x'], side), { kind: 'beside', id: 'top', edge: 'right' });
   check('beside a plain block, over its text: a line', dropTarget(duo, 300, 5, ['x'], side), before('top'));
   check('beside itself: nothing beside', dropTarget(duo, 695, 10, ['top'], side).kind, 'before');

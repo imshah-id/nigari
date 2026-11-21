@@ -121,10 +121,16 @@ function columnEdge(layout: Layout, x: number, dragged: readonly string[]): Targ
   if (n < 2 || !sideBySide(layout)) return null;
   for (const at of openEdges(n)) {
     let hit: boolean;
-    if (at === 0) hit = x <= cols[0].box.left + EDGE;
+    // From the first column's own left edge in, not the margin left of it:
+    // that margin is where the drag handle is, and a block moved straight up
+    // or down from its handle would make a column on every row (found by
+    // review). The right edge has no handle and stays open past the edge.
+    if (at === 0) hit = x >= cols[0].box.left && x <= cols[0].box.left + EDGE;
     else if (at === n) hit = x >= cols[n - 1].box.right - EDGE;
     else hit = x >= cols[at - 1].box.right - EDGE && x <= cols[at].box.left + EDGE;
     if (!hit) continue;
+    // Every column dragged: nothing would be left to add a column to.
+    if (cols.every((c) => c.lines.length > 0 && dragged.includes(c.lines[0].id))) return 'refuse';
     // A whole column dragged (its first block, which carries the rest) to
     // one of its own edges: no change, no line.
     const own = cols.findIndex((c) => c.lines.length > 0 && dragged.includes(c.lines[0].id));
@@ -177,7 +183,7 @@ export function dropTarget(items: Item[], x: number, y: number, dragged: readonl
     const { line } = item;
     // Beside an ordinary top-level block (Q2): its own row, at an edge.
     if (sideways && line.path.length === 0 && !line.columns && !LIST_TYPES.has(line.type ?? '') && !dragged.includes(line.id) && y >= line.box.top && y <= line.box.bottom) {
-      if (x <= line.box.left + EDGE) return { kind: 'beside', id: line.id, edge: 'left' };
+      if (x >= line.box.left && x <= line.box.left + EDGE) return { kind: 'beside', id: line.id, edge: 'left' };
       if (x >= line.box.right - EDGE) return { kind: 'beside', id: line.id, edge: 'right' };
     }
     if (y < middle(line.box)) {
