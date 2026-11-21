@@ -65,6 +65,22 @@ and from the measurements in #812:
 - Q: Sideways drops: keep or drop? → A: Keep, made clear with a vertical
   target line and the columns sliding apart to make room; moving away
   reverses it (owner).
+- Q1: A row that already has 3 columns? → A: "Only the right side of the
+  most right column would trigger a new column creation" (owner). Claude's
+  reading, to be confirmed: a row of 3 takes a 4th column only at the right
+  edge of its last column; a row of 2 opens a column at any column edge; 4
+  is the most (at 15% per column, the narrowest a column may be, 4 still
+  leaves the rest room).
+- Q2: A sideways drop beside an ordinary block? → A: Yes, the two go side
+  by side as a new two-column layout, as in Notion (owner, "A").
+- Q3: Widths after a new column? → A: B, with a rule (owner): "say there are
+  3 columns. 1, 2, 3 and 2,3 are the same width, then the new column 4 would
+  take the space of 2,3 divided by 3. 1 remains since it was a deviating
+  column size." The columns that share one width give up their room, split
+  equally with the new column; a column someone made wider or narrower keeps
+  its width. Claude's defaults where the owner's rule says nothing: with no
+  two columns the same width, every column shrinks in proportion; equal
+  columns stay equal (the common case: 3 equal become 4 equal).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -126,20 +142,41 @@ one edge; check the saved document.
 
 ### User Story 3 - A sideways drop beside an ordinary block (Priority: P2)
 
-[NEEDS CLARIFICATION: Should dragging a block to the left or right edge of an
-ordinary block (not in columns) put the two side by side as a new two-column
-layout, as in Notion?]
+A person drags a block to the left or right edge of an ordinary block, not
+in columns. The same vertical line shows, the block it is held against makes
+room, and the drop puts the two side by side as a new two-column layout.
+
+**Why this priority**: what people know from Notion (owner, Q2 "A"), and the
+quickest way to start a layout; second because Story 2 already gives the
+gesture.
+
+**Independent Test**: drag a paragraph to the right edge of another
+paragraph, drop, and check the saved document holds a columns block of two
+with the two paragraphs, in that order.
+
+**Acceptance Scenarios**:
+
+1. **Given** two paragraphs A and B, **When** B is dropped at A's right
+   edge, **Then** A and B sit side by side in two equal columns, A first.
+2. **Given** the same, **When** B is dropped at A's left edge, **Then** B is
+   first.
+3. **Given** a block inside a list or nested under another block, **When** a
+   block is held at its edge, **Then** no vertical line shows (a new
+   layout is made only at the top level of the page; there are no columns
+   inside columns or lists).
 
 ---
 
 ### Edge Cases
 
-- **The layout already has 3 columns** (the most there are today):
-  [NEEDS CLARIFICATION: no vertical line and no opening (only up and down),
-  or a fourth column allowed?]
-- **Widths after a new column**: [NEEDS CLARIFICATION: all columns equal
-  again, or the new column takes its room from its neighbours only, keeping
-  widths someone set?]
+- **The layout already has 3 columns**: only the right edge of its last
+  column offers a new (4th) column (Q1). A layout of 4 offers none.
+- **Widths after a new column** (Q3): the columns that share one width give
+  up their room, split equally with the new one; a column of its own width
+  keeps it. 40/30/30 plus one becomes 40/20/20/20; 50/50 plus one becomes
+  33/33/34; 50/30/20 (no two alike) shrinks in proportion. No column goes
+  under 15% (`MIN_PCT`); where the rule would push one under, every column
+  shrinks in proportion instead.
 - **The last block of a column dragged out**: the column is left empty. The
   rule that only an empty LAST column is removed (`ColumnsBlock.apply`) does
   not cover an empty middle one. It goes, and the count drops by one; a
@@ -167,7 +204,15 @@ layout, as in Notion?]
   was showing.
 - **FR-004**: Holding a dragged block at the left or right edge of a column
   MUST show a vertical line in the focus colour at that edge, marking a new
-  column.
+  column. In a row of 3, only the right edge of the last column does; a row
+  of 4 offers none (Q1).
+- **FR-004a**: Holding a dragged block at the left or right edge of an
+  ordinary top-level block MUST show the same line (inside a column, the
+  column's own edges count, FR-004: no columns inside columns);
+  the drop puts the two side by side as a new two-column layout (Q2).
+- **FR-004b**: The widths after a new column MUST follow Q3: the columns
+  sharing one width split their room equally with the new column, a column
+  of its own width keeps it, and none goes under 15%.
 - **FR-005**: While the vertical line shows, the columns MUST slide apart to
   open the room the new column will take; when the pointer leaves that edge
   they MUST slide back.
@@ -178,9 +223,10 @@ layout, as in Notion?]
 - **FR-008**: A column left with nothing in it after a drag MUST go, and the
   count MUST drop with it; a layout left with one column MUST turn back into
   plain blocks.
-- **FR-009**: The result MUST be a document the rest of nigari already
-  reads: the print view, the shared page, Markdown and agents (`get_page`,
-  `write_content`) show it without a change of their own.
+- **FR-009**: The result MUST be a document the rest of nigari reads: the
+  print view, the shared page, Markdown and agents (`get_page`,
+  `write_content`). A 4-column layout is new to all of them (count is 2 or 3
+  today), so each MUST take a count of 4.
 - **FR-010**: Sideways drops MUST NOT be offered where columns stack (phone
   width).
 - **FR-011**: Dragging MUST stay smooth: the opening and the line MUST NOT
@@ -191,8 +237,9 @@ layout, as in Notion?]
 - **Drop target**: where a dragged block will land. Either *between* (a
   place among blocks, drawn as a horizontal line) or *new column* (an edge
   of a column, drawn as a vertical line with the room opened).
-- **Columns block**: `count` and `widths`. Changed only by a drop that makes
-  or empties a column.
+- **Columns block**: `count` (2 to 4, up from 2 or 3) and `widths`.
+  Changed only by a drop that makes or empties a column, or as today by the
+  layout bar and the grip.
 
 ## Success Criteria *(mandatory)*
 
