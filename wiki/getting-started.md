@@ -282,7 +282,7 @@ Almost nothing, on purpose:
   means accounts created later join it automatically. Later accounts also get a
   private space of their own named after them; the first account does not: it
   has this one.
-- **One page: Welcome to nigari**, with a nigari-shaker icon. It is a short tour
+- **One page: Welcome to nigari**, with the nigari mark as its icon. It is a short tour
   of the editor: a `/` for the block menu, a three-item checklist, and a few
   lines about the data being a single file you can back up.
 - **No collections, no templates, no files, no other members.**
