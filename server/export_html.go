@@ -220,12 +220,7 @@ func renderBlockHTML(b *strings.Builder, blk mdBlock) {
 	// columns — one block each. Same shape the editor lays out, so what is on
 	// screen is what comes out of the printer.
 	case "columns":
-		n := 2
-		if v, ok := blk.Props["count"]; ok {
-			if f, ok := v.(float64); ok && int(f) == 3 {
-				n = 3
-			}
-		}
+		n := columnCount(blk.Props)
 		b.WriteString(`<div class="cols" data-count="` + strconv.Itoa(n) + `"` + columnsStyle(blk.Props, n) + `>`)
 		for _, col := range blk.Children {
 			b.WriteString(`<div>`)
@@ -416,6 +411,7 @@ body:not(.opt-comments) .doc-comments{display:none}
 body:not(.opt-ws) .cover-ws{display:none}
 .cols{display:grid;gap:24px;align-items:start;grid-template-columns:var(--cols,repeat(2,minmax(0,1fr)))}
 .cols[data-count="3"]{grid-template-columns:var(--cols,repeat(3,minmax(0,1fr)))}
+.cols[data-count="4"]{grid-template-columns:var(--cols,repeat(4,minmax(0,1fr)))}
 .cols>div>*:first-child{margin-top:0}
 .diagram{margin:1em 0}
 .diagram img{width:100%;height:auto;display:block}

@@ -553,7 +553,7 @@ back keeps them:
 | Table of contents | `[[toc]]` |
 | Sub-pages list | `[[subpages]]` |
 | Bookmark | `<https://…>` alone on a line |
-| Columns | `:::: columns`, then per column `::: column` (or `::: {.column width="70%"}`), its blocks, `:::`, and finally `::::` |
+| Columns | `:::: columns`, then per column (2 to 4) `::: column` (or `::: {.column width="70%"}`), its blocks, `:::`, and finally `::::`. A fifth and later section joins the fourth |
 
 A callout's emoji follows its type (NOTE ℹ️, TIP 💡, IMPORTANT 📌, WARNING ⚠️,
 CAUTION ❗); put another callout emoji first in the text, `> ✅ Done`, to choose

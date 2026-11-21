@@ -40,7 +40,7 @@ For Story 3, two ordinary blocks: a vertical line only, no opening. There are no
   - 40/30/30 + new at the end → 40/20/20/20.
   - 50/50 + new → 33/33/34.
 - **No two equal:** every column shrinks in proportion.
-- **Floor:** if a column would drop under 15% (`MIN_PCT`), every column shrinks in proportion instead. Rounded to whole percent, summing to 100.
+- **Floor:** if a column would drop under 15% (`MIN_PCT`), every column shrinks in proportion instead; if one is still under 15% then, the columns become equal (found while building: 70/15/15 has no proportional answer above the floor). Rounded to whole percent, summing to 100.
 
 The owner's example and the two defaults are the check's cases. Removing a column (FR-008) gives its room to its neighbours in proportion.
 

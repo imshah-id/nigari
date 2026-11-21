@@ -5,6 +5,24 @@ import (
 	"strings"
 )
 
+// maxColumns is the most columns a layout has (spec 021, R5). The editor
+// makes 2 to 4; every reader here draws the same.
+const maxColumns = 4
+
+// columnCount is a columns block's count as every reader draws it: 2 to 4,
+// as the editor does (blocks.tsx): more than 4 is drawn as 4, anything else
+// as 2. A document from before spec 021 says 2 or 3.
+func columnCount(props map[string]any) int {
+	n := intProp(props, "count", 2)
+	if n > maxColumns {
+		return maxColumns
+	}
+	if n < 2 {
+		return 2
+	}
+	return n
+}
+
 // columnsStyle is the inline style that gives a Columns block its widths, or ""
 // for equal columns. The editor stores them on the block as percentages,
 // "70,30" (web/src/columnWidths.ts); the print view and the public page divide

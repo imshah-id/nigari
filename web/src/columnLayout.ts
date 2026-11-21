@@ -31,7 +31,7 @@ export function layoutOf<B extends { id: string; type: string }>(editor: Editor,
 
 /** The layout a columns block has now: its stored widths, or equal ones. */
 export function currentWidths(block: ColumnsLike): number[] {
-  const count = Number(block.props.count) === 3 ? 3 : 2;
+  const count = Math.max(2, Math.min(4, Math.round(Number(block.props.count)) || 2));
   return parseWidths(block.props.widths, count) ?? equalWidths(count);
 }
 
