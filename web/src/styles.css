@@ -1006,6 +1006,23 @@ body:has(.icon-picker) .bn-side-menu {
   visibility: hidden;
 }
 
+/* The + and the drag handle (#811). BlockNote sizes both as 24px squares with
+   a 22px icon; narrower, they stay a full line tall, so the target is no
+   harder to hit. The colour is set on the icons only: BlockNote's own
+   --bn-colors-side-menu also colours the empty-line placeholder, the nesting
+   guides and the table handles, which would all have darkened. Mantine puts the button's size inline as --ai-size, so width and
+   min-width are set over it, and the icon rule has to outrank BlockNote's own
+   (.bn-side-menu … :not(.mantine-Menu-item) svg). */
+.bn-container .bn-side-menu .mantine-ActionIcon-root:not(.mantine-Menu-item) {
+  width: var(--editor-side-menu-button-width);
+  min-width: var(--editor-side-menu-button-width);
+}
+.bn-container .bn-side-menu .mantine-UnstyledButton-root:not(.mantine-Menu-item) svg {
+  width: var(--editor-side-menu-icon-size);
+  height: var(--editor-side-menu-icon-size);
+  color: var(--editor-side-menu-icon);
+}
+
 .icon-picker-tabs {
   display: flex;
   align-items: center;

@@ -7,6 +7,70 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted
+
+- **Starter page icon** (#815, owner: "replace the salt icon on the default
+  start page"): a new instance's "Welcome to nigari" now has nigari's mark
+  (`/logo.svg`, an image icon) instead of the 🧂 emoji from salt.md, and its
+  first line no longer ends in 🧂. The admin's test mail lost its 🧂 too.
+  Claude's default, stated in the pull request: the mark rather than another
+  emoji or no icon, since it is the one image that says nigari. Existing
+  instances keep their starter page as it is: it is the person's page now.
+  Found by review and fixed with it: a downloaded HTML export pointed the
+  icon at `file:///logo.svg` (now the instance's address, as links are);
+  the Markdown heading printed `/logo.svg` as text (#828, folded in because
+  this change put it on every new instance: only an emoji goes in a
+  heading); `logo.svg` joins the files sent with `no-cache`.
+- **The favicon itself was already the new mark** in every file since v2.1.18
+  (2026-11-09). An instance on an older release, Safari's own icon cache, or
+  the Umbrel store's tile icon (in the store repository) can still show the
+  old one; findings on #815.
+- **Merged branches are not recreated** (owner, 2026-11-21: "Yes"). The
+  handoff's rule 9 had each merged branch fast-forwarded back; it only
+  refilled the branch list. The steward skill says so.
+
+---
+
+## 2026-11-20 — Dragging blocks, first part (#808, #809 line, #811)
+
+Research in #812 (measured, with the causes). What this part decides:
+
+- **The handle holds still while the pointer is on it** (#808), through
+  BlockNote's own `freezeMenu`/`unfreezeMenu`, thrown on a pointermove onto
+  the side menu and released on the first move off it (`sideMenuHold.ts`).
+  The cause was nigari's own columns block: BlockNote's paid one has a
+  hit-test fix ours does not get. Turned down, each tried and measured:
+  widening the columns' hover area (BlockNote's right-edge check then
+  landed in the next column); swallowing the mousemove (Playwright, and
+  any other listener, no longer saw a drag start); holding on
+  pointerover/pointerout (a stray pointerover after every drop froze the
+  handle again). Bringing back `xl-multi-column` stays rejected.
+  After `/code-review`: each editor holds only its own handle (a peek beside
+  a document is a second editor, and freezing its menu threw); while the
+  block menu is open the hold lets BlockNote own the freeze and picks it up
+  again afterwards; a finger is left alone (a touch sends no move to release
+  it). The decision is a pure function with `check-sidemenuhold.mjs`.
+- **Handle size B** (owner, from a picture of A/B/C): 20×24 buttons, an
+  18px icon, in the muted text colour (4.88:1 light, 4.99:1 dark;
+  BlockNote's was 1.49:1 light). Tokens `editor.side-menu.*`. The colour
+  is set on the two icons only, not through BlockNote's
+  `--bn-colors-side-menu`, which also colours the empty-line placeholder,
+  the nesting guides and the table handles (found by review).
+- **The drop line is the focus colour, 2px** (owner: "All ok" to the
+  picture). BlockNote's `#ddeeff` was 1.13:1 on the light page. The colour is
+  `var(--color-focus)` passed to BlockNote directly, because a component
+  token that aliases a themed role is flattened to its light value by the
+  token build.
+- **#810 (slow in Safari) stays open.** Per drag step under 2 ms in WebKit
+  and Chromium, with or without a database view and with or without the
+  `:has()` rules; not reproduced. The owner tries again in Safari with the
+  visible line; an unseen line can feel like a stuck drag.
+- **The wiki said a sideways drop makes columns.** It never did in nigari
+  (that was the paid block); corrected, with #824 and the line/drop mismatch
+  named as not right yet.
+
+---
+
 ## 2026-11-19 — Spec 020 PR 4: what stays a raw button, and how the check knows
 
 - **Only BlockNote's own controls are marked.** The 8 buttons `blocks.tsx`

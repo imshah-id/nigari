@@ -325,6 +325,35 @@
         "io.github.neatlittlemacapps.nigari.css": "--bn-border-radius",
         "io.github.neatlittlemacapps.nigari.selector": "[data-theme] .bn-container, [data-theme] .bn-root"
       }
+    },
+    "side-menu": {
+      "$description": "The + and drag handle beside a hovered block (#811, owner chose option B from a picture, 2026-11-20). BlockNote draws each as a 24×24 button with a 22px icon in a pale grey (1.49:1 on the light page); narrower, with the muted text colour, it stays as tall as a line of text and so as easy to grab.",
+      "icon": {
+        "$type": "color",
+        "$value": "{color.text.muted}",
+        "$description": "Set on the two icons only (styles.css), not as BlockNote's --bn-colors-side-menu, which also colours the empty-line placeholder, the nesting guides and the table handles."
+      },
+      "button-width": {
+        "$type": "dimension",
+        "$value": {
+          "value": 20,
+          "unit": "px"
+        }
+      },
+      "icon-size": {
+        "$type": "dimension",
+        "$value": {
+          "value": 18,
+          "unit": "px"
+        }
+      }
+    },
+    "drop-line": {
+      "$description": "Where a dragged block will land (#809). BlockNote's default is a fixed #ddeeff, 1.13:1 on the light page: there, but unseen, which made dragging feel stuck. Its colour is --color-focus, read directly (Editor.tsx), because a component token aliasing a themed role is flattened to the light value.",
+      "width": {
+        "$type": "dimension",
+        "$value": "{space.50}"
+      }
     }
   },
   "chart": {

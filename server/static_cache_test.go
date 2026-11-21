@@ -90,3 +90,15 @@ func TestHashedAssetsStayImmutable(t *testing.T) {
 		t.Errorf("%s is not immutable: %q", asset, rec.Header().Get("Cache-Control"))
 	}
 }
+
+// The mark as a file joins the identity files: the starter page uses it as its
+// icon (#815), and a cached copy would outlive a new mark the way the old
+// favicon did (found by review). Checked on the list itself, because the test
+// fixture above embeds none of these files.
+func TestTheMarkFileIsAnIdentityFile(t *testing.T) {
+	for _, name := range []string{"logo.svg", "favicon.svg", "favicon.ico"} {
+		if !isAppIdentity(name) {
+			t.Errorf("%s is not sent with no-cache", name)
+		}
+	}
+}
