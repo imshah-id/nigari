@@ -106,6 +106,17 @@ try {
   check('above a nested line of a dragged parent: refused',
     dropTarget([{ line: line('p', 0, 300, 0) }, { line: line('p1', 20, 300, 32, ['p']) }], 50, 40, ['p']), null);
 
+  // ---- a layout never goes into another layout's column ----
+  const two = [...page, { layout: { id: 'cols2', box: { left: 100, right: 700, top: 300, bottom: 420 }, columns: [column('d', 100, 390), column('e', 410, 700)] } }];
+  check('a dragged layout over a column: refused', dropTarget(two, 400, 135, ['cols2']), null);
+  check('a dragged layout above a layout: allowed', dropTarget(two, 400, 62, ['cols2']), before('cols'));
+  const nested = [{ layout: { id: 'cols', box: { left: 0, right: 600, top: 0, bottom: 200 }, columns: [
+    { box: { left: 0, right: 290, top: 0, bottom: 200 }, lines: [line('a', 0, 290, 0, ['cols'], true), { id: 'inner', box: { left: 0, right: 290, top: 32, bottom: 200 }, path: ['cols', 'a'], columns: true }] },
+    { box: { left: 310, right: 600, top: 0, bottom: 24 }, lines: [line('b', 310, 600, 0, ['cols'], true)] },
+  ] } }];
+  check('a nested layout dragged into a column: refused', dropTarget(nested, 400, 10, ['inner']), null);
+  check('a block over a nested layout goes above or below it, not into it', dropTarget(nested, 100, 100), before('inner'));
+
   // ---- dropping a block where it already is changes nothing ----
   check('before itself', staysPut(page, before('b2'), ['b2']), true);
   check('before the block right after it', staysPut(page, before('b3'), ['b2']), true);

@@ -15,9 +15,11 @@
 //   pointer is over a text position, and gives up silently elsewhere (the gap
 //   between two columns), where the line had shown a spot.
 //
-// Anything that is not a block from the handle (text dragged inside a line, a
-// file from the desktop, a block from another editor) is left to BlockNote
-// and ProseMirror as before.
+// Anything that is not a block from this editor's own handle (text dragged
+// inside a line, a file from the desktop, a block dragged in from another
+// editor on the page such as a peek) is left to BlockNote and ProseMirror as
+// before. BlockNote hands a block slice to every editor on the page, so "a
+// block drag" alone is not enough: the drag must have started here.
 //
 // The boxes are read once when a drag reaches the editor and again after a
 // scroll or resize, not on every pointer step (SC-003): nothing on the page
@@ -50,6 +52,14 @@ function linesOf(outer: Element, path: string[], head: boolean, out: Line[]) {
   const id = outer.getAttribute('data-id');
   const content = contentOf(outer);
   if (!id || !content) return;
+  if (isColumns(outer)) {
+    // A layout inside a column or under another block (the slash menu makes
+    // one anywhere) is one line, the whole box: a drop goes above or below
+    // it, never into its columns, where a "sibling" would be a new column
+    // (#824).
+    out.push({ id, box: rect(outer), path, columns: true, ...(head ? { head: true } : {}) });
+    return;
+  }
   out.push({ id, box: rect(content), path, ...(head ? { head: true } : {}) });
   for (const child of outerOf(groupOf(outer))) linesOf(child, [...path, id], false, out);
 }
@@ -107,7 +117,8 @@ const isBlockDrag = (view: View) => {
 export function moveTo(editor: Editor, target: Target, ids: string[]) {
   editor.transact(() => {
     const blocks = ids.map((id) => editor.getBlock(id)).filter(Boolean);
-    if (blocks.length === 0) return;
+    // Nothing is removed unless there is somewhere to put it.
+    if (blocks.length === 0 || ids.includes(target.id) || !editor.getBlock(target.id)) return;
     editor.removeBlocks(ids);
     const at = editor.getBlock(target.id);
     if (!at) return;
@@ -148,6 +159,8 @@ export function blockDrop(editor: Editor): () => void {
   let items: Item[] | null = null;
   let line: HTMLElement | null = null;
   let shown = '';
+  // The drag started at this editor's own handle (see the top of the file).
+  let origin = false;
   const view = (): View | undefined => editor.prosemirrorView;
 
   const hide = () => {
@@ -173,6 +186,7 @@ export function blockDrop(editor: Editor): () => void {
       line = document.createElement('div');
       line.className = 'nigari-drop-line';
       line.setAttribute('aria-hidden', 'true');
+      // On the body, above the peek panel and the template dialog (styles.css).
       document.body.append(line);
     }
     line.style.left = `${box.left}px`;
@@ -183,7 +197,7 @@ export function blockDrop(editor: Editor): () => void {
 
   const onOver = (e: DragEvent) => {
     const v = view();
-    if (!v || !v.editable || !isBlockDrag(v)) return;
+    if (!v || !v.editable || !origin || !isBlockDrag(v)) return;
     const d = decide(v, e.clientX, e.clientY);
     if (!d) draw(null, 'none');
     else draw(lineFor(d.all, d.target, dropLineWidth()), `${d.target.kind}:${d.target.id}`);
@@ -192,13 +206,20 @@ export function blockDrop(editor: Editor): () => void {
     const v = view();
     if (!v || !(e.relatedTarget instanceof Node) || !v.dom.contains(e.relatedTarget)) hide();
   };
+  const onStart = (e: DragEvent) => {
+    const v = view();
+    const container = v?.dom.closest('.bn-container') ?? v?.dom.parentElement;
+    origin = !!container && e.target instanceof Node && container.contains(e.target);
+  };
   const onEnd = () => {
+    origin = false;
     items = null;
     hide();
   };
   const onDrop = (e: DragEvent) => {
     const v = view();
-    if (!v || !v.editable || !isBlockDrag(v) || copies(e)) return;
+    if (!v || !v.editable || !origin || !isBlockDrag(v) || copies(e)) return;
+    origin = false;
     items = null; // fresh boxes for the drop itself
     const d = decide(v, e.clientX, e.clientY);
     items = null;
@@ -213,6 +234,10 @@ export function blockDrop(editor: Editor): () => void {
     items = null;
     hide();
   };
+  // A collaborator's edit during the drag moves the boxes too.
+  const offChange = editor.onChange?.(() => {
+    if (origin) onScroll();
+  });
 
   // On the document, in the capture phase: ahead of ProseMirror's own drop
   // handler on the editor, and in place before the editor has mounted. Each
@@ -224,6 +249,7 @@ export function blockDrop(editor: Editor): () => void {
   const over = (e: DragEvent) => mine(e) && onOver(e);
   const leave = (e: DragEvent) => mine(e) && onLeave(e);
   const drop = (e: DragEvent) => mine(e) && onDrop(e);
+  document.addEventListener('dragstart', onStart, true);
   document.addEventListener('dragover', over, true);
   document.addEventListener('dragleave', leave, true);
   document.addEventListener('drop', drop, true);
@@ -231,12 +257,14 @@ export function blockDrop(editor: Editor): () => void {
   window.addEventListener('scroll', onScroll, true);
   window.addEventListener('resize', onScroll);
   return () => {
+    document.removeEventListener('dragstart', onStart, true);
     document.removeEventListener('dragover', over, true);
     document.removeEventListener('dragleave', leave, true);
     document.removeEventListener('drop', drop, true);
     document.removeEventListener('dragend', onEnd, true);
     window.removeEventListener('scroll', onScroll, true);
     window.removeEventListener('resize', onScroll);
+    if (typeof offChange === 'function') offChange();
     hide();
   };
 }

@@ -10388,10 +10388,12 @@ body:has(.live-down) .update-banner {
 
 /* The line that shows where a dragged block lands (spec 021, blockDrop.ts):
    drawn by nigari for a block from the handle, in the place the drop will
-   really put it. Same colour and width as BlockNote's line for text (#809). */
+   really put it. Same colour and width as BlockNote's line for text (#809).
+   On the body, so the layer is above the peek panel (90) and the template
+   dialog (100) whose editors take block drags too. */
 .nigari-drop-line {
   position: fixed;
-  z-index: var(--layer-sticky);
+  z-index: var(--layer-dropdown);
   pointer-events: none;
   background: var(--color-focus);
 }

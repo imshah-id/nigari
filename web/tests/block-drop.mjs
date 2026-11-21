@@ -175,7 +175,34 @@ await withFixture(async ({ page, api, base, workspace }) => {
   await page.locator('[data-id="last"] .bn-inline-content').click();
   await page.mouse.move(1, 1);
   await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '0');
+  // Leaving the editor hides it again: a click outside changes no selection
+  // (found by review: the bar stayed shown and clickable).
+  await page.locator('[data-id="b2"] .bn-inline-content').click();
+  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1');
+  await page.locator('textarea.page-title').click();
+  await page.mouse.move(1, 1);
+  await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '0').catch(() => assert.fail('the layout bar stays shown after the caret left the editor'));
   // And keyboard focus.
   await bar.locator('button').first().focus();
   await eventually(async () => (await bar.evaluate((e) => getComputedStyle(e).opacity)) === '1').catch(() => assert.fail('the layout bar does not show with keyboard focus'));
+
+  // ---- a layout inside a column: a drop beside its first line is above or
+  // below the inner layout, and makes no column (found by review; #824) ----
+  const inner = { id: 'inner', type: 'columns', props: { count: 2 }, content: [], children: [para('x', 'Inner left'), para('y', 'Inner right')] };
+  await api('PATCH', `/api/pages/${doc.id}`, { content: [para('mover', 'The block that is dragged'), { id: 'cols', type: 'columns', props: { count: 2 }, content: [], children: [head('a', 'Do', [inner, para('a2', 'After the inner layout')]), head('b', 'Plan', [])] }] });
+  await page.goto(`${base}/p/${doc.id}`);
+  await page.locator('[data-id="y"] .bn-inline-content').waitFor();
+  await page.mouse.move(1, 1);
+  const y = await text('y');
+  await drag(y.x + 10, y.y + y.height * 0.25);
+  let after = null;
+  await eventually(async () => {
+    after = (await api('GET', `/api/pages/${doc.id}`)).content;
+    return after[0].id !== 'mover';
+  });
+  const outer = after.find((b) => b.id === 'cols');
+  const innerNow = JSON.stringify(outer).includes('"inner"') && (function find(bs) { for (const b of bs) { if (b.id === 'inner') return b; const r = find(b.children ?? []); if (r) return r; } return null; })(outer.children);
+  assert.equal(outer.children.length, 2, 'the outer layout gained a column');
+  assert(innerNow, 'the inner layout is gone');
+  assert.deepEqual(innerNow.children.map((c) => c.id), ['x', 'y'], 'the inner layout gained a column');
 });

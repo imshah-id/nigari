@@ -65,7 +65,7 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 ### Phase 4: PR 1 polish
 
 - [x] T010 [wiki] `wiki/editor-blocks.md`: the "Not right yet" note from PR #827 goes; the layout bar shows on hover over the layout. Retake the screenshots that list the touched files and look at each
-- [ ] T011 [test] Reviews: `/code-review` (a fresh review agent writing to a scratchpad file), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added. `docs/decisions.md` entry. `scripts/agent-gate.sh` green
+- [x] T011 [test] Reviews: `/code-review` (a fresh review agent writing to a scratchpad file), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added. `docs/decisions.md` entry. `scripts/agent-gate.sh` green
 
 **Checkpoint**: PR 1 can ship on its own.
 

@@ -546,7 +546,20 @@ function ColumnsBlock({ block, editor }: { block: ColumnsBlockData; editor: Colu
       }
       setCaret(inside && editor.isFocused?.() !== false);
     };
-    return editor.onSelectionChange(check);
+    const off = editor.onSelectionChange(check);
+    // Leaving the editor changes no selection, so focus moving anywhere is
+    // checked too (a click outside would otherwise leave the bar shown and
+    // clickable). Asked at the time, because the strip mounts after this.
+    const moved = (e: FocusEvent) => {
+      const root = strip.current?.closest('.ProseMirror');
+      if (root && e.target instanceof Node && root.contains(e.target)) check();
+      else setCaret(false);
+    };
+    document.addEventListener('focusin', moved);
+    return () => {
+      off();
+      document.removeEventListener('focusin', moved);
+    };
   }, [editor, block.id]);
 
   useEffect(() => {

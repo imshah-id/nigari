@@ -21,6 +21,8 @@
 //      gap is one target, wherever in the gap the pointer is (R2).
 //   3. A target inside a dragged block (its own children) is refused: a block
 //      cannot go inside itself.
+//   4. A dragged layout is refused inside another layout's column: its
+//      columns would become that column's lines, or the column its columns.
 
 export interface Box {
   left: number;
@@ -37,6 +39,8 @@ export interface Line {
   path: string[];
   /** It is a column's first block: the column itself. */
   head?: boolean;
+  /** It is a columns block nested in another block, read as one line. */
+  columns?: boolean;
 }
 
 /** A columns block: its columns side by side, or stacked on a phone. */
@@ -99,6 +103,7 @@ export function dropTarget(items: Item[], x: number, y: number, dragged: readonl
         break;
       }
       if (y <= box.bottom) {
+        if (dragged.some((id) => isLayout(items, id))) return null;
         target = inLayout(item.layout, x, y);
         break;
       }
@@ -115,6 +120,17 @@ export function dropTarget(items: Item[], x: number, y: number, dragged: readonl
   if (!target) return null;
   if (inside(items, target.id, dragged)) return null;
   return target;
+}
+
+/** The block is a columns block, at the top or nested. */
+function isLayout(items: Item[], id: string): boolean {
+  for (const item of items) {
+    if ('layout' in item) {
+      if (item.layout.id === id) return true;
+      for (const c of item.layout.columns) for (const l of c.lines) if (l.id === id) return !!l.columns;
+    } else if (item.line.id === id) return !!item.line.columns;
+  }
+  return false;
 }
 
 /** The target's line sits inside one of the dragged blocks. */
