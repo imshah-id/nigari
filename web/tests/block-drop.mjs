@@ -353,11 +353,15 @@ await withFixture(async ({ page, api, base, workspace }) => {
   await settled(async () => (await tracks('cols')) === 3, 'the columns did not open again');
   // Found by review: the closing ran on the grown layout, so for a moment the
   // three columns sat in four tracks and the row jumped.
+  // The row is looked up on every frame: the drop replaces its element, and
+  // one read once before the drop measured a detached node from then on
+  // ("none", one track), which failed this check whenever the first frame
+  // came after the drop.
   await page.evaluate(() => {
-    const g = document.querySelector('[data-id="cols"] > .bn-block > .bn-block-group');
     window.__most = 0;
     const tick = () => {
-      window.__most = Math.max(window.__most, getComputedStyle(g).gridTemplateColumns.split(' ').length);
+      const g = document.querySelector('[data-id="cols"] > .bn-block > .bn-block-group');
+      if (g) window.__most = Math.max(window.__most, getComputedStyle(g).gridTemplateColumns.split(' ').length);
       if (window.__most < 9) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);

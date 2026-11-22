@@ -87,7 +87,11 @@ export function readItems(root: Element): Item[] {
       // like any block's children, and a line above the layout spans the page.
       const o = rect(outer);
       const g = group ? rect(group) : o;
-      items.push({ layout: { id, box: { left: o.left, right: o.right, top: g.top, bottom: g.bottom }, columns } });
+      // The count it is drawn with (ColumnsBlock's data-count).
+      const drawn = Number(contentOf(outer)?.querySelector('.bn-columns')?.getAttribute('data-count'));
+      items.push({
+        layout: { id, box: { left: o.left, right: o.right, top: g.top, bottom: g.bottom }, columns, ...(drawn ? { count: drawn } : {}) },
+      });
       continue;
     }
     const lines: Line[] = [];
@@ -186,6 +190,31 @@ export const computeDropPosition = <P,>({ view, defaultPosition }: { view: View;
 
 const sayColumn = () => t('Drop to make a new column here');
 const sayBeside = () => t('Drop to put the two blocks side by side');
+
+/**
+ * Lets BlockNote's UniqueID plugin see a drop that this module took over
+ * (#861). UniqueID remembers which editor a drag started in and forgets it
+ * only in its own `handleDOMEvents.drop`, which the stopped event never
+ * reaches. Left set, the next drop that started outside this window (a block
+ * from another tab, which fires no dragstart here) was taken for one from
+ * inside, and the ids it carried were kept instead of new ones. Its handler
+ * only reads the event and resets that state; it changes nothing in the
+ * document. Not by letting the event through with `preventDefault()`:
+ * ProseMirror then ignores the event altogether (`eventBelongsToView`), its
+ * plugins' handlers included.
+ */
+const forgetDragSource = (v: View, e: DragEvent) => {
+  let found = false;
+  for (const plugin of v.state.plugins) {
+    const drop = typeof plugin.key === 'string' && plugin.key.startsWith('uniqueID$') ? plugin.props.handleDOMEvents?.drop : undefined;
+    if (!drop) continue;
+    found = true;
+    drop(v, e);
+  }
+  // A BlockNote upgrade that renames the plugin or moves the reset would
+  // bring #861 back without an error (block-drop-ids.mjs guards it too).
+  if (!found && import.meta.env?.DEV) console.warn("blockDrop: BlockNote's UniqueID drop handler was not found (issue 861)");
+};
 
 /** Below this editor width there is no room for a new column (FR-010):
  *  the phone's page, where four columns would be slivers. */
@@ -306,7 +335,13 @@ export function blockDrop(editor: Editor): () => void {
     origin = !!container && e.target instanceof Node && container.contains(e.target);
     if (origin) listen();
   };
-  const onEnd = () => {
+  // A drag that ends anywhere else (Escape, outside the editor, another
+  // editor on the page) never reaches a drop here: UniqueID's state is reset
+  // on its end as well (found by review). Its drop handler, which already ran
+  // for any drop ProseMirror handled here, only clears it again.
+  const onEnd = (e: DragEvent) => {
+    const v = view();
+    if (v) forgetDragSource(v, e);
     origin = false;
     items = null;
     hide();
@@ -321,6 +356,7 @@ export function blockDrop(editor: Editor): () => void {
     hide();
     e.preventDefault();
     e.stopPropagation();
+    forgetDragSource(v, e);
     v.dragging = null;
     if (d && !staysPut(d.all, d.target, d.ids)) moveTo(editor, d.target, d.ids);
   };
