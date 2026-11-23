@@ -7,6 +7,93 @@ entries are not edited away.
 
 ---
 
+## 2026-11-21 — Spec 021 PR 2: a block dragged sideways makes a column, up to four
+
+- **Where a sideways drop is offered** (owner, Q1 and Q2). At the left or right
+  edge of a column a dragged block opens a new column there. A row of two opens
+  one at any edge; a row of three only at the right edge of its last column;
+  a row of four takes no more. At the left or right edge of an ordinary
+  top-level block the two go side by side in a new two-column layout, as in
+  Notion. Not beside a list item (its edge belongs to the bullet), not beside
+  a block inside a column, and not with a whole layout dragged.
+- **Not under 480px of editor width** (FR-010). The editor keeps columns side
+  by side on a phone, so a column there would be a few letters wide; only
+  print and the shared page stack them. Turned down: offering it and stacking
+  the result, which would show something other than what was drawn.
+- **The opening is drawn through the layout's own `<style>`** (R3): an empty
+  grid track grows from 0 to the new column's width in 150 ms, and not at all
+  under reduced motion. The drop line stands in the empty track.
+- **Widths** (owner, Q3, plus two defaults). The largest group of columns
+  within 1% of each other shares its room with the new one; the others keep
+  theirs (40/30/30 → 40/20/20/20, 50/50 → 33/33/34). With no two alike, all
+  shrink in proportion. A column under 15% after either is not drawn that way:
+  everything shrinks in proportion, and if one is still under 15%, the columns
+  become equal. Whole percents summing to 100, leftover points to the largest
+  remainders. A column emptied by a drag closes, and its room goes to its
+  neighbours in proportion; a layout left with one column unwraps back into
+  plain blocks, so no one-column layout is left behind.
+- **Four columns everywhere, not only in the editor** (R5): the shared page,
+  the HTML export, Markdown import (a fifth section joins the fourth) and the
+  MCP tools read 2 to 4. An older version reads a count of 4 as 2 and wraps the
+  extra columns below, losing nothing: that goes in the release notes.
+- **A drop is all or nothing** (found by review). The dragged blocks are taken
+  out first and the layouts they leave are closed, so a drop that then finds
+  no place, such as a column dropped just above its own layout which the drag
+  has just unwrapped, lost the blocks. The drop above an unwrapped layout now
+  lands above the blocks that replaced it, and any drop that still finds no
+  place throws inside BlockNote's `transact`, which then dispatches nothing.
+- **The left margin reorders, it does not make columns** (found by review).
+  The left edge zone starts at the block's own left edge, because the margin
+  left of it is where the drag handle is: a block moved straight down from its
+  handle offered "side by side" on every row. The right edge stays open past
+  the edge; nothing is dragged from there.
+- **More than four is drawn as four** by the server's readers, as the editor
+  draws it; they had drawn 2 (found by review).
+- **Safari was not tried.** Grid track transitions are supported there from
+  18; the browser tests run in Chromium only.
+
+## 2026-11-21 — Spec 021 PR 1: nigari decides where a dragged block lands, and draws the line itself; the column layouts move to the block menu
+
+- **One decision for the line and the drop** (`dropTarget.ts`, spec 021 R1/R2;
+  #809, #824). Both come from the boxes of the lines on the page: before the
+  first line whose middle is below the pointer, or after the last one; over a
+  columns layout, inside the nearest column. A drop on a column's first line
+  makes the block that column's new first line instead of a new column.
+- **The line is nigari's, not BlockNote's, for a block from the handle.**
+  Turned down: handing the decision to BlockNote through `computeDropPosition`
+  (the plan's first idea). BlockNote draws its line from a ProseMirror position,
+  and the position before a column's first block reads as "after the previous
+  column", so the line still showed in the column to the left however right
+  the position was. BlockNote's line stays for text dragged inside a line and
+  for files.
+- **The drop is taken over in a capture listener**, not ProseMirror's
+  `handleDrop` prop: ProseMirror asks `handleDrop` only when the pointer is over
+  a text position and gives up silently elsewhere (the gap between two
+  columns), where the line had shown a spot. The block moves through
+  BlockNote's block calls, so its id, comments and children go with it. A copy
+  (Alt, or Ctrl off a Mac) and a block from another editor stay ProseMirror's:
+  only the editor the drag started in takes it over, because BlockNote hands
+  the dragged blocks to every editor on the page (found by review). A layout
+  inside a column is one line to the decision, and a layout is never dropped
+  into another layout's column; both would make a column by accident (#824).
+- **The layout bar goes; the layouts move to the block menu.** The bar took
+  a line of its own above every columns block, 23px measured, empty unless
+  hovered. The owner asked to "make it overlap … instead of having it take up
+  space", so it was first built floating over the block's top right corner.
+  Shown, it covered the end of the line above, and a tap there hit a preset
+  (found by review). The owner's answer: "Perhaps just remove it and add the
+  functions in the options menu for the columns block". So the bar is
+  removed, and the five layouts are a "Column layout" submenu of the block
+  menu (built like BlockNote's own Colour item, with its own icon). A columns
+  block has no handle of its own (BlockNote's side menu picks the column's
+  first block), so the item shows in the menu of every block inside a layout
+  and changes the nearest layout. The block menu opens only under a pointer
+  or a tap, so the layouts are also / menu entries while the caret is in a
+  layout: the keyboard reached the bar with Tab (found by review). A tap on a
+  phone shows the handle (tested). Turned down: the floating bar; a bar in
+  the page's right margin (a phone has none).
+---
+
 ## 2026-11-21 — The starter page carries the nigari mark; merged branches stay deleted
 
 - **Starter page icon** (#815, owner: "replace the salt icon on the default

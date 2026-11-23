@@ -14,14 +14,17 @@
  *  still a readable ~130px; below it a column is a sliver you cannot grab back. */
 export const MIN_PCT = 15;
 
-/** The layouts offered on the block's bar. Two or three columns, because count
- *  is 2 or 3 everywhere (the editor, the print view, the Markdown spelling). */
+/** The most columns a layout has (spec 021, R5): every reader draws 2 to 4. */
+export const MAX_COLUMNS = 4;
+
+/** The layouts offered in the column layout menus (columnLayout.ts). */
 export const PRESETS: readonly (readonly number[])[] = [
   [50, 50],
   [70, 30],
   [30, 70],
   [33, 33, 34],
   [25, 50, 25],
+  [25, 25, 25, 25],
 ];
 
 export function equalWidths(count: number): number[] {
@@ -66,4 +69,77 @@ export function moveDivider(w: readonly number[], i: number, delta: number): num
  *  has gaps and percentages would overflow by exactly their sum. */
 export function gridTemplate(w: readonly number[]): string {
   return w.map((n) => `minmax(0,${n}fr)`).join(' ');
+}
+
+/** Whole percents summing to 100, as close to `raw` as they can be: each is
+ *  rounded down, and the points left over go to the largest remainders (the
+ *  later column on a tie, so thirds read 33/33/34 like equalWidths). */
+function wholePercents(raw: readonly number[]): number[] {
+  const total = raw.reduce((a, b) => a + b, 0) || 1;
+  const exact = raw.map((n) => (n * 100) / total);
+  const out = exact.map(Math.floor);
+  let left = 100 - out.reduce((a, b) => a + b, 0);
+  const order = exact.map((n, i) => ({ i, f: n - Math.floor(n) })).sort((a, b) => b.f - a.f || b.i - a.i);
+  for (const { i } of order) {
+    if (left <= 0) break;
+    out[i]++;
+    left--;
+  }
+  return out;
+}
+
+/** Columns this close (in percent) count as the same width: a layout made
+ *  equal by hand is rarely exact. */
+const SAME = 1;
+
+/**
+ * The widths after a new column is put in at index `at` (0 = first, the
+ * count = last). The owner's rule (spec 021, Q3): the columns that share one
+ * width give up their room, split equally with the new one; a column of its
+ * own width keeps it. 40/30/30 + one at the end → 40/20/20/20; 50/50 + one →
+ * 33/33/34. Claude's defaults where the rule says nothing: with no two
+ * columns alike every column shrinks in proportion, and where the rule would
+ * push one under MIN_PCT every column shrinks in proportion instead; if even
+ * that leaves one under it, the columns become equal.
+ */
+export function insertColumnWidths(w: readonly number[], at: number): number[] {
+  const n = w.length;
+  const place = Math.max(0, Math.min(n, at));
+  // The largest group of same-width columns.
+  let group: number[] = [];
+  for (let i = 0; i < n; i++) {
+    const g = w.map((x, j) => (Math.abs(x - w[i]) <= SAME ? j : -1)).filter((j) => j >= 0);
+    if (g.length > group.length) group = g;
+  }
+  const proportional = () => {
+    const share = 100 / (n + 1);
+    const scaled = w.map((x) => (x * (100 - share)) / 100);
+    const out = wholePercents([...scaled.slice(0, place), share, ...scaled.slice(place)]);
+    // Still a column under the floor (a narrow one shrunk further): equal
+    // columns, which never are.
+    return out.some((x) => x < MIN_PCT) ? equalWidths(n + 1) : out;
+  };
+  if (group.length < 2) return proportional();
+  const room = group.reduce((a, j) => a + w[j], 0);
+  const each = room / (group.length + 1);
+  if (each < MIN_PCT) return proportional();
+  const raw = w.map((x, j) => (group.includes(j) ? each : x));
+  const out = wholePercents([...raw.slice(0, place), each, ...raw.slice(place)]);
+  return out;
+}
+
+/**
+ * The widths after the column at index `at` goes (FR-008): its room goes to
+ * the columns beside it, in proportion to their widths. One column left is
+ * 100.
+ */
+export function removeColumnWidths(w: readonly number[], at: number): number[] {
+  if (w.length <= 1) return [100];
+  const raw = [...w];
+  const gone = raw[at];
+  const near = [at - 1, at + 1].filter((j) => j >= 0 && j < w.length);
+  const sum = near.reduce((a, j) => a + w[j], 0) || 1;
+  for (const j of near) raw[j] += (gone * w[j]) / sum;
+  raw.splice(at, 1);
+  return wholePercents(raw);
 }

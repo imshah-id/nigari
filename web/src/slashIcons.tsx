@@ -2,6 +2,9 @@ import type { ComponentType, ReactElement, ReactNode } from 'react';
 import {
   BlockColorsItem,
   DragHandleMenu,
+  useBlockNoteEditor,
+  useComponentsContext,
+  useExtensionState,
   RemoveBlockItem,
   SideMenu,
   TableColumnHeaderItem,
@@ -9,7 +12,10 @@ import {
   type SideMenuProps,
 } from '@blocknote/react';
 import { DRAG_HANDLE_FUNCTIONS, MenuIcon, SLASH_FUNCTIONS, type MenuFunction } from './menuIcons';
+import { SideMenuExtension } from '@blocknote/core/extensions';
 import { t } from './i18n';
+import { PRESETS } from './columnWidths';
+import { applyLayout, isCurrent, layoutOf } from './columnLayout';
 
 // The editor's own menus take their icons from the same pairing as every
 // other menu (spec 010, research R4). BlockNote draws its / menu with
@@ -35,7 +41,8 @@ export function withPairedIcons<T extends { key?: string; icon?: ReactElement }>
 }
 
 /** The block menu (the drag handle's) is built FROM DRAG_HANDLE_FUNCTIONS, so
- *  its items and the pairing cannot drift apart. The table below is typed by
+ *  BlockNote's items and the pairing cannot drift apart; nigari's own item
+ *  (the column layouts) comes first. The table below is typed by
  *  the pairing's keys: a key added there (because check-menu-icons.mjs reported
  *  a new BlockNote item) fails tsc here until it has its component and label,
  *  instead of passing the check and never showing up. */
@@ -47,9 +54,80 @@ const DRAG_HANDLE_ITEMS: Record<DragHandleKey, { Item: ComponentType<{ children:
   header_column_menuitem: { Item: TableColumnHeaderItem, label: () => t('Header column') },
 };
 
+/** A layout's presets, as a submenu of the block menu (spec 021; the owner's
+ *  call, 2026-11-21: they were a bar floating over the layout). The columns
+ *  block itself has no handle of its own (its row is its columns), so the
+ *  item is in the menu of every block inside a layout and acts on that
+ *  layout; elsewhere it is not shown, as the table items are only for a
+ *  table. Built like BlockNote's own Colour item. A choice among values: a
+ *  submenu. */
+function ColumnLayoutItem() {
+  const Components = useComponentsContext()!;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const editor = useBlockNoteEditor<any, any, any>();
+  const handle = useExtensionState(SideMenuExtension, { editor, selector: (state) => state?.block });
+  const block = editor.isEditable ? layoutOf(editor, handle) : undefined;
+  if (!block) return null;
+  return (
+    <Components.Generic.Menu.Root position="right" sub={true}>
+      <Components.Generic.Menu.Trigger sub={true}>
+        <Components.Generic.Menu.Item className="bn-menu-item" subTrigger={true}>
+          <span className="bn-menu-label">
+            <MenuIcon fn="columnLayout" /> {t('Column layout')}
+          </span>
+        </Components.Generic.Menu.Item>
+      </Components.Generic.Menu.Trigger>
+      <Components.Generic.Menu.Dropdown sub={true} className="bn-menu-dropdown bn-columns-layouts">
+        {PRESETS.map((w) => (
+          <Components.Generic.Menu.Item
+            key={w.join('-')}
+            className="bn-menu-item"
+            checked={isCurrent(block as never, w)}
+            onClick={() => applyLayout(editor, block as never, w)}
+          >
+            <span className="bn-menu-label">
+              <span className="bn-columns-glyph" aria-hidden="true">
+                {w.map((n, i) => (
+                  <i key={i} style={{ flex: n }} />
+                ))}
+              </span>
+              {w.join(' / ') /* i18n-ok: column widths in percent, the same in every language */}
+            </span>
+          </Components.Generic.Menu.Item>
+        ))}
+      </Components.Generic.Menu.Dropdown>
+    </Components.Generic.Menu.Root>
+  );
+}
+
+/** The same layouts in the / menu while the caret is inside a layout: the
+ *  block menu opens only under a pointer, so this is the keyboard's way to
+ *  them (found by review). Empty elsewhere. */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function layoutSlashItems(editor: any) {
+  if (!editor.isEditable) return [];
+  let block;
+  try {
+    block = layoutOf(editor, editor.getTextCursorPosition().block as { id: string; type: string });
+  } catch {
+    return [];
+  }
+  if (!block) return [];
+  const layout = block;
+  return PRESETS.map((w) => ({
+    title: w.join(' / '), // i18n-ok: column widths in percent, the same in every language
+    subtext: t('Column layout'),
+    aliases: ['layout', 'columns', 'spalten', 'aufteilung', 'kolom', 'indeling', 'columnas', 'distribucion'], // i18n-ok: search aliases, deliberately multilingual
+    group: t('Column layout'),
+    icon: slashIcon('columnLayout'),
+    onItemClick: () => applyLayout(editor, layout as never, w),
+  }));
+}
+
 function BlockMenu() {
   return (
     <DragHandleMenu>
+      <ColumnLayoutItem />
       {(Object.keys(DRAG_HANDLE_FUNCTIONS) as DragHandleKey[]).map((key) => {
         const { Item, label } = DRAG_HANDLE_ITEMS[key];
         return (

@@ -17,7 +17,7 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 **Issues**: parent #830 (part of epic #812); tasks T001–T029 are #831–#859
 
 **Delivery**: two pull requests, each from its own branch off `main`.
-- PR 1: the landing spot (US1) and the floating layout bar (US4).
+- PR 1: the landing spot (US1) and the layout presets in the block menu (US4).
 - PR 2: sideways columns, the opening, 4 columns (US2, US3). Start after PR 1 merges: both touch `blocks.tsx`, `styles.css` and `block-drop.mjs`.
 
 **CodeGraph** (before writing these tasks; `codegraph status`: up to date):
@@ -26,18 +26,18 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 - **`holdSideMenuWhileHovered`**: one caller, `BlockContent` in `Editor.tsx:1650`. `blockDrop.ts` is installed beside it (T005).
 - **`moveDivider`**: two callers in `ColumnsBlock` (`at`, `onKey`). **`equalWidths`**: `formatWidths` and `ColumnsBlock`. `insertColumnWidths` and `removeColumnWidths` join them in `columnWidths.ts` (T013).
 - **`columnsFromSections`**: one caller, `mdLinesToBlocks` (`mdimport.go:193`), which is `write_content`'s path. **`renderPublicBlock`**: one caller, `renderPublicBlocks`.
-- **CSS and the Playwright specs are not indexed**: `data-count`, `.bn-columns` and `.bn-columns-bar` come from text search. The specs that touch columns today are `block-handle.mjs` and `column-enter.mjs`.
+- **CSS and the Playwright specs are not indexed**: `data-count`, `.bn-columns` and `.bn-columns-bar` (the bar PR 1 removed) come from text search. The specs that touch columns today are `block-handle.mjs` and `column-enter.mjs`.
 
 ## Format: `[ID] [P?] [Story] [surface] Description`
 
 ---
 
-## PR 1: The line shows where the block lands, and the layout bar floats
+## PR 1: The line shows where the block lands, and the layouts move to the block menu
 
 ### Phase 1: Foundational (the landing decision)
 
-- [ ] T001 [ui] `web/src/dropTarget.ts` (new): a pure function from the pointer and the block boxes under it to a target, `between` (a block and above or below) or `newColumn` (a columns block or an ordinary block, and an edge). One target per gap (R2). In PR 1 it returns only `between`; the `newColumn` branch comes in T010
-- [ ] T002 [P] [test] `web/scripts/check-droptarget.mjs` (new), in `npm run check`: the `between` cases of US1 (the upper and lower half of a column's first and last line, after the columns block, the gap between two plain blocks giving one target). Mutation-check it
+- [x] T001 [ui] `web/src/dropTarget.ts` (new): a pure function from the pointer and the block boxes under it to a target, `between` (a block and above or below) or `newColumn` (a columns block or an ordinary block, and an edge). One target per gap (R2). In PR 1 it returns only `between`; the `newColumn` branch comes in T010
+- [x] T002 [P] [test] `web/scripts/check-droptarget.mjs` (new), in `npm run check`: the `between` cases of US1 (the upper and lower half of a column's first and last line, after the columns block, the gap between two plain blocks giving one target). Mutation-check it
 
 **Checkpoint**: the decision exists and is checked; nothing in the editor uses it yet.
 
@@ -47,25 +47,25 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drag a block to every kind of spot and compare the line with where the block landed.
 
-- [ ] T003 [US1] [ui] `web/src/blockDrop.ts` (new): passes the target to BlockNote's `DropCursorExtension` through `computeDropPosition`, and handles the drop with a ProseMirror `handleDrop` that moves the dragged block to the same target and returns true (R1)
-- [ ] T004 [US1] [ui] Cache the block boxes when a drag starts and on scroll, not per pointer step (SC-003)
-- [ ] T005 [US1] [ui] `web/src/components/Editor.tsx`: one line installing `blockDrop.ts`, next to `holdSideMenuWhileHovered` in `BlockContent` (no behaviour inline in `Editor.tsx`)
-- [ ] T006 [US1] [test] `web/tests/block-drop.mjs` (new), in the test script: a test page with plain blocks and a 3-column layout; SC-001 (every spot lands where the line showed) and SC-002 (no count change without the vertical line); also run in WebKit. Mutation-check it (remove the `handleDrop`)
-- [ ] T007 [US1] [perf] Measure a drag step with the #810 probe on a 300-block page, in Chromium and WebKit, before and after; under 4 ms (SC-003). The numbers go in the PR
+- [x] T003 [US1] [ui] `web/src/blockDrop.ts` (new): draws the line from the target and handles the drop, moving the dragged block to the same target (R1). As built: BlockNote's line is switched off for a block drag through `computeDropPosition` and nigari draws its own, and the drop is taken in a capture listener rather than ProseMirror's `handleDrop` (why: `docs/decisions.md`, 2026-11-21)
+- [x] T004 [US1] [ui] Cache the block boxes when a drag starts and on scroll, not per pointer step (SC-003)
+- [x] T005 [US1] [ui] `web/src/components/Editor.tsx`: one line installing `blockDrop.ts`, next to `holdSideMenuWhileHovered` in `BlockContent` (no behaviour inline in `Editor.tsx`)
+- [x] T006 [US1] [test] `web/tests/block-drop.mjs` (new), in the test script: a test page with plain blocks and a 3-column layout; SC-001 (every spot lands where the line showed) and SC-002 (no count change without the vertical line); also run in WebKit. Mutation-check it (remove the `handleDrop`)
+- [x] T007 [US1] [perf] Measure a drag step with the #810 probe on a 300-block page, in Chromium and WebKit, before and after; under 4 ms (SC-003). The numbers go in the PR
 
-### Phase 3: User Story 4, the layout bar floats instead of taking a line (P2)
+### Phase 3: User Story 4, the layout presets move into the block menu (P2)
 
-**Goal**: a columns block takes no extra line for its layout bar (FR-012, R6).
+**Goal**: a columns block takes no extra line, and its layouts are in the block menu (FR-012, R6). First built as a floating bar; the owner then asked to remove it and put the layouts in the block menu (2026-11-21).
 
-**Independent Test**: the gap between a paragraph and a columns block equals the gap between two paragraphs; showing the bar moves nothing.
+**Independent Test**: the gap between a paragraph and a columns block equals the gap between two paragraphs; a line in a layout offers "Column layout" in its block menu.
 
-- [ ] T008 [P] [US4] [ui] `web/src/styles.css`: `.bn-columns` takes no height; `.bn-columns-bar` is placed absolutely at its top right, over the block's top edge, shown by hover, by `:focus-within` of the columns block and by its own focus; showing it changes only opacity. It stays inside the editor when the columns block is the page's first block. Light and dark; no new literal (`check-tokens.mjs`)
-- [ ] T009 [US4] [test] `block-drop.mjs`: SC-005 (the paragraph-to-columns gap equals paragraph-to-paragraph, measured; showing the bar moves no line, 0 px); the bar shows with the caret in a column, and on Tab. Mutation-check it (put the bar back in the flow)
+- [x] T008 [P] [US4] [ui] `web/src/styles.css`: `.bn-columns` takes no height and the bar is removed. As changed by the owner: the presets are a "Column layout" submenu of the block menu (`slashIcons.tsx`), shown for every block inside a layout and acting on the nearest layout (`columnLayout.ts`), with its own icon (`menuIcons.ts`). Light and dark; no new literal (`check-tokens.mjs`)
+- [x] T009 [US4] [test] `block-drop.mjs`: SC-005 (the paragraph-to-columns gap equals paragraph-to-paragraph, measured; nothing drawn over the line above); the block menu of a line in a layout offers the five layouts and picking one changes the layout; a plain block's menu does not offer it. Mutation-check it
 
 ### Phase 4: PR 1 polish
 
-- [ ] T010 [wiki] `wiki/editor-blocks.md`: the "Not right yet" note from PR #827 goes; the layout bar shows on hover over the layout. Retake the screenshots that list the touched files and look at each
-- [ ] T011 [test] Reviews: `/code-review` (a fresh review agent writing to a scratchpad file), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added. `docs/decisions.md` entry. `scripts/agent-gate.sh` green
+- [x] T010 [wiki] `wiki/editor-blocks.md`: the "Not right yet" note from PR #827 goes; the layouts are in the block menu. Retake the screenshots that list the touched files and look at each
+- [x] T011 [test] Reviews: `/code-review` (a fresh review agent writing to a scratchpad file), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added. `docs/decisions.md` entry. `scripts/agent-gate.sh` green
 
 **Checkpoint**: PR 1 can ship on its own.
 
@@ -75,11 +75,11 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 ### Phase 5: Foundational (widths and four columns)
 
-- [ ] T012 [ui] `dropTarget.ts`: the `newColumn` branch. A column's left or right edge in a row of 2, only the far right edge in a row of 3, none in a row of 4 (Q1); an ordinary top-level block's edges (Q2); no sideways target inside a list or a nested block, on a block's own column, or where columns stack (FR-010)
-- [ ] T013 [P] [ui] `web/src/columnWidths.ts`: `insertColumnWidths(widths, at)` (R4: the largest group of equal columns, within 1%, splits its room with the new column; others keep theirs; no two equal shrinks all in proportion; the 15% floor `MIN_PCT`; whole percent summing to 100) and `removeColumnWidths(widths, at)` (its room goes to its neighbours in proportion)
-- [ ] T014 [P] [test] `check-droptarget.mjs`: the `newColumn` cases, Q1 and FR-010. `check-columnwidths.mjs`: 40/30/30 → 40/20/20/20, 50/50 → 33/33/34, 50/30/20 in proportion, the floor, removal. Mutation-check both
-- [ ] T015 [P] [backend] Four columns in every server reader: `renderPublicBlock` (`server/public_blocks.go`), the print view in `renderBlockHTML` (`server/export_html.go`) and its CSS; `server/columns_test.go` with 4 columns in print, public and the Markdown round trip
-- [ ] T016 [P] [mcp] `columnsFromSections` (`server/mdimport.go`) keeps up to 4 sections and folds from the 5th; the `write_content` spelling text says up to four; tests for 4 kept and a 5th folded. `wiki/mcp-tools.md`: columns up to 4
+- [x] T012 [ui] `dropTarget.ts`: the `newColumn` branch. A column's left or right edge in a row of 2, only the far right edge in a row of 3, none in a row of 4 (Q1); an ordinary top-level block's edges (Q2); no sideways target inside a list or a nested block, on a block's own column, or where columns stack (FR-010)
+- [x] T013 [P] [ui] `web/src/columnWidths.ts`: `insertColumnWidths(widths, at)` (R4: the largest group of equal columns, within 1%, splits its room with the new column; others keep theirs; no two equal shrinks all in proportion; the 15% floor `MIN_PCT`; whole percent summing to 100) and `removeColumnWidths(widths, at)` (its room goes to its neighbours in proportion)
+- [x] T014 [P] [test] `check-droptarget.mjs`: the `newColumn` cases, Q1 and FR-010. `check-columnwidths.mjs`: 40/30/30 → 40/20/20/20, 50/50 → 33/33/34, 50/30/20 in proportion, the floor, removal. Mutation-check both
+- [x] T015 [P] [backend] Four columns in every server reader: `renderPublicBlock` (`server/public_blocks.go`), the print view in `renderBlockHTML` (`server/export_html.go`) and its CSS; `server/columns_test.go` with 4 columns in print, public and the Markdown round trip
+- [x] T016 [P] [mcp] `columnsFromSections` (`server/mdimport.go`) keeps up to 4 sections and folds from the 5th; the `write_content` spelling text says up to four; tests for 4 kept and a 5th folded. `wiki/mcp-tools.md`: columns up to 4
 
 **Checkpoint**: 4 columns read and write everywhere; the drag can now make them.
 
@@ -89,13 +89,13 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drag to each edge of a 2-column layout, watch the line and the opening, move away, drop, check the saved document.
 
-- [ ] T017 [US2] [ui] `blocks.tsx` `ColumnsBlock`: `count` from 2 to 4 (was `count === 3 ? 3 : 2`); a "4 equal" preset in `PRESETS`; editor CSS for `data-count='4'`
-- [ ] T018 [US2] [ui] The vertical line at the target edge in `--color-focus` and `--editor-drop-line-width`, through `computeDropPosition`'s vertical positions
-- [ ] T019 [US2] [ui] The opening (R3): while a `newColumn` target is active, `ColumnsBlock`'s own `<style>` adds an empty track where the new column goes, with a transition on `--motion-duration-base` and `--motion-easing-out`; none under `prefers-reduced-motion` (FR-007). The style changes only when the target changes (SC-003)
-- [ ] T020 [US2] [ui] `blockDrop.ts`: a drop on a `newColumn` target inserts the block as a new column at that place, raises `count` by one and sets the widths with `insertColumnWidths`, in one document change
-- [ ] T021 [US2] [ui] FR-008: a column left empty after a drag goes, with `removeColumnWidths`; a layout left with one column turns back into plain blocks
-- [ ] T022 [P] [US2] [i18n] The screen-reader announcement when a new column will be made, and the "4 equal" preset label: `t()` with de, es and nl
-- [ ] T023 [US2] [test] `block-drop.mjs`: the opening and its reverse, a drop making a column with the Q3 widths, the 3-column far-right case, an emptied middle column going, reduced motion, phone width offering no vertical line; WebKit run. Mutation-check it
+- [x] T017 [US2] [ui] `blocks.tsx` `ColumnsBlock`: `count` from 2 to 4 (was `count === 3 ? 3 : 2`); a "4 equal" preset in `PRESETS` (the block menu's layout submenu); editor CSS for `data-count='4'`
+- [x] T018 [US2] [ui] The vertical line at the target edge in `--color-focus` and `--editor-drop-line-width`, drawn by nigari (`lineFor` in `dropTarget.ts`), as in PR 1
+- [x] T019 [US2] [ui] The opening (R3): while a `newColumn` target is active, `ColumnsBlock`'s own `<style>` adds an empty track where the new column goes, with a transition on `--motion-duration-base` and `--motion-easing-out`; none under `prefers-reduced-motion` (FR-007). The style changes only when the target changes (SC-003)
+- [x] T020 [US2] [ui] `blockDrop.ts`: a drop on a `newColumn` target inserts the block as a new column at that place, raises `count` by one and sets the widths with `insertColumnWidths`, in one document change
+- [x] T021 [US2] [ui] FR-008: a column left empty after a drag goes, with `removeColumnWidths`; a layout left with one column turns back into plain blocks
+- [x] T022 [P] [US2] [i18n] The screen-reader announcement when a new column will be made, and the "4 equal" preset label: `t()` with de, es and nl
+- [x] T023 [US2] [test] `block-drop.mjs`: the opening and its reverse, a drop making a column with the Q3 widths, the 3-column far-right case, an emptied middle column going, reduced motion, phone width offering no vertical line. WebKit not run: this environment has Chromium only (said in the PR). Mutation-check it
 
 ### Phase 7: User Story 3, a sideways drop beside an ordinary block (P2)
 
@@ -103,14 +103,14 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 **Independent Test**: drop a paragraph at another's right edge; the saved document holds a columns block of two, in that order.
 
-- [ ] T024 [US3] [ui] `blockDrop.ts`: a drop at an ordinary top-level block's edge wraps the two in a new columns block of two equal columns, the dropped block left or right by edge; the vertical line only, no opening (R3)
-- [ ] T025 [US3] [test] `block-drop.mjs`: the left and right edge cases, and no line inside a list or a nested block. Mutation-check it
+- [x] T024 [US3] [ui] `blockDrop.ts`: a drop at an ordinary top-level block's edge wraps the two in a new columns block of two equal columns, the dropped block left or right by edge; the vertical line only, no opening (R3)
+- [x] T025 [US3] [test] `block-drop.mjs`: the left and right edge cases, and no line inside a list or a nested block. Mutation-check it
 
 ### Phase 8: PR 2 polish, release and Umbrel
 
-- [ ] T026 [wiki] `wiki/editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, the widths rule). Retake the screenshots that list the touched files and look at each
-- [ ] T027 [perf] SC-003 again with the opening on: the #810 probe, Chromium and WebKit, under 4 ms per step
-- [ ] T028 [test] Reviews: `/code-review` (fresh agent), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added or moved. `docs/decisions.md` entry. The PR says a page with 4 columns shows as 2 in an older version (release notes). `scripts/agent-gate.sh` green
+- [x] T026 [wiki] `wiki/editor-blocks.md`: dragging (the two lines, sideways columns, up to 4, the widths rule). Retake the screenshots that list the touched files and look at each
+- [x] T027 [perf] SC-003 again with the opening on: the #810 probe, Chromium, under 4 ms per step (measured 0.47 ms script at most); WebKit not run here
+- [x] T028 [test] Reviews: `/code-review` (fresh agent), `ux-ui-audit` light and dark, desktop and phone; `codegraph sync`, then `codegraph callers` on every exported symbol added or moved. `docs/decisions.md` entry. The PR says a page with 4 columns shows as 2 in an older version (release notes). `scripts/agent-gate.sh` green
 - [ ] T029 [backend] After PR 2 merges (owner, 2026-11-21: "after this big change to update the nigari umbrel version"): check the release and its `umbrel-store` job, which opens the store pull request on `neatlittlemacapps/yokogaki-umbrel` (rule 32), and give the owner its link to merge; then confirm the Umbrel runs the new version. Nigari's own `umbrel/` pin stays as it is (rule 32)
 
 ---
@@ -131,5 +131,5 @@ description: "Tasks for dragging a block into columns, in two pull requests"
 
 ## Implementation strategy
 
-- **MVP**: PR 1. Dragging becomes predictable (US1) and the layout bar no longer takes a line (US4), before anything new is added.
+- **MVP**: PR 1. Dragging becomes predictable (US1) and a columns block no longer takes a line for its layout bar, whose layouts move to the block menu (US4), before anything new is added.
 - **Then** PR 2: the sideways gesture (US2) with 4 columns everywhere, and Notion-style side by side (US3).

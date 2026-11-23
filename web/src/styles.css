@@ -9863,43 +9863,18 @@ body:has(.live-down) .update-banner {
 .bn-columns {
   width: 100%;
 }
+/* The strip takes no room (spec 021, Story 4): a columns block starts where
+   its first line starts, like any other block. Its layouts are in the block
+   handle's menu (slashIcons.tsx), not on a bar over the block. */
+.bn-block-content[data-content-type='columns'] {
+  padding: 0;
+}
 .bn-columns {
   position: relative;
-  display: flex;
-  justify-content: flex-end;
-  padding: 2px 0;
+  height: 0;
 }
-.bn-columns-bar {
-  display: flex;
-  gap: 4px;
-  opacity: 0;
-  transition: opacity 0.12s;
-}
-/* Two forms, as for the row below: BlockNote wraps a React block in a
-   .react-renderer between the block and its content, so the plain child chain
-   alone never matched and the bar only ever showed when it had focus. */
-.bn-block:hover > .bn-block-content > .bn-columns .bn-columns-bar,
-.bn-block:hover > * > .bn-block-content > .bn-columns .bn-columns-bar,
-.bn-columns-bar:focus-within {
-  opacity: 1;
-}
-.bn-columns-n {
-  font: inherit;
-  font-size: 12px;
-  line-height: 1;
-  cursor: pointer;
-  padding: 3px 8px;
-  border-radius: 6px;
-  border: 1px solid var(--border, #e3e2df);
-  background: transparent;
-  color: var(--muted, #8a8a85);
-}
-.bn-columns-n.is-on {
-  background: var(--accent-soft, #e8f2ec);
-  color: var(--accent, #2f7d4f);
-  border-color: transparent;
-}
-/* A layout drawn as itself: one little bar per column, as wide as the column. */
+/* A layout drawn as itself, in the block menu's layout submenu: one little
+   bar per column, as wide as the column. */
 .bn-columns-glyph {
   display: flex;
   gap: 2px;
@@ -9911,14 +9886,6 @@ body:has(.live-down) .update-banner {
   border-radius: 2px;
   background: currentColor;
   opacity: 0.6;
-}
-.bn-columns-sr {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
 }
 /* The divider between two columns and the grip that resizes them are ONE
    element, so the line you see is the thing you drag. The 12px box is only the
@@ -10016,6 +9983,11 @@ body:has(.live-down) .update-banner {
 .bn-block:has(> .bn-block-content[data-content-type='columns'][data-count='3']) > .bn-block-group,
 .bn-block:has(> * > .bn-block-content[data-content-type='columns'][data-count='3']) > .bn-block-group {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+/* Four, the most (spec 021, R5): after three for the same reason. */
+.bn-block:has(> .bn-block-content[data-content-type='columns'][data-count='4']) > .bn-block-group,
+.bn-block:has(> * > .bn-block-content[data-content-type='columns'][data-count='4']) > .bn-block-group {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 /* Diagram block. The picture is a button, because clicking it is how you get to
@@ -10366,4 +10338,25 @@ body:has(.live-down) .update-banner {
 }
 .editor-page.in-dialog .topbar {
   display: none;
+}
+
+/* The line that shows where a dragged block lands (spec 021, blockDrop.ts):
+   drawn by nigari for a block from the handle, in the place the drop will
+   really put it. Same colour and width as BlockNote's line for text (#809).
+   On the body, so the layer is above the peek panel (90) and the template
+   dialog (100) whose editors take block drags too. */
+/* Read out, never seen: what a drop at an edge would make (blockDrop.ts). */
+.nigari-drop-say {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.nigari-drop-line {
+  position: fixed;
+  z-index: var(--layer-dropdown);
+  pointer-events: none;
+  background: var(--color-focus);
 }

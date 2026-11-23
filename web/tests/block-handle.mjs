@@ -87,7 +87,8 @@ await withFixture(async ({ page, api, base, workspace }) => {
     await page.mouse.move(from.x - 10 + (to.x + 30 - from.x + 10) * i / steps, from.y + 12 + (to.y + to.height * 0.8 - from.y - 12) * i / steps);
     if (i === steps - 5) {
       line = await page.evaluate(() => {
-        const l = document.querySelector('[class*="prosemirror-dropcursor"]');
+        // A block from the handle: nigari draws the line (spec 021, blockDrop.ts).
+        const l = document.querySelector('.nigari-drop-line');
         if (!l) return null;
         const probe = document.createElement('span');
         probe.style.color = 'var(--color-focus)';
@@ -100,8 +101,6 @@ await withFixture(async ({ page, api, base, workspace }) => {
   }
   assert(line, 'no drop line while dragging a block');
   assert.equal(line.colour, line.focus, 'the drop line is not the focus colour');
-  // BlockNote divides the width by the editor's scale, so it comes out a hair
-  // under 2 (1.98 measured); rounded, it is the token.
   assert.equal(Math.round(line.height), 2, 'the drop line is not 2px');
   await page.mouse.up();
   let content;

@@ -66,6 +66,27 @@ try {
       cw.parseWidths(cw.formatWidths(p), p.length) ?? cw.equalWidths(p.length), [...p]);
   }
 
+  // ---- A new column (spec 021, Q3: the owner's rule and Claude's defaults) ----
+  check('40/30/30 + one at the end', cw.insertColumnWidths([40, 30, 30], 3), [40, 20, 20, 20]);
+  check('50/50 + one at the end', cw.insertColumnWidths([50, 50], 2), [33, 33, 34]);
+  check('50/50 + one at the start', cw.insertColumnWidths([50, 50], 0), [33, 33, 34]);
+  check('thirds + one: four equal', cw.insertColumnWidths([33, 33, 34], 3), [25, 25, 25, 25]);
+  check('70/30 + one in the middle: in proportion', cw.insertColumnWidths([70, 30], 1), [47, 33, 20]);
+  check('50/30/20 + one: in proportion', cw.insertColumnWidths([50, 30, 20], 3), [37, 23, 15, 25]);
+  check('a column of its own width keeps it', cw.insertColumnWidths([25, 50, 25], 3)[1], 50);
+  check('the floor: 60/20/20 + one shrinks all in proportion', cw.insertColumnWidths([60, 20, 20], 3), [45, 15, 15, 25]);
+  check('the floor, still under it: four equal', cw.insertColumnWidths([70, 15, 15], 3), [25, 25, 25, 25]);
+  check('the new column sits where it was put', cw.insertColumnWidths([40, 30, 30], 0), [20, 40, 20, 20]);
+  for (const [w, at] of [[[50, 50], 1], [[70, 30], 2], [[40, 30, 30], 0], [[33, 33, 34], 2]]) {
+    check(`${w.join('/')} + one at ${at} sums to 100`, cw.insertColumnWidths(w, at).reduce((a, b) => a + b, 0), 100);
+  }
+
+  // ---- A column goes (FR-008): its room to its neighbours ----
+  check('the last of two', cw.removeColumnWidths([70, 30], 1), [100]);
+  check('the middle of three, in proportion', cw.removeColumnWidths([25, 50, 25], 1), [50, 50]);
+  check('the first of three', cw.removeColumnWidths([20, 40, 40], 0), [60, 40]);
+  check('the middle of four', cw.removeColumnWidths([25, 25, 25, 25], 1), [37, 38, 25]);
+
   check('grid template', cw.gridTemplate([70, 30]), 'minmax(0,70fr) minmax(0,30fr)');
 
   let fail = 0;

@@ -94,7 +94,7 @@ const blockSpellingHint = `Blocks beyond plain Markdown, each on its own lines: 
 	`callout "> [!NOTE]" (or TIP, IMPORTANT, WARNING, CAUTION) then "> text"; ` +
 	`toggle "<details><summary>Title</summary>" … "</details>"; divider "---"; ` +
 	`table of contents "[[toc]]"; sub-pages list "[[subpages]]"; bookmark "<https://…>"; ` +
-	`columns ":::: columns" with "::: column" (or "::: {.column width=\"70%\"}") sections each closed by ":::", then "::::".`
+	`columns ":::: columns" with 2 to 4 "::: column" (or "::: {.column width=\"70%\"}") sections each closed by ":::", then "::::".`
 
 // parseInline converts inline markdown to BlockNote inline content.
 func parseInline(md string) []any {
@@ -431,11 +431,11 @@ func mdLinesToBlocks(lines []string) []*mBlock {
 var selfLinkRe = regexp.MustCompile(`^\[(https?://[^\]\s]+)\]\((https?://[^)\s]+)\)$`)
 
 // columnsFromSections turns ":::: columns" sections into blocks (research
-// R2). The editor makes two or three columns, and holds each as ONE block
-// whose children are the rest of that column (blocks.tsx, ColumnsBlock), so a
-// section's first block is the column and the others go under it. One
-// section is no layout and its blocks stand on their own; past three, the
-// extra sections join the third, so nothing is lost.
+// R2). The editor makes two to four columns (spec 021, R5), and holds each as
+// ONE block whose children are the rest of that column (blocks.tsx,
+// ColumnsBlock), so a section's first block is the column and the others go
+// under it. One section is no layout and its blocks stand on their own; past
+// four, the extra sections join the fourth, so nothing is lost.
 func columnsFromSections(sections [][]string, widths []float64) []*mBlock {
 	if len(sections) == 0 {
 		return nil
@@ -443,11 +443,12 @@ func columnsFromSections(sections [][]string, widths []float64) []*mBlock {
 	if len(sections) == 1 {
 		return mdLinesToBlocks(sections[0])
 	}
-	if len(sections) > 3 {
-		for _, extra := range sections[3:] {
-			sections[2] = append(append(sections[2], ""), extra...)
+	if len(sections) > maxColumns {
+		last := maxColumns - 1
+		for _, extra := range sections[maxColumns:] {
+			sections[last] = append(append(sections[last], ""), extra...)
 		}
-		sections, widths = sections[:3], nil
+		sections, widths = sections[:maxColumns], nil
 	}
 	cols := make([]*mBlock, 0, len(sections))
 	for _, sec := range sections {

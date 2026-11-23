@@ -86,7 +86,11 @@ and from the measurements in #812:
   or, better yet, somehow make it overlap (hover or something) instead of
   having it take up space on the page" (owner). Claude's reading, stated to
   the owner: keep the bar, float it over the block's top edge when shown, so
-  the layout takes no line of its own (Story 4).
+  the layout takes no line of its own (Story 4). Built that way, the shown
+  bar covered the end of the line above, and a tap there hit a preset. The
+  owner's answer (2026-11-21): "Perhaps just remove it and add the functions
+  in the options menu for the columns block". So the bar is gone, and the
+  presets are a "Column layout" submenu of the block menu.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -173,33 +177,39 @@ with the two paragraphs, in that order.
 
 ---
 
-### User Story 4 - The layout bar floats instead of taking a line (Priority: P2)
+### User Story 4 - The layout presets move into the block menu (Priority: P2)
 
-The row of layout buttons above a columns block (two equal, 70 / 30 …) is
-hidden until the pointer is over the layout, but today it still holds a line
-of its own above the columns, empty most of the time. It floats over the
-block's top edge instead, so a columns block starts where its first line
-starts, like any other block.
+The row of layout buttons above a columns block (two equal, 70 / 30 …) held
+a line of its own above the columns, empty most of the time. The bar goes:
+a columns block starts where its first line starts, like any other block,
+and its layouts are a "Column layout" submenu in the block menu (the menu
+behind the block handle). A columns block has no handle of its own (its row
+is its columns), so the submenu is in the menu of every line inside a
+layout, and it changes that layout.
 
 **Why this priority**: the owner's ask (2026-11-21). Small and on its own,
 so it goes in the first pull request.
 
 **Independent Test**: put a paragraph above a columns block and compare the
-gap between them with the gap between two paragraphs; hover the layout and
-check the bar shows without moving anything; tab into the bar.
+gap between them with the gap between two paragraphs; open the block menu
+of a line in a column and pick a layout.
 
 **Acceptance Scenarios**:
 
-1. **Given** a columns block under a paragraph, **When** nothing is
-   hovered, **Then** the space between them is the same as between two
-   paragraphs.
-2. **Given** that page, **When** the pointer is over the layout, **Then**
-   the bar shows at the top right, over the block's top edge, and no line
-   on the page moves.
-3. **Given** the caret in a column, or keyboard focus in the bar, **When**
-   no pointer hovers (a phone, the keyboard), **Then** the bar shows.
-4. **Given** a page that cannot be edited, **Then** there is no bar and no
-   space for one (as today).
+1. **Given** a columns block under a paragraph, **Then** the space between
+   them is the same as between two paragraphs, and nothing is drawn over
+   the paragraph.
+2. **Given** a line inside a layout, **When** its block menu is opened,
+   **Then** it offers "Column layout" with the five layouts, and picking one
+   changes that layout (a three-column layout adds the third column, as the
+   bar did).
+2a. **Given** the caret in a line inside a layout, **When** "/" is typed,
+   **Then** the / menu offers the same five layouts (the keyboard's way: the
+   block menu opens only under a pointer or a tap).
+3. **Given** a block outside any layout, **Then** its block menu has no
+   "Column layout".
+4. **Given** a page that cannot be edited, **Then** there is no block menu,
+   as today.
 
 ---
 
@@ -224,12 +234,8 @@ check the bar shows without moving anything; tab into the bar.
 - **A phone-width page**, where columns stack (`server/columns.go`, editor
   CSS): sideways makes no sense there, so only the horizontal line is
   offered.
-- **The bar over the line above**: the bar floats above the columns'
-  first line, in the gap above the block, and may cover part of the block
-  above while it shows. It sits at the right, where a line's text usually
-  ends, and it hides when the pointer leaves the layout.
-- **The first block of a page is a columns block**: the bar must stay inside
-  the editor, not under the page title or cover.
+- **A layout inside a column**: the block menu of a line in the inner
+  layout changes the inner layout (the nearest one).
 - **Two people editing** the same page: the drop is one change to the
   document, like any other edit (Yjs).
 
@@ -271,11 +277,11 @@ check the bar shows without moving anything; tab into the bar.
   today), so each MUST take a count of 4.
 - **FR-010**: Sideways drops MUST NOT be offered where columns stack (phone
   width).
-- **FR-012**: The layout bar MUST take no space in the page: a columns
-  block's first line MUST start where a paragraph's would. The bar MUST show
-  over the block's top edge while the pointer is over the layout, the caret
-  is inside it, or the bar has keyboard focus, and showing it MUST NOT move
-  any line (Story 4).
+- **FR-012**: A columns block MUST take no space above its first line: its
+  first line MUST start where a paragraph's would, and nothing of it is
+  drawn over the block above. Its layouts MUST be offered in the block menu
+  of every line inside it, and in the / menu while the caret is inside it,
+  and nowhere else (Story 4).
 - **FR-011**: Dragging MUST stay smooth: the opening and the line MUST NOT
   add a noticeable delay to a drag (see SC-003, and #810).
 
@@ -286,7 +292,7 @@ check the bar shows without moving anything; tab into the bar.
   of a column, drawn as a vertical line with the room opened).
 - **Columns block**: `count` (2 to 4, up from 2 or 3) and `widths`.
   Changed only by a drop that makes or empties a column, or as today by the
-  layout bar and the grip.
+  layout submenu and the grip.
 
 ## Success Criteria *(mandatory)*
 
@@ -301,8 +307,7 @@ check the bar shows without moving anything; tab into the bar.
   costs under 4ms of script and style work on a 300-block page (#810
   measured 0.5–1ms per step before this feature).
 - **SC-005**: The gap between a paragraph and a columns block below it equals
-  the gap between two paragraphs, measured in the browser test; showing the
-  bar moves no line (0px).
+  the gap between two paragraphs, measured in the browser test.
 - **SC-004**: The owner drags a block into a new column in Safari on the
   first try, without explanation.
 

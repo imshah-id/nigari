@@ -129,12 +129,14 @@ await withFixture(async ({ page, api, base, workspace, path }) => {
   await eventually(() => isFocused(tab)).catch(async () => assert.fail('Rename view: focus did not return to the tab, it is on: ' + (await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 120)))));
   // The view options (⋯) are the view's Settings menu since spec 012; how
   // rows open is its "Open rows in" submenu, reached with → from the keyboard.
+  // Since spec 018 (#469) the menu opens on its Layout submenu, which shows
+  // the current layout beside its name ("Layout Table"), above Rename view.
   const viewOptions = page.locator('.collection-toolbar').getByRole('button', { name: 'Settings', exact: true });
   await viewOptions.focus();
   await page.keyboard.press('Enter');
   const optionsMenu = page.getByRole('menu', { name: /view settings$/ });
   await optionsMenu.waitFor();
-  await eventually(async () => (await focused()) === 'Rename view').catch(() => assert.fail('view settings: Enter did not land on Rename view'));
+  await eventually(async () => /^Layout\s*Table$/.test(await focused())).catch(async () => assert.fail('view settings: Enter did not land on Layout, focus: ' + (await focused())));
   for (let i = 0; i < 6 && !/^Open rows in/.test(await focused()); i++) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowRight');
   const openRows = page.getByRole('menu').filter({ has: page.getByRole('menuitemradio', { name: 'Side peek' }) });
